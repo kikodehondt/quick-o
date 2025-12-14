@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
 import { BookOpen, Plus, Trophy, Sparkles } from 'lucide-react'
-import { supabase, VocabSet } from './lib/supabase'
+import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import CreateSetModal from './components/CreateSetModal'
 import StudyMode from './components/StudyMode'
+import TypingMode from './components/TypingMode'
+import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 
 function App() {
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
+  const [studySettings, setStudySettings] = useState<StudySettings | null>(null)
   const [isStudying, setIsStudying] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -49,17 +53,28 @@ function App() {
 
   function handleStartStudy(set: VocabSet) {
     setSelectedSet(set)
+    setShowSettingsModal(true)
+  }
+
+  function handleSettingsConfirm(settings: StudySettings) {
+    setStudySettings(settings)
+    setShowSettingsModal(false)
     setIsStudying(true)
   }
 
   function handleEndStudy() {
     setIsStudying(false)
     setSelectedSet(null)
+    setStudySettings(null)
     loadSets()
   }
 
-  if (isStudying && selectedSet) {
-    return <StudyMode set={selectedSet} onEnd={handleEndStudy} />
+  if (isStudying && selectedSet && studySettings) {
+    if (studySettings.mode === 'typing') {
+      return <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+    } else {
+      return <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+    }
   }
 
   return (
@@ -125,6 +140,18 @@ function App() {
           <CreateSetModal
             onClose={() => setShowCreateModal(false)}
             onSetCreated={handleSetCreated}
+          />
+        )}
+
+        {/* Study Settings Modal */}
+        {showSettingsModal && selectedSet && (
+          <StudySettingsModal
+            set={selectedSet}
+            onClose={() => {
+              setShowSettingsModal(false)
+              setSelectedSet(null)
+            }}
+            onStart={handleSettingsConfirm}
           />
         )}
       </div>

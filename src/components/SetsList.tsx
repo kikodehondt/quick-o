@@ -40,8 +40,13 @@ export default function SetsList({ sets, onStartStudy, onDelete }: SetsListProps
                 {set.name}
               </h3>
               {set.description && (
-                <p className="text-sm text-gray-600 mb-3">{set.description}</p>
+                <p className="text-sm text-gray-600 mb-2">{set.description}</p>
               )}
+              <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg font-medium">
+                  {set.language1} → {set.language2}
+                </span>
+              </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <BookOpen className="w-4 h-4" />
                 <span>{set.word_count || 0} woordjes</span>

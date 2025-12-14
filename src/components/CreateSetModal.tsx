@@ -11,6 +11,8 @@ interface CreateSetModalProps {
 export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [language1, setLanguage1] = useState('Nederlands')
+  const [language2, setLanguage2] = useState('Frans')
   const [vocabText, setVocabText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -43,7 +45,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
       // Create the set
       const { data: setData, error: createSetError } = await supabase
         .from('vocab_sets')
-        .insert([{ name, description }])
+        .insert([{ name, description, language1, language2 }])
         .select()
         .single()
 
@@ -52,8 +54,8 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
       // Insert word pairs
       const wordsToInsert = wordPairs.map(pair => ({
         set_id: setData.id,
-        dutch: pair.dutch,
-        french: pair.french
+        word1: pair.word1,
+        word2: pair.word2
       }))
 
       const { error: wordsError } = await supabase
@@ -114,6 +116,33 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Eerste Taal *
+              </label>
+              <input
+                type="text"
+                value={language1}
+                onChange={(e) => setLanguage1(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+                placeholder="Bijv. Nederlands"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tweede Taal *
+              </label>
+              <input
+                type="text"
+                value={language2}
+                onChange={(e) => setLanguage2(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+                placeholder="Bijv. Frans"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               <FileText className="w-4 h-4 inline mr-2" />
@@ -124,10 +153,10 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               onChange={(e) => setVocabText(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors font-mono text-sm"
               rows={10}
-              placeholder="huis, maison; kat, chat; hond, chien; boek, livre"
+              placeholder={`${language1}, ${language2}; ${language1}2, ${language2}2`}
             />
             <p className="text-sm text-gray-500 mt-2">
-              Formaat: <code className="bg-gray-100 px-2 py-1 rounded">nederlands, frans; nederlands2, frans2</code>
+              Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1}, {language2}; {language1}2, {language2}2</code>
             </p>
           </div>
 

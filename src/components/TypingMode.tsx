@@ -1,26 +1,36 @@
-import { useState, useEffect } from 'react'
-import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
-import { shuffleArray } from '../lib/utils'
+import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 
-interface StudyModeProps {
+interface TypingModeProps {
   set: VocabSet
   settings: StudySettings
   onEnd: () => void
 }
 
-export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
+export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
   const [words, setWords] = useState<WordPair[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [showAnswer, setShowAnswer] = useState(false)
+  const [userAnswer, setUserAnswer] = useState('')
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [isCorrect, setIsCorrect] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [incorrectCount, setIncorrectCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
+  const [showHint, setShowHint] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadWords()
   }, [])
+
+  useEffect(() => {
+    if (!showFeedback && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [currentIndex, showFeedback])
 
   async function loadWords() {
     try {
@@ -60,18 +70,34 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }
   }
 
-  function handleCorrect() {
-    setCorrectCount(prev => prev + 1)
-    nextWord()
-  }
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    
+    if (!userAnswer.trim() || showFeedback) return
 
-  function handleIncorrect() {
-    setIncorrectCount(prev => prev + 1)
-    nextWord()
+    const currentWord = words[currentIndex]
+    const correct = checkAnswer(
+      userAnswer,
+      currentWord.word2,
+      settings.caseSensitive,
+      settings.accentSensitive
+    )
+
+    setIsCorrect(correct)
+    setShowFeedback(true)
+
+    if (correct) {
+      setCorrectCount(prev => prev + 1)
+    } else {
+      setIncorrectCount(prev => prev + 1)
+    }
   }
 
   function nextWord() {
-    setShowAnswer(false)
+    setShowFeedback(false)
+    setUserAnswer('')
+    setShowHint(false)
+
     if (currentIndex >= words.length - 1) {
       setFinished(true)
       saveProgress()
@@ -86,7 +112,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         .from('study_progress')
         .upsert({
           set_id: set.id!,
-          correct_count: correctCount + 1,
+          correct_count: correctCount,
           incorrect_count: incorrectCount,
           last_studied: new Date().toISOString()
         }, {
@@ -103,9 +129,18 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     setCurrentIndex(0)
     setCorrectCount(0)
     setIncorrectCount(0)
-    setShowAnswer(false)
+    setUserAnswer('')
+    setShowFeedback(false)
+    setShowHint(false)
     setFinished(false)
     setWords(shuffleArray(words))
+  }
+
+  function getHint() {
+    const currentWord = words[currentIndex]
+    const answer = currentWord.word2
+    const hintLength = Math.ceil(answer.length * 0.3)
+    return answer.substring(0, hintLength) + '...'
   }
 
   if (loading) {
@@ -138,7 +173,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   if (finished) {
     const total = correctCount + incorrectCount
-    const percentage = Math.round((correctCount / total) * 100)
+    const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
 
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -202,6 +237,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   const currentWord = words[currentIndex]
   const progress = ((currentIndex + 1) / words.length) * 100
+  const similarity = userAnswer ? calculateSimilarity(userAnswer, currentWord.word2) : 0
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8">
@@ -240,47 +276,117 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Flashcard */}
+        {/* Question Card */}
         <div className="flex-1 flex items-center justify-center mb-8">
-          <div
-            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer hover:scale-105 transition-all duration-300 ${
-              showAnswer ? 'bg-gradient-to-br from-purple-50 to-pink-50' : ''
-            }`}
-            onClick={() => setShowAnswer(!showAnswer)}
-          >
-            <div className="text-center">
+          <div className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl">
+            <div className="text-center mb-8">
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-wide">
-                {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
+                Vertaal naar {settings.direction === 'reverse' ? set.language1 : set.language2}
               </p>
-              <p className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                {showAnswer ? currentWord.word2 : currentWord.word1}
+              <p className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                {currentWord.word1}
               </p>
-              {!showAnswer && (
-                <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
+
+              {/* Input Form */}
+              {!showFeedback && (
+                <form onSubmit={handleSubmit}>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors mb-4"
+                    placeholder="Type je antwoord..."
+                    autoComplete="off"
+                    autoFocus
+                  />
+                  
+                  {/* Hint Button */}
+                  {!showHint && userAnswer.length === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowHint(true)}
+                      className="text-purple-600 hover:text-purple-700 text-sm font-semibold flex items-center gap-2 mx-auto mb-4"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      Hint tonen
+                    </button>
+                  )}
+
+                  {/* Hint */}
+                  {showHint && (
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 mb-4">
+                      <p className="text-blue-700 font-mono text-lg">{getHint()}</p>
+                    </div>
+                  )}
+
+                  {/* Similarity Indicator */}
+                  {userAnswer.length > 0 && !showFeedback && (
+                    <div className="mb-4">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            similarity > 70 ? 'bg-green-500' : similarity > 40 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${similarity}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={!userAnswer.trim()}
+                    className="w-full btn-gradient text-white px-8 py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                  >
+                    Controleren
+                  </button>
+                </form>
+              )}
+
+              {/* Feedback */}
+              {showFeedback && (
+                <div className="space-y-6">
+                  <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      {isCorrect ? (
+                        <>
+                          <CheckCircle className="w-8 h-8 text-green-600" />
+                          <span className="text-2xl font-bold text-green-700">Correct!</span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-8 h-8 text-red-600" />
+                          <span className="text-2xl font-bold text-red-700">Fout</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {!isCorrect && (
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-sm text-gray-600">Jouw antwoord:</p>
+                          <p className="text-xl font-semibold text-red-600">{userAnswer}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Correct antwoord:</p>
+                          <p className="text-xl font-semibold text-green-600">{currentWord.word2}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={nextWord}
+                    className="w-full btn-gradient text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity"
+                  >
+                    Volgende
+                  </button>
+                </div>
               )}
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        {showAnswer && (
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={handleIncorrect}
-              className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors flex items-center gap-3 card-shadow"
-            >
-              <XCircle className="w-6 h-6" />
-              Fout
-            </button>
-            <button
-              onClick={handleCorrect}
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors flex items-center gap-3 card-shadow"
-            >
-              <CheckCircle className="w-6 h-6" />
-              Correct
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )

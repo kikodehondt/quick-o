@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS vocab_sets (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
+  language1 TEXT DEFAULT 'Nederlands',
+  language2 TEXT DEFAULT 'Frans',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -13,8 +15,8 @@ CREATE TABLE IF NOT EXISTS vocab_sets (
 CREATE TABLE IF NOT EXISTS word_pairs (
   id BIGSERIAL PRIMARY KEY,
   set_id BIGINT NOT NULL REFERENCES vocab_sets(id) ON DELETE CASCADE,
-  dutch TEXT NOT NULL,
-  french TEXT NOT NULL,
+  word1 TEXT NOT NULL,
+  word2 TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
