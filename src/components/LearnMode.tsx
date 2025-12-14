@@ -50,6 +50,18 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     }
   }, [currentIndex, showFeedback])
 
+  // Enter tijdens feedback (bij fout) schakelt terug naar typen
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (showFeedback && !isCorrect && e.key === 'Enter') {
+        e.preventDefault()
+        nextWord()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showFeedback, isCorrect, currentIndex, activeWords])
+
   // Rebuild words when direction or shuffle changes
   useEffect(() => {
     if (initialized) {
