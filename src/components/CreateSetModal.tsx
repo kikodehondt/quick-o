@@ -58,7 +58,16 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
         .map(t => t.trim())
         .filter(t => t.length > 0)
 
-      const link_code = generateLinkCode(10)
+      // Genereer unieke link_code met retry bij toevallige collision
+      let link_code = generateLinkCode(10)
+      for (let i = 0; i < 5; i++) {
+        const { data: exists } = await supabase
+          .from('vocab_sets')
+          .select('id')
+          .eq('link_code', link_code)
+        if (!exists || exists.length === 0) break
+        link_code = generateLinkCode(10)
+      }
 
       // Create the set
       const { data: setData, error: createSetError } = await supabase

@@ -23,6 +23,7 @@ function App() {
   const [filterDirection, setFilterDirection] = useState('')
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     loadSets()
@@ -184,7 +185,7 @@ function App() {
               <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-4 text-white/80 mt-6">
+          <div className="flex items-center justify-center gap-4 text-white/80 mt-6 flex-wrap">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
               <BookOpen className="w-5 h-5" />
               <span>{sets.length} Sets</span>
@@ -197,39 +198,77 @@ function App() {
               <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>
+            {/* Subtiele zoekbalk */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10">
+              <input
+                value={search}
+                onChange={(e)=>setSearch(e.target.value)}
+                className="bg-transparent text-white placeholder:text-white/60 focus:outline-none text-sm w-40"
+                placeholder="Zoek sets..."
+              />
+              <button
+                className="text-white/80 hover:text-white text-sm"
+                onClick={async ()=>{
+                  setLoading(true)
+                  let query = supabase.from('vocab_sets').select('*')
+                  if (search) {
+                    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+                  }
+                  const { data, error } = await query
+                  if (!error && data) setSets(data as any)
+                  setLoading(false)
+                }}
+              >Zoek</button>
+              <button
+                className="ml-2 px-2 py-1 rounded-lg bg-white/10 border border-white/10 text-white/80 hover:bg-white/20 text-sm"
+                onClick={()=>setShowFilters((v)=>!v)}
+                title="Geavanceerde filters"
+              >Filters</button>
+            </div>
           </div>
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-3xl p-6 card-shadow mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <input value={search} onChange={(e)=>setSearch(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Zoeken op naam/beschrijving" />
-            <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="School" />
-            <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Richting" />
+        {showFilters && (
+          <div className="bg-white rounded-3xl p-6 card-shadow mb-8">
+            <h3 className="text-xl font-bold mb-3">Geavanceerde filters</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="School" />
+              <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Richting" />
+              <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Jaar" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Tags (komma-gescheiden)" />
+              <div className="col-span-2 flex items-center gap-3">
+                <button
+                  className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold"
+                  onClick={async ()=>{
+                    setLoading(true)
+                    const tagArray = filterTags.split(',').map(t=>t.trim()).filter(Boolean)
+                    let query = supabase.from('vocab_sets').select('*')
+                    if (search) {
+                      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+                    }
+                    if (filterSchool) query = query.ilike('school', `%${filterSchool}%`)
+                    if (filterDirection) query = query.ilike('direction', `%${filterDirection}%`)
+                    if (filterYear) query = query.ilike('year', `%${filterYear}%`)
+                    if (tagArray.length) query = query.contains('tags', tagArray)
+                    const { data, error } = await query
+                    if (!error && data) setSets(data as any)
+                    setLoading(false)
+                    setShowFilters(false)
+                  }}
+                >Zoek</button>
+                <button
+                  className="px-4 py-3 rounded-xl bg-gray-100 text-gray-800 font-semibold border border-gray-300"
+                  onClick={()=>{
+                    setFilterSchool(''); setFilterDirection(''); setFilterYear(''); setFilterTags('')
+                  }}
+                >Wis filters</button>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Jaar" />
-            <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Tags (komma-gescheiden)" />
-            <button
-              className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold"
-              onClick={async ()=>{
-                setLoading(true)
-                const tagArray = filterTags.split(',').map(t=>t.trim()).filter(Boolean)
-                let query = supabase.from('vocab_sets').select('*')
-                if (search) {
-                  query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
-                }
-                if (filterSchool) query = query.ilike('school', `%${filterSchool}%`)
-                if (filterDirection) query = query.ilike('direction', `%${filterDirection}%`)
-                if (filterYear) query = query.ilike('year', `%${filterYear}%`)
-                if (tagArray.length) query = query.contains('tags', tagArray)
-                const { data, error } = await query
-                if (!error && data) setSets(data as any)
-                setLoading(false)
-              }}
-            >Zoek</button>
-          </div>
-        </div>
+        )}
 
         {/* Create Set Button */}
         <div className="flex justify-center mb-8">
