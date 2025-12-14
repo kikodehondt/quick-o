@@ -103,7 +103,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <span className="font-medium">{set.language1} → {set.language2}</span>
+                <span className="font-medium text-gray-800">{set.language1} → {set.language2}</span>
                 <ArrowRight className={direction === 'forward' ? 'text-purple-600' : 'text-gray-400'} />
               </button>
               <button
@@ -115,7 +115,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <span className="font-medium">{set.language2} → {set.language1}</span>
+                <span className="font-medium text-gray-800">{set.language2} → {set.language1}</span>
                 <ArrowRight className={direction === 'reverse' ? 'text-purple-600' : 'text-gray-400'} />
               </button>
               <button
@@ -127,7 +127,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <span className="font-medium">Beide Richtingen</span>
+                <span className="font-medium text-gray-800">Beide Richtingen</span>
                 <ArrowLeftRight className={direction === 'both' ? 'text-purple-600' : 'text-gray-400'} />
               </button>
             </div>
