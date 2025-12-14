@@ -43,8 +43,8 @@ function App() {
           .single()
         if (!error && data) {
           setSelectedSet(data as any)
-          setStudySettings({ mode: 'study', direction: 'forward', shuffle: true } as any)
-          setIsStudying(true)
+          // Open the settings modal so the user can choose mode/direction
+          setShowSettingsModal(true)
         }
       })()
     }
