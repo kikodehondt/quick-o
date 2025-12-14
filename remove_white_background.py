@@ -1,65 +1,83 @@
 """
-Script to remove white background from logo and make it transparent
+Script to remove ONLY edge-connected white background from logos and make it transparent,
+while preserving internal white areas (e.g., white details within green shapes).
 """
 from PIL import Image
-import sys
+from collections import deque
+import os
+import glob
 
-def remove_white_background(input_path, output_path, threshold=240):
+def is_near_white(r, g, b, threshold=240):
+    return r >= threshold and g >= threshold and b >= threshold
+
+def remove_background_edge_floodfill(input_path, output_path, threshold=240):
     """
-    Remove white background from an image and make it transparent
-    
+    Make near-white background transparent using edge-connected flood fill.
+    Preserves internal white that is not connected to image edges.
+
     Args:
         input_path: Path to input image
         output_path: Path to save output image
-        threshold: RGB value threshold for "white" (default 240)
+        threshold: RGB value threshold for treating a pixel as "white"
     """
-    # Open image
-    img = Image.open(input_path)
-    
-    # Convert to RGBA if not already
-    img = img.convert("RGBA")
-    
-    # Get pixel data
-    datas = img.getdata()
-    
-    # Create new pixel data with transparency
-    new_data = []
-    for item in datas:
-        # If pixel is close to white (all RGB values above threshold)
-        if item[0] > threshold and item[1] > threshold and item[2] > threshold:
-            # Make it transparent
-            new_data.append((255, 255, 255, 0))
-        else:
-            # Keep original pixel
-            new_data.append(item)
-    
-    # Update image data
-    img.putdata(new_data)
-    
-    # Save as PNG with transparency
+    img = Image.open(input_path).convert("RGBA")
+    w, h = img.size
+    pixels = img.load()
+
+    visited = [[False]*w for _ in range(h)]
+    to_transparent = [[False]*w for _ in range(h)]
+
+    q = deque()
+    # Seed flood fill from all edges
+    for x in range(w):
+        q.append((x, 0))
+        q.append((x, h-1))
+    for y in range(h):
+        q.append((0, y))
+        q.append((w-1, y))
+
+    # BFS flood fill marking edge-connected near-white pixels
+    while q:
+        x, y = q.popleft()
+        if x < 0 or x >= w or y < 0 or y >= h:
+            continue
+        if visited[y][x]:
+            continue
+        visited[y][x] = True
+        r, g, b, a = pixels[x, y]
+        if a == 0:
+            # Already transparent; treat as background region
+            to_transparent[y][x] = True
+        elif is_near_white(r, g, b, threshold):
+            to_transparent[y][x] = True
+            # Explore neighbors
+            q.append((x+1, y))
+            q.append((x-1, y))
+            q.append((x, y+1))
+            q.append((x, y-1))
+
+    # Apply transparency only to marked background pixels
+    for y in range(h):
+        for x in range(w):
+            if to_transparent[y][x]:
+                r, g, b, a = pixels[x, y]
+                pixels[x, y] = (r, g, b, 0)
+
     img.save(output_path, "PNG")
-    print(f"✓ Saved transparent logo to: {output_path}")
+    print(f"✓ Saved edge-clean transparent logo to: {output_path}")
 
 if __name__ == "__main__":
-    # Process both logos
-    print("Removing white background from logos...")
-    
-    # Process public/logo.png
-    try:
-        remove_white_background(
-            "public/logo.png",
-            "public/logo.png"
-        )
-    except Exception as e:
-        print(f"Error processing public/logo.png: {e}")
-    
-    # Process assets/vocab_trainer_logo.png
-    try:
-        remove_white_background(
-            "assets/vocab_trainer_logo.png",
-            "assets/vocab_trainer_logo.png"
-        )
-    except Exception as e:
-        print(f"Error processing assets/vocab_trainer_logo.png: {e}")
-    
-    print("\n✓ Done! White backgrounds removed from logos.")
+    print("Removing edge-connected white background from logos...")
+    processed = 0
+    # Auto-detect logo files in public/ and assets/ ending with logo*.png
+    for folder in ("public", "assets"):
+        for path in glob.glob(os.path.join(folder, "*logo*.png")):
+            try:
+                remove_background_edge_floodfill(path, path)
+                processed += 1
+            except Exception as e:
+                print(f"Error processing {path}: {e}")
+    if processed == 0:
+        print("No matching logo PNGs found (looking for *logo*.png in public/ and assets/).")
+    else:
+        print(f"\n✓ Done! Cleaned backgrounds for {processed} file(s).")
