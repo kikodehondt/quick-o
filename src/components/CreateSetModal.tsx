@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, FileText, Save } from 'lucide-react'
+import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
 
@@ -16,6 +16,9 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [vocabText, setVocabText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [copyMessage, setCopyMessage] = useState('')
+
+  const promptText = `Je bent een helper die een woordenlijst omzet naar het exacte formaat van deze vocab trainer.\n\nInstructies:\n1) Lees de brontekst en identificeer woordparen in twee talen: ${language1} en ${language2}.\n2) Output ALLEEN een enkele regel tekst zonder extra uitleg.\n3) Gebruik exact dit formaat: ${language1}woord, ${language2}vertaling; ${language1}woord2, ${language2}vertaling2; ...\n4) Scheid paren met een puntkomma plus spatie ('; ').\n5) Gebruik geen quotes, geen bullet points, geen nummers, geen extra tekst.\n6) Laat niets weg en verzin geen woorden.\n7) Bewaar casing en accenten zoals in de input.\n8) Als er bij een woord meerdere vertalingen zijn, kies de meest gebruikelijke en geef slechts één vertaling.\n9) Als een woordpaar ontbreekt of onduidelijk is, sla het over en noem het niet.\n10) Als er al puntkomma's of komma's staan, herstructureer naar het exacte formaat hierboven.\n\nVoorbeeld output (fictief):\n${language1} huis, ${language2} maison; ${language1} auto, ${language2} voiture; ${language1} eten, ${language2} manger` 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -144,10 +147,31 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <FileText className="w-4 h-4 inline mr-2" />
-              Woordjes Tekst *
-            </label>
+            <div className="flex items-center justify-between mb-2 gap-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                <FileText className="w-4 h-4 inline mr-2" />
+                Woordjes Tekst *
+              </label>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(promptText)
+                    setCopyMessage('Prompt gekopieerd naar klembord')
+                    setTimeout(() => setCopyMessage(''), 2500)
+                  } catch (err) {
+                    console.error('Clipboard error', err)
+                    setCopyMessage('Kopiëren mislukt, selecteer en kopieer handmatig')
+                    setTimeout(() => setCopyMessage(''), 4000)
+                  }
+                }}
+                className="px-3 py-2 rounded-lg border-2 border-gray-300 bg-white hover:border-gray-400 hover:shadow text-sm font-semibold text-gray-700 transition-colors flex items-center gap-2"
+                title="Kopieer instructie-prompt voor AI"
+              >
+                <ClipboardCopy className="w-4 h-4" />
+                Prompt kopiëren
+              </button>
+            </div>
             <textarea
               value={vocabText}
               onChange={(e) => setVocabText(e.target.value)}
@@ -158,6 +182,9 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
             <p className="text-sm text-gray-500 mt-2">
               Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1}, {language2}; {language1}2, {language2}2</code>
             </p>
+            {copyMessage && (
+              <p className="text-sm text-green-600 mt-2">{copyMessage}</p>
+            )}
           </div>
 
           {error && (
