@@ -302,7 +302,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                     type="text"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
-                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors mb-4"
+                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all mb-4"
                     placeholder="Type je antwoord..."
                     autoComplete="off"
                     autoFocus

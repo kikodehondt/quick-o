@@ -51,8 +51,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('learn')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'learn'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-purple-600' : 'text-gray-400'}`} />
@@ -64,8 +64,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('flashcard')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'flashcard'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-purple-600' : 'text-gray-400'}`} />
@@ -77,8 +77,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('typing')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'typing'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <Keyboard className={`w-8 h-8 mx-auto mb-2 ${mode === 'typing' ? 'text-purple-600' : 'text-gray-400'}`} />
@@ -99,8 +99,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setDirection('forward')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'forward'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium">{set.language1} → {set.language2}</span>
@@ -111,8 +111,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setDirection('reverse')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'reverse'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium">{set.language2} → {set.language1}</span>
@@ -123,8 +123,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setDirection('both')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'both'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium">Beide Richtingen</span>

@@ -98,7 +98,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
               placeholder="Bijv. Frans Hoofdstuk 1"
             />
           </div>
@@ -111,7 +111,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
               placeholder="Bijv. Werkwoorden en bijvoeglijke naamwoorden"
             />
           </div>
@@ -125,7 +125,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
                 type="text"
                 value={language1}
                 onChange={(e) => setLanguage1(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                 placeholder="Bijv. Nederlands"
               />
             </div>
@@ -137,7 +137,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
                 type="text"
                 value={language2}
                 onChange={(e) => setLanguage2(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                 placeholder="Bijv. Frans"
               />
             </div>
@@ -151,7 +151,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
             <textarea
               value={vocabText}
               onChange={(e) => setVocabText(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors font-mono text-sm"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all font-mono text-sm"
               rows={10}
               placeholder={`${language1}, ${language2}; ${language1}2, ${language2}2`}
             />
@@ -170,7 +170,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 hover:bg-gray-50 font-semibold transition-colors"
+              className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 bg-white hover:bg-gray-100 font-semibold text-gray-700 transition-colors"
               disabled={loading}
             >
               Annuleren
