@@ -7,9 +7,10 @@ Een moderne, motiverende web applicatie voor het oefenen van woordjes (Nederland
 - **Eenvoudig Sets Aanmaken**: Plak gewoon je woordjes in het juiste formaat
 - **Smart Parser**: Automatische parsing van het formaat `woord1, woord2; woord3, woord4`
 - **Interactieve Flashcards**: Klik om het antwoord te zien
-- **Progress Tracking**: Houd je scores bij
+- **Progress Tracking**: Houd je scores bij met lokale en cloud opslag
 - **Motiverende UI**: Mooie, kleurrijke interface met animaties
 - **Database Opslag**: Al je sets worden veilig opgeslagen
+- **Verwijder je Sets**: Verwijder alleen de sets die je zelf hebt aangemaakt
 - **Shuffle Mode**: Woordjes worden random getoond
 
 ## 🚀 Installatie
@@ -39,14 +40,13 @@ VITE_SUPABASE_ANON_KEY=jouw_supabase_anon_key
 
 ### 3. Database Schema
 
-Voer het SQL script uit in de Supabase SQL Editor:
+Voer de migrate scripts uit in de Supabase SQL Editor:
 
-```bash
-# Open database_schema.sql en kopieer de inhoud naar Supabase SQL Editor
-```
+1. Open eerst `database_schema.sql` en voer dit uit (maak tabellen aan)
+2. Open dan `database_migration.sql` en voer dit uit (voeg kolommen toe)
 
 Dit creëert:
-- `vocab_sets` - Voor je woordjes sets
+- `vocab_sets` - Voor je woordjes sets (met language1, language2, created_by velden)
 - `word_pairs` - Voor individuele woordparen
 - `study_progress` - Voor het bijhouden van je voortgang
 
@@ -77,6 +77,10 @@ huis, maison; kat, chat; hond, chien; boek, livre; tafel, table
 3. Klik op de kaart om het Franse woord te zien
 4. Klik op "Correct" of "Fout"
 5. Bekijk je score aan het einde!
+
+### Je Sets Beheren
+
+- **Verwijderen**: Alleen sets die jij hebt aangemaakt kunnen verwijderd worden. Klik het rode vuilnisbak icoon rechtsboven op de setkaart.
 
 ## 📝 Formaat voor Woordjes
 
