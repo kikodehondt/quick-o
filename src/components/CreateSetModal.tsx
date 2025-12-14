@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
+import { getOrCreateUserId } from '../lib/userUtils'
 
 interface CreateSetModalProps {
   onClose: () => void
@@ -48,7 +49,13 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
       // Create the set
       const { data: setData, error: createSetError } = await supabase
         .from('vocab_sets')
-        .insert([{ name, description, language1, language2 }])
+        .insert([{ 
+          name, 
+          description, 
+          language1, 
+          language2,
+          created_by: getOrCreateUserId()
+        }])
         .select()
         .single()
 

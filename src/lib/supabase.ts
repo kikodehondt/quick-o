@@ -19,6 +19,7 @@ export interface VocabSet {
   description?: string
   language1: string
   language2: string
+  created_by?: string
   created_at?: string
   word_count?: number
 }

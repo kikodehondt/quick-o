@@ -1,12 +1,23 @@
-import { PlayCircle, BookOpen } from 'lucide-react'
+import { PlayCircle, BookOpen, Trash2 } from 'lucide-react'
 import { VocabSet } from '../lib/supabase'
+import { getOrCreateUserId } from '../lib/userUtils'
 
 interface SetsListProps {
   sets: VocabSet[]
   onStartStudy: (set: VocabSet) => void
+  onDeleteSet: (setId: number) => void
 }
 
-export default function SetsList({ sets, onStartStudy }: SetsListProps) {
+export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListProps) {
+  const currentUserId = getOrCreateUserId()
+
+  function handleDelete(set: VocabSet) {
+    if (confirm(`Weet je zeker dat je "${set.name}" wilt verwijderen?`)) {
+      if (set.id) {
+        onDeleteSet(set.id)
+      }
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -33,6 +44,15 @@ export default function SetsList({ sets, onStartStudy }: SetsListProps) {
                 <span>{set.word_count || 0} woordjes</span>
               </div>
             </div>
+            {set.created_by === currentUserId && (
+              <button
+                onClick={() => handleDelete(set)}
+                className="text-red-500 hover:text-red-700 transition-colors p-2 -mr-2 -mt-2"
+                title="Verwijderen"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            )}
           </div>
 
           <button

@@ -52,6 +52,40 @@ function App() {
     loadSets()
   }
 
+  async function handleDeleteSet(setId: number) {
+    try {
+      // Delete word pairs first (foreign key constraint)
+      const { error: wordsError } = await supabase
+        .from('word_pairs')
+        .delete()
+        .eq('set_id', setId)
+
+      if (wordsError) throw wordsError
+
+      // Delete study progress
+      const { error: progressError } = await supabase
+        .from('study_progress')
+        .delete()
+        .eq('set_id', setId)
+
+      if (progressError) throw progressError
+
+      // Delete the set itself
+      const { error: setError } = await supabase
+        .from('vocab_sets')
+        .delete()
+        .eq('id', setId)
+
+      if (setError) throw setError
+
+      // Reload sets
+      loadSets()
+    } catch (error) {
+      console.error('Error deleting set:', error)
+      alert('Fout bij het verwijderen van de set')
+    }
+  }
+
   function handleStartStudy(set: VocabSet) {
     setSelectedSet(set)
     setShowSettingsModal(true)
@@ -132,7 +166,7 @@ function App() {
             </p>
           </div>
         ) : (
-          <SetsList sets={sets} onStartStudy={handleStartStudy} />
+          <SetsList sets={sets} onStartStudy={handleStartStudy} onDeleteSet={handleDeleteSet} />
         )}
 
         {/* Create Set Modal */}
