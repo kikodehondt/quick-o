@@ -28,14 +28,14 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
         >
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
+              <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition-colors">
                 {set.name}
               </h3>
               {set.description && (
                 <p className="text-sm text-gray-600 mb-2">{set.description}</p>
               )}
               <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
-                <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg font-medium">
+                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-medium">
                   {set.language1} → {set.language2}
                 </span>
               </div>

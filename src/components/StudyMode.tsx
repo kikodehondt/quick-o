@@ -165,7 +165,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             {percentage >= 80 ? 'Geweldig!' : percentage >= 60 ? 'Goed gedaan!' : 'Blijf oefenen!'}
           </h2>
           
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-6">
             <div className="text-5xl font-bold gradient-text mb-2">{percentage}%</div>
             <p className="text-gray-600">Correct beantwoord</p>
           </div>
@@ -252,7 +252,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         <div className="flex-1 flex items-center justify-center mb-8">
           <div
             className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer hover:scale-105 transition-all duration-300 ${
-              showAnswer ? 'bg-gradient-to-br from-purple-50 to-pink-50' : ''
+              showAnswer ? 'bg-gradient-to-br from-green-50 to-emerald-50' : ''
             }`}
             onClick={() => setShowAnswer(!showAnswer)}
           >

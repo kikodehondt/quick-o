@@ -115,7 +115,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-950 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-950 via-green-900 to-slate-900 text-white">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -142,7 +142,7 @@ function App() {
         <div className="flex justify-center mb-8">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-white hover:bg-gray-50 text-purple-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-105 transition-all duration-200 flex items-center gap-3"
+            className="bg-white hover:bg-gray-50 text-green-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-105 transition-all duration-200 flex items-center gap-3"
           >
             <Plus className="w-6 h-6" />
             <span className="text-lg">Nieuwe Set Aanmaken</span>
@@ -157,7 +157,7 @@ function App() {
           </div>
         ) : sets.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 card-shadow text-center">
-            <BookOpen className="w-20 h-20 mx-auto mb-4 text-purple-300" />
+            <BookOpen className="w-20 h-20 mx-auto mb-4 text-green-300" />
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Nog geen sets aangemaakt
             </h2>

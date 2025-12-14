@@ -361,7 +361,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
             Je hebt alle {masteredWords.length} woordjes correct beantwoord!
           </p>
 
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-6">
             <div className="text-5xl font-bold gradient-text mb-2">{percentage}%</div>
             <p className="text-gray-600">Accuracy</p>
           </div>
@@ -478,7 +478,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
                     type="text"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
-                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all mb-4"
+                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all mb-4"
                     placeholder="Type je antwoord..."
                     autoComplete="off"
                     autoFocus

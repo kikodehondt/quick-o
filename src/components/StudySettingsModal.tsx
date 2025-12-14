@@ -51,11 +51,11 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('learn')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'learn'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-green-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Leren</div>
                 <div className="text-xs text-gray-500 mt-1">Herhaal foute antwoorden</div>
               </button>
@@ -64,11 +64,11 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('flashcard')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'flashcard'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-green-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Flashcards</div>
                 <div className="text-xs text-gray-500 mt-1">Klik om te zien</div>
               </button>
@@ -77,7 +77,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('typing')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'typing'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
@@ -99,36 +99,36 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setDirection('forward')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'forward'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium text-gray-800">{set.language1} → {set.language2}</span>
-                <ArrowRight className={direction === 'forward' ? 'text-purple-600' : 'text-gray-400'} />
+                <ArrowRight className={direction === 'forward' ? 'text-green-600' : 'text-gray-400'} />
               </button>
               <button
                 type="button"
                 onClick={() => setDirection('reverse')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'reverse'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium text-gray-800">{set.language2} → {set.language1}</span>
-                <ArrowRight className={direction === 'reverse' ? 'text-purple-600' : 'text-gray-400'} />
+                <ArrowRight className={direction === 'reverse' ? 'text-green-600' : 'text-gray-400'} />
               </button>
               <button
                 type="button"
                 onClick={() => setDirection('both')}
                 className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
                   direction === 'both'
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    ? 'border-green-500 bg-green-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
                 <span className="font-medium text-gray-800">Beide Richtingen</span>
-                <ArrowLeftRight className={direction === 'both' ? 'text-purple-600' : 'text-gray-400'} />
+                <ArrowLeftRight className={direction === 'both' ? 'text-green-600' : 'text-gray-400'} />
               </button>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                   type="checkbox"
                   checked={!caseSensitive}
                   onChange={(e) => setCaseSensitive(!e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
                 <div>
                   <div className="font-medium text-gray-800">Hoofdletters negeren</div>

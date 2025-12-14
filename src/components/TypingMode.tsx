@@ -216,7 +216,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
             {percentage >= 80 ? 'Geweldig!' : percentage >= 60 ? 'Goed gedaan!' : 'Blijf oefenen!'}
           </h2>
           
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-6">
             <div className="text-5xl font-bold gradient-text mb-2">{percentage}%</div>
             <p className="text-gray-600">Correct beantwoord</p>
           </div>
@@ -319,7 +319,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                     type="text"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
-                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all mb-4"
+                    className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all mb-4"
                     placeholder="Type je antwoord..."
                     autoComplete="off"
                     autoFocus
@@ -330,7 +330,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                     <button
                       type="button"
                       onClick={() => setShowHint(true)}
-                      className="text-purple-600 hover:text-purple-700 text-sm font-semibold flex items-center gap-2 mx-auto mb-4"
+                      className="text-green-600 hover:text-green-700 text-sm font-semibold flex items-center gap-2 mx-auto mb-4"
                     >
                       <AlertCircle className="w-4 h-4" />
                       Hint tonen
