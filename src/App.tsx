@@ -81,25 +81,23 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-950 via-purple-900 to-slate-900 text-white">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <img src="/logo.png" alt="Woordjes Trainer Logo" className="w-16 h-16 md:w-20 md:h-20 mr-4" />
-            <h1 className="text-5xl md:text-6xl font-bold text-white">
-              Woordjes Trainer
-            </h1>
+          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur">
+            <img src="/logo.png" alt="Woordjes Trainer Logo" className="w-16 h-16 md:w-20 md:h-20" />
+            <div className="text-left">
+              <h1 className="text-4xl md:text-5xl font-bold">Woordjes Trainer</h1>
+              <p className="text-base md:text-lg text-white/80">Motiverend oefenen in je eigen tempo</p>
+            </div>
           </div>
-          <p className="text-xl text-white/90 mb-2">
-            Leer woordjes op een leuke en effectieve manier! 🚀
-          </p>
-          <div className="flex items-center justify-center gap-4 text-white/80">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-4 text-white/80 mt-6">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
               <BookOpen className="w-5 h-5" />
               <span>{sets.length} Sets</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
               <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>

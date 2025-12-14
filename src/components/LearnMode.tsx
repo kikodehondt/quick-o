@@ -279,24 +279,8 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
         setCurrentIndex(0)
       }
     } else {
-      const wordToReinsert = activeWords[currentIndex]
-      const remainingWords = activeWords.filter((_, idx) => idx !== currentIndex)
-
-      const minPosition = Math.min(2, remainingWords.length)
-      const maxPosition = remainingWords.length
-      const randomPosition = minPosition + Math.floor(Math.random() * (maxPosition - minPosition + 1))
-
-      const newActive = [
-        ...remainingWords.slice(0, randomPosition),
-        wordToReinsert,
-        ...remainingWords.slice(randomPosition)
-      ]
-
-      setActiveWords(newActive)
-
-      if (currentIndex >= newActive.length) {
-        setCurrentIndex(0)
-      }
+      // Blijf bij hetzelfde woord tot het correct is
+      setCurrentIndex(currentIndex)
     }
 
     setShowFeedback(false)
