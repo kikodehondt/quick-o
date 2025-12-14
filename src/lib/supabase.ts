@@ -31,7 +31,7 @@ export interface StudyProgress {
   last_studied?: string
 }
 
-export type StudyMode = 'flashcard' | 'typing'
+export type StudyMode = 'flashcard' | 'typing' | 'learn'
 export type StudyDirection = 'forward' | 'reverse' | 'both'
 
 export interface StudySettings {
@@ -39,4 +39,5 @@ export interface StudySettings {
   direction: StudyDirection
   caseSensitive: boolean
   accentSensitive: boolean
+  shuffle: boolean
 }

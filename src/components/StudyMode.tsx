@@ -52,7 +52,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         }))
       }
 
-      setWords(shuffleArray(processedWords))
+      // Shuffle if enabled
+      if (settings.shuffle) {
+        processedWords = shuffleArray(processedWords)
+      }
+
+      setWords(processedWords)
     } catch (err) {
       console.error('Error loading words:', err)
     } finally {
@@ -105,7 +110,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     setIncorrectCount(0)
     setShowAnswer(false)
     setFinished(false)
-    setWords(shuffleArray(words))
+    if (settings.shuffle) {
+      setWords(shuffleArray(words))
+    }
   }
 
   if (loading) {

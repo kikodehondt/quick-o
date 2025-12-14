@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings } from 'lucide-react'
+import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle } from 'lucide-react'
 import { VocabSet, StudyMode, StudyDirection, StudySettings } from '../lib/supabase'
 
 interface StudySettingsModalProps {
@@ -9,13 +9,14 @@ interface StudySettingsModalProps {
 }
 
 export default function StudySettingsModal({ set, onClose, onStart }: StudySettingsModalProps) {
-  const [mode, setMode] = useState<StudyMode>('flashcard')
+  const [mode, setMode] = useState<StudyMode>('learn')
   const [direction, setDirection] = useState<StudyDirection>('forward')
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [accentSensitive, setAccentSensitive] = useState(false)
+  const [shuffle, setShuffle] = useState(true)
 
   function handleStart() {
-    onStart({ mode, direction, caseSensitive, accentSensitive })
+    onStart({ mode, direction, caseSensitive, accentSensitive, shuffle })
   }
 
   return (
@@ -44,7 +45,20 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
               <Settings className="w-4 h-4 inline mr-2" />
               Oefenmodus
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setMode('learn')}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  mode === 'learn'
+                    ? 'border-purple-500 bg-purple-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <div className="font-semibold text-gray-800">Leren</div>
+                <div className="text-xs text-gray-500 mt-1">Herhaal foute antwoorden</div>
+              </button>
               <button
                 type="button"
                 onClick={() => setMode('flashcard')}
@@ -56,7 +70,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
               >
                 <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-purple-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Flashcards</div>
-                <div className="text-xs text-gray-500 mt-1">Klik om antwoord te zien</div>
+                <div className="text-xs text-gray-500 mt-1">Klik om te zien</div>
               </button>
               <button
                 type="button"
@@ -69,7 +83,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
               >
                 <Keyboard className={`w-8 h-8 mx-auto mb-2 ${mode === 'typing' ? 'text-purple-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Typen</div>
-                <div className="text-xs text-gray-500 mt-1">Type het antwoord</div>
+                <div className="text-xs text-gray-500 mt-1">Type antwoord</div>
               </button>
             </div>
           </div>
@@ -119,10 +133,12 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
             </div>
           </div>
 
-          {/* Typing Mode Options */}
-          {mode === 'typing' && (
+          {/* Learn/Typing Mode Options */}
+          {(mode === 'typing' || mode === 'learn') && (
             <div className="bg-blue-50 rounded-xl p-4 space-y-3">
-              <div className="text-sm font-semibold text-gray-700 mb-2">Opties voor Typen</div>
+              <div className="text-sm font-semibold text-gray-700 mb-2">
+                {mode === 'learn' ? 'Opties voor Leren' : 'Opties voor Typen'}
+              </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -145,6 +161,27 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 <div>
                   <div className="font-medium text-gray-800">Accenten negeren</div>
                   <div className="text-xs text-gray-600">été = ete, naïef = naief</div>
+                </div>
+              </label>
+            </div>
+          )}
+
+          {/* Shuffle Option */}
+          {mode !== 'learn' && (
+            <div className="bg-purple-50 rounded-xl p-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={shuffle}
+                  onChange={(e) => setShuffle(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <div className="flex items-center gap-2">
+                  <Shuffle className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <div className="font-medium text-gray-800">Woorden shuffelen</div>
+                    <div className="text-xs text-gray-600">Random volgorde bij elke sessie</div>
+                  </div>
                 </div>
               </label>
             </div>

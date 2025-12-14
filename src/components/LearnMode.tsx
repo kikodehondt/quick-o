@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle, Target } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 
-interface TypingModeProps {
+interface LearnModeProps {
   set: VocabSet
   settings: StudySettings
   onEnd: () => void
 }
 
-export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
-  const [words, setWords] = useState<WordPair[]>([])
+export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
+  const [allWords, setAllWords] = useState<WordPair[]>([])
+  const [activeWords, setActiveWords] = useState<WordPair[]>([])
+  const [masteredWords, setMasteredWords] = useState<WordPair[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
   const [showFeedback, setShowFeedback] = useState(false)
@@ -45,7 +47,6 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
       
       // Handle direction
       if (settings.direction === 'both') {
-        // Duplicate words and reverse half of them
         const forwardWords = processedWords
         const reverseWords = processedWords.map(w => ({
           ...w,
@@ -54,7 +55,6 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
         }))
         processedWords = [...forwardWords, ...reverseWords]
       } else if (settings.direction === 'reverse') {
-        // Reverse all words
         processedWords = processedWords.map(w => ({
           ...w,
           word1: w.word2,
@@ -62,12 +62,9 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
         }))
       }
 
-      // Shuffle if enabled
-      if (settings.shuffle) {
-        processedWords = shuffleArray(processedWords)
-      }
-
-      setWords(processedWords)
+      const shuffled = shuffleArray(processedWords)
+      setAllWords(shuffled)
+      setActiveWords(shuffled)
     } catch (err) {
       console.error('Error loading words:', err)
     } finally {
@@ -78,9 +75,9 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     
-    if (!userAnswer.trim() || showFeedback) return
+    if (!userAnswer.trim() || showFeedback || activeWords.length === 0) return
 
-    const currentWord = words[currentIndex]
+    const currentWord = activeWords[currentIndex]
     const correct = checkAnswer(
       userAnswer,
       currentWord.word2,
@@ -99,16 +96,54 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
   }
 
   function nextWord() {
+    const currentWord = activeWords[currentIndex]
+    
+    if (isCorrect) {
+      // Word mastered - remove from active pool
+      const newMastered = [...masteredWords, currentWord]
+      const newActive = activeWords.filter((_, idx) => idx !== currentIndex)
+      
+      setMasteredWords(newMastered)
+      setActiveWords(newActive)
+      
+      // Check if finished
+      if (newActive.length === 0) {
+        setFinished(true)
+        saveProgress()
+        return
+      }
+      
+      // Adjust index if needed
+      if (currentIndex >= newActive.length) {
+        setCurrentIndex(0)
+      }
+    } else {
+      // Word incorrect - shuffle it back into the pool
+      const wordToReinsert = activeWords[currentIndex]
+      const remainingWords = activeWords.filter((_, idx) => idx !== currentIndex)
+      
+      // Insert at random position (not immediately next)
+      const minPosition = Math.min(2, remainingWords.length)
+      const maxPosition = remainingWords.length
+      const randomPosition = minPosition + Math.floor(Math.random() * (maxPosition - minPosition + 1))
+      
+      const newActive = [
+        ...remainingWords.slice(0, randomPosition),
+        wordToReinsert,
+        ...remainingWords.slice(randomPosition)
+      ]
+      
+      setActiveWords(newActive)
+      
+      // Move to next word (which is now at current index in the new array)
+      if (currentIndex >= newActive.length) {
+        setCurrentIndex(0)
+      }
+    }
+    
     setShowFeedback(false)
     setUserAnswer('')
     setShowHint(false)
-
-    if (currentIndex >= words.length - 1) {
-      setFinished(true)
-      saveProgress()
-    } else {
-      setCurrentIndex(prev => prev + 1)
-    }
   }
 
   async function saveProgress() {
@@ -131,6 +166,9 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
   }
 
   function restart() {
+    const shuffled = shuffleArray(allWords)
+    setActiveWords(shuffled)
+    setMasteredWords([])
     setCurrentIndex(0)
     setCorrectCount(0)
     setIncorrectCount(0)
@@ -138,14 +176,11 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     setShowFeedback(false)
     setShowHint(false)
     setFinished(false)
-    if (settings.shuffle) {
-      setWords(shuffleArray(words))
-    }
   }
 
   function getHint() {
-    const currentWord = words[currentIndex]
-    const answer = currentWord.word2
+    if (activeWords.length === 0) return ''
+    const answer = activeWords[currentIndex].word2
     const hintLength = Math.ceil(answer.length * 0.3)
     return answer.substring(0, hintLength) + '...'
   }
@@ -161,7 +196,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     )
   }
 
-  if (words.length === 0) {
+  if (allWords.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-12 card-shadow text-center max-w-md">
@@ -186,22 +221,20 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-12 card-shadow text-center max-w-lg">
           <div className="mb-6">
-            {percentage >= 80 ? (
-              <Star className="w-24 h-24 mx-auto text-yellow-400 animate-bounce-slow" />
-            ) : percentage >= 60 ? (
-              <TrendingUp className="w-24 h-24 mx-auto text-green-400" />
-            ) : (
-              <RotateCcw className="w-24 h-24 mx-auto text-blue-400" />
-            )}
+            <Star className="w-24 h-24 mx-auto text-yellow-400 animate-bounce-slow" />
           </div>
           
           <h2 className="text-4xl font-bold gradient-text mb-4">
-            {percentage >= 80 ? 'Geweldig!' : percentage >= 60 ? 'Goed gedaan!' : 'Blijf oefenen!'}
+            Alle woorden beheerst! 🎉
           </h2>
           
+          <p className="text-gray-600 mb-6">
+            Je hebt alle {masteredWords.length} woordjes correct beantwoord!
+          </p>
+
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6">
             <div className="text-5xl font-bold gradient-text mb-2">{percentage}%</div>
-            <p className="text-gray-600">Correct beantwoord</p>
+            <p className="text-gray-600">Accuracy</p>
           </div>
 
           <div className="flex justify-center gap-8 mb-8">
@@ -217,7 +250,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                 <XCircle className="w-6 h-6 text-red-500" />
                 <span className="text-3xl font-bold text-red-600">{incorrectCount}</span>
               </div>
-              <p className="text-sm text-gray-600">Fout</p>
+              <p className="text-sm text-gray-600">Herhaald</p>
             </div>
           </div>
 
@@ -242,15 +275,15 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     )
   }
 
-  const currentWord = words[currentIndex]
-  const progress = ((currentIndex + 1) / words.length) * 100
+  const currentWord = activeWords[currentIndex]
+  const progress = (masteredWords.length / allWords.length) * 100
   const similarity = userAnswer ? calculateSimilarity(userAnswer, currentWord.word2) : 0
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8">
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={onEnd}
             className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-colors flex items-center gap-2"
@@ -258,27 +291,35 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
             <ArrowLeft className="w-5 h-5" />
             Terug
           </button>
-          <div className="text-white text-lg font-semibold">
-            {currentIndex + 1} / {words.length}
+          <div className="text-white text-center">
+            <div className="flex items-center gap-2 justify-center">
+              <Target className="w-5 h-5" />
+              <span className="text-lg font-semibold">{activeWords.length} te gaan</span>
+            </div>
+            <div className="text-sm opacity-80">{masteredWords.length} beheerst</div>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-white/20 rounded-full h-3 mb-8">
+        <div className="w-full bg-white/20 rounded-full h-4 mb-6">
           <div
-            className="bg-white h-3 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
             style={{ width: `${progress}%` }}
-          />
+          >
+            {progress > 10 && (
+              <span className="text-white text-xs font-bold">{Math.round(progress)}%</span>
+            )}
+          </div>
         </div>
 
-        {/* Score */}
+        {/* Stats */}
         <div className="flex justify-center gap-6 mb-8">
           <div className="flex items-center gap-2 bg-green-500/20 text-white px-4 py-2 rounded-xl">
             <CheckCircle className="w-5 h-5" />
             <span className="font-bold">{correctCount}</span>
           </div>
-          <div className="flex items-center gap-2 bg-red-500/20 text-white px-4 py-2 rounded-xl">
-            <XCircle className="w-5 h-5" />
+          <div className="flex items-center gap-2 bg-orange-500/20 text-white px-4 py-2 rounded-xl">
+            <RotateCcw className="w-5 h-5" />
             <span className="font-bold">{incorrectCount}</span>
           </div>
         </div>
@@ -354,17 +395,17 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
               {/* Feedback */}
               {showFeedback && (
                 <div className="space-y-6">
-                  <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+                  <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-orange-50 border-2 border-orange-200'}`}>
                     <div className="flex items-center justify-center gap-3 mb-4">
                       {isCorrect ? (
                         <>
                           <CheckCircle className="w-8 h-8 text-green-600" />
-                          <span className="text-2xl font-bold text-green-700">Correct!</span>
+                          <span className="text-2xl font-bold text-green-700">Perfect! ✨</span>
                         </>
                       ) : (
                         <>
-                          <XCircle className="w-8 h-8 text-red-600" />
-                          <span className="text-2xl font-bold text-red-700">Fout</span>
+                          <RotateCcw className="w-8 h-8 text-orange-600" />
+                          <span className="text-2xl font-bold text-orange-700">Komt terug</span>
                         </>
                       )}
                     </div>
@@ -373,12 +414,15 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                       <div className="space-y-2">
                         <div>
                           <p className="text-sm text-gray-600">Jouw antwoord:</p>
-                          <p className="text-xl font-semibold text-red-600">{userAnswer}</p>
+                          <p className="text-xl font-semibold text-orange-600">{userAnswer}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Correct antwoord:</p>
                           <p className="text-xl font-semibold text-green-600">{currentWord.word2}</p>
                         </div>
+                        <p className="text-sm text-gray-500 mt-3">
+                          💡 Dit woord komt straks nog een keer terug
+                        </p>
                       </div>
                     )}
                   </div>

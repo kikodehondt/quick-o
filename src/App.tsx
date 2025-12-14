@@ -4,6 +4,7 @@ import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import CreateSetModal from './components/CreateSetModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
+import LearnMode from './components/LearnMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 
@@ -70,7 +71,9 @@ function App() {
   }
 
   if (isStudying && selectedSet && studySettings) {
-    if (studySettings.mode === 'typing') {
+    if (studySettings.mode === 'learn') {
+      return <LearnMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+    } else if (studySettings.mode === 'typing') {
       return <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
     } else {
       return <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
