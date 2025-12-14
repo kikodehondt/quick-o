@@ -32,6 +32,19 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     }
   }, [currentIndex, showFeedback])
 
+  // Handle Enter key to go to next word after feedback
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (showFeedback && e.key === 'Enter') {
+        e.preventDefault()
+        nextWord()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showFeedback, isCorrect, currentIndex, words])
+
   async function loadWords() {
     try {
       const { data, error } = await supabase
