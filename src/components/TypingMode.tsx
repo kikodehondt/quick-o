@@ -102,6 +102,10 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     setShowFeedback(false)
     setUserAnswer('')
     setShowHint(false)
+    if (!isCorrect) {
+      // blijf op hetzelfde woord tot het juist is
+      return
+    }
 
     if (currentIndex >= words.length - 1) {
       setFinished(true)

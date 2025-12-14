@@ -72,7 +72,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   function handleIncorrect() {
     setIncorrectCount(prev => prev + 1)
-    nextWord()
+    // Blijf op dezelfde kaart tot correct
+    setShowAnswer(false)
   }
 
   function nextWord() {
