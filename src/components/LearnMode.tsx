@@ -513,7 +513,6 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
                           style={{ width: `${similarity}%` }}
                         />
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">{similarity}% correct</p>
                     </div>
                   )}
 
