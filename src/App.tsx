@@ -32,7 +32,7 @@ function App() {
   // Open via share link /s/<code>
   useEffect(() => {
     const path = window.location.pathname
-    const m = path.match(/^\/s\/(\w{10})$/)
+    const m = path.match(/^\/s\/([a-zA-Z0-9]+)$/)
     if (m) {
       const code = m[1]
       ;(async () => {
