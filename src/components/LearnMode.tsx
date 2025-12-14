@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle, Target } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, AlertCircle, Target } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 
