@@ -1,4 +1,5 @@
-import { PlayCircle, BookOpen, Trash2, Link as LinkIcon, ClipboardCopy } from 'lucide-react'
+import { PlayCircle, BookOpen, Trash2, ClipboardCopy, Check } from 'lucide-react'
+import { useState } from 'react'
 import { VocabSet } from '../lib/supabase'
 import { getOrCreateUserId } from '../lib/userUtils'
 
@@ -10,12 +11,22 @@ interface SetsListProps {
 
 export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListProps) {
   const currentUserId = getOrCreateUserId()
+  const [copiedId, setCopiedId] = useState<number | null>(null)
 
   function handleDelete(set: VocabSet) {
     if (confirm(`Weet je zeker dat je "${set.name}" wilt verwijderen?`)) {
       if (set.id) {
         onDeleteSet(set.id)
       }
+    }
+  }
+
+  function copyLink(set: VocabSet) {
+    if (set.link_code) {
+      const url = `${window.location.origin}/s/${set.link_code}`
+      navigator.clipboard.writeText(url)
+      setCopiedId(set.id || null)
+      setTimeout(() => setCopiedId(null), 2000)
     }
   }
 
@@ -74,17 +85,30 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
               Oefenen
             </button>
             {set.link_code && (
-              <button
-                onClick={() => {
-                  const url = `${window.location.origin}/s/${set.link_code}`
-                  navigator.clipboard.writeText(url)
-                }}
-                className="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all flex items-center gap-2"
-                title="Kopieer deellink"
-              >
-                <LinkIcon className="w-5 h-5" />
-                <ClipboardCopy className="w-5 h-5" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => copyLink(set)}
+                  className={`px-4 py-3 rounded-xl border transition-all flex items-center gap-2 ${
+                    copiedId === set.id
+                      ? 'bg-green-100 border-green-300 text-green-700'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                  title="Kopieer deellink"
+                >
+                  {copiedId === set.id ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                    </>
+                  ) : (
+                    <ClipboardCopy className="w-5 h-5" />
+                  )}
+                </button>
+                {copiedId === set.id && (
+                  <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-green-700 text-white text-sm rounded-lg whitespace-nowrap animate-fade-in">
+                    Link gekopieerd!
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
