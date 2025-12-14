@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Plus, PlayCircle, Trophy, Sparkles } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Sparkles } from 'lucide-react'
 import { supabase, VocabSet } from './lib/supabase'
 import CreateSetModal from './components/CreateSetModal'
 import StudyMode from './components/StudyMode'

@@ -41,13 +41,13 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
       }
 
       // Create the set
-      const { data: setData, error: setError } = await supabase
+      const { data: setData, error: createSetError } = await supabase
         .from('vocab_sets')
         .insert([{ name, description }])
         .select()
         .single()
 
-      if (setError) throw setError
+      if (createSetError) throw createSetError
 
       // Insert word pairs
       const wordsToInsert = wordPairs.map(pair => ({
