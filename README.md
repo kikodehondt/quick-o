@@ -1,4 +1,4 @@
-# QuickO 📚
+# Quick-O 📚
 
 Een moderne, motiverende web applicatie voor het oefenen van woordjes. Perfect voor studenten die effectief en leuk hun vocabulaire willen uitbreiden!
 
