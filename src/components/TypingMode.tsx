@@ -132,22 +132,17 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     }
   }
 
-  async function saveProgress() {
+  function saveProgress() {
     try {
-      const { error } = await supabase
-        .from('study_progress')
-        .upsert({
-          set_id: set.id!,
-          correct_count: correctCount,
-          incorrect_count: incorrectCount,
-          last_studied: new Date().toISOString()
-        }, {
-          onConflict: 'set_id'
-        })
-
-      if (error) throw error
+      const payload = {
+        mode: 'typing',
+        correctCount,
+        incorrectCount,
+        timestamp: Date.now(),
+      }
+      localStorage.setItem('progress_typing_' + set.id, JSON.stringify(payload))
     } catch (err) {
-      console.error('Error saving progress:', err)
+      console.error('Error saving local progress:', err)
     }
   }
 

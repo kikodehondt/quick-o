@@ -24,25 +24,19 @@ interface LearnProgressState {
 const LOCAL_KEY_PREFIX = 'progress_learn_'
 
 export default function LearnMode({ set, settings: initialSettings, onEnd }: LearnModeProps) {
-  const [settings, setSettings] = useState<StudySettings>(initialSettings)
-  const [allWords, setAllWords] = useState<WordPair[]>([])
-  const [activeWords, setActiveWords] = useState<WordPair[]>([])
-  const [masteredWords, setMasteredWords] = useState<WordPair[]>([])
+    if (!loading && initialized) {
+      // Device-specific: only save locally
+      saveProgressLocal()
+    }
   const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
   const [showFeedback, setShowFeedback] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
-  const [correctCount, setCorrectCount] = useState(0)
-  const [incorrectCount, setIncorrectCount] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [finished, setFinished] = useState(false)
-  const [showHint, setShowHint] = useState(false)
-  const [initialized, setInitialized] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    initSession()
-  }, [])
+    // Device-specific: ignore cloud progress; use local only
+    if (local && local.activeWords && local.activeWords.length > 0) {
+      return local
+    }
+    return null
 
   useEffect(() => {
     if (!showFeedback && inputRef.current) {
@@ -57,78 +51,13 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
         e.preventDefault()
         nextWord()
       }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showFeedback, isCorrect, currentIndex, activeWords])
-
-  // Rebuild words when direction or shuffle changes
-  useEffect(() => {
-    if (initialized) {
-      rebuildWithSettings()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.direction, settings.shuffle])
-
-  useEffect(() => {
-    if (!loading && initialized) {
-      saveProgressLocal()
-      saveProgressCloud()
-    }
-  }, [currentIndex, correctCount, incorrectCount, masteredWords, activeWords])
-
-  async function initSession() {
+  // Device-specific: disable cloud save
+  async function saveProgressCloud() { /* no-op */ }
     setLoading(true)
-    const words = await fetchWordsWithSettings(settings)
-    const restored = await restoreProgress()
-    applyProgress(restored || { activeWords: words, masteredWords: [], currentIndex: 0, correctCount: 0, incorrectCount: 0, settings, timestamp: Date.now(), mode: 'learn' })
-    setInitialized(true)
-    setLoading(false)
-  }
-
-  async function rebuildWithSettings() {
-    setLoading(true)
-    const words = await fetchWordsWithSettings(settings)
-    applyProgress({ activeWords: words, masteredWords: [], currentIndex: 0, correctCount: 0, incorrectCount: 0, settings, timestamp: Date.now(), mode: 'learn' })
-    setFinished(false)
-    setLoading(false)
-  }
-
-  async function fetchWordsWithSettings(currentSettings: StudySettings) {
-    try {
-      const { data, error } = await supabase
-        .from('word_pairs')
-        .select('*')
-        .eq('set_id', set.id!)
-
-      if (error) throw error
-
-      let processed = data || []
-
-      if (currentSettings.direction === 'both') {
-        const forward = processed
-        const reverse = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
-        processed = [...forward, ...reverse]
-      } else if (currentSettings.direction === 'reverse') {
+  // Device-specific: disable cloud load
+  async function loadProgressCloud(): Promise<LearnProgressState | null> { return null }
         processed = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
-      }
-
-      const shuffled = currentSettings.shuffle ? shuffleArray(processed) : processed
-      setAllWords(shuffled)
-      setActiveWords(shuffled)
-      return shuffled
-    } catch (err) {
-      console.error('Error loading words:', err)
-      return []
-    }
-  }
-
-  function applyProgress(state: LearnProgressState) {
-    setActiveWords(state.activeWords)
-    setMasteredWords(state.masteredWords)
-    setCurrentIndex(Math.min(state.currentIndex, Math.max(state.activeWords.length - 1, 0)))
-    setCorrectCount(state.correctCount)
-    setIncorrectCount(state.incorrectCount)
+  async function clearCloudProgress() { /* no-op */ }
     setUserAnswer('')
     setShowFeedback(false)
     setShowHint(false)

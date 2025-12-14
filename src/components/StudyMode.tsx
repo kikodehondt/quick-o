@@ -86,22 +86,17 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }
   }
 
-  async function saveProgress() {
+  function saveProgress() {
     try {
-      const { error } = await supabase
-        .from('study_progress')
-        .upsert({
-          set_id: set.id!,
-          correct_count: correctCount + 1,
-          incorrect_count: incorrectCount,
-          last_studied: new Date().toISOString()
-        }, {
-          onConflict: 'set_id'
-        })
-
-      if (error) throw error
+      const payload = {
+        mode: 'study',
+        correctCount,
+        incorrectCount,
+        timestamp: Date.now(),
+      }
+      localStorage.setItem('progress_study_' + set.id, JSON.stringify(payload))
     } catch (err) {
-      console.error('Error saving progress:', err)
+      console.error('Error saving local progress:', err)
     }
   }
 
