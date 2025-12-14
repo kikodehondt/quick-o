@@ -1,4 +1,17 @@
 -- Database schema for Vocab Trainer
+-- Upgrade: metadata & shareable link codes for vocab_sets
+ALTER TABLE vocab_sets
+  ADD COLUMN IF NOT EXISTS link_code text,
+  ADD COLUMN IF NOT EXISTS tags text[],
+  ADD COLUMN IF NOT EXISTS school text,
+  ADD COLUMN IF NOT EXISTS direction text,
+  ADD COLUMN IF NOT EXISTS year text,
+  ADD COLUMN IF NOT EXISTS author_name text,
+  ADD COLUMN IF NOT EXISTS is_anonymous boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now();
+
+-- Unique link code for sharing
+CREATE UNIQUE INDEX IF NOT EXISTS vocab_sets_link_code_key ON vocab_sets (link_code);
 
 -- Table for storing vocabulary sets
 CREATE TABLE IF NOT EXISTS vocab_sets (

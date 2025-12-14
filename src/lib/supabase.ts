@@ -19,9 +19,26 @@ export interface VocabSet {
   description?: string
   language1: string
   language2: string
-  created_by?: string
+  link_code?: string
+  tags?: string[]
+  school?: string
+  direction?: string
+  year?: string
+  author_name?: string | null
+  is_anonymous?: boolean
   created_at?: string
+  created_by?: string
   word_count?: number
+}
+
+// Helper: genereer 10-tekens base62 code (a-zA-Z0-9)
+export function generateLinkCode(length = 10): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let out = ''
+  for (let i = 0; i < length; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return out
 }
 
 export interface StudyProgress {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
 import { getOrCreateUserId } from '../lib/userUtils'
 
@@ -15,6 +15,12 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [language1, setLanguage1] = useState('Nederlands')
   const [language2, setLanguage2] = useState('Frans')
   const [vocabText, setVocabText] = useState('')
+  const [tagsInput, setTagsInput] = useState('')
+  const [school, setSchool] = useState('')
+  const [direction, setDirection] = useState('')
+  const [year, setYear] = useState('')
+  const [authorName, setAuthorName] = useState('')
+  const [isAnonymous, setIsAnonymous] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copyMessage, setCopyMessage] = useState('')
@@ -46,15 +52,30 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
         return
       }
 
+      // Prepare metadata
+      const tags = tagsInput
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0)
+
+      const link_code = generateLinkCode(10)
+
       // Create the set
       const { data: setData, error: createSetError } = await supabase
         .from('vocab_sets')
         .insert([{ 
-          name, 
-          description, 
-          language1, 
+          name,
+          description,
+          language1,
           language2,
-          created_by: getOrCreateUserId()
+          created_by: getOrCreateUserId(),
+          link_code,
+          tags,
+          school,
+          direction,
+          year,
+          author_name: isAnonymous ? null : authorName || null,
+          is_anonymous: isAnonymous
         }])
         .select()
         .single()
@@ -122,8 +143,75 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-              placeholder="Bijv. Werkwoorden en bijvoeglijke naamwoorden"
+              placeholder="Korte omschrijving"
             />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">School</label>
+                <input
+                  type="text"
+                  value={school}
+                  onChange={(e) => setSchool(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  placeholder="Bijv. KU Leuven"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Richting</label>
+                <input
+                  type="text"
+                  value={direction}
+                  onChange={(e) => setDirection(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  placeholder="Bijv. Toegepaste Informatica"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Jaar</label>
+                <input
+                  type="text"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  placeholder="Bijv. 2025-2026 of 1e Bachelor"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Tags (komma-gescheiden)</label>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  placeholder="Bijv. Frans, hoofdstuk 1, examen"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Naam (optioneel)</label>
+                <input
+                  type="text"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  placeholder="Je naam voor credits"
+                  disabled={isAnonymous}
+                />
+              </div>
+              <div className="flex items-end">
+                <label className="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-sm font-semibold text-gray-700">Anoniem publiceren</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

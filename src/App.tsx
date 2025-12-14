@@ -18,9 +18,35 @@ function App() {
   const [isStudying, setIsStudying] = useState(false)
     const [onlineCount, setOnlineCount] = useState<number>(1)
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [filterSchool, setFilterSchool] = useState('')
+  const [filterDirection, setFilterDirection] = useState('')
+  const [filterYear, setFilterYear] = useState('')
+  const [filterTags, setFilterTags] = useState('')
 
   useEffect(() => {
     loadSets()
+  }, [])
+
+  // Open via share link /s/<code>
+  useEffect(() => {
+    const path = window.location.pathname
+    const m = path.match(/^\/s\/(\w{10})$/)
+    if (m) {
+      const code = m[1]
+      ;(async () => {
+        const { data, error } = await supabase
+          .from('vocab_sets')
+          .select('*')
+          .eq('link_code', code)
+          .single()
+        if (!error && data) {
+          setSelectedSet(data as any)
+          setStudySettings({ mode: 'study', direction: 'forward', shuffle: true } as any)
+          setIsStudying(true)
+        }
+      })()
+    }
   }, [])
 
   // Presence: track how many users have the app open
@@ -171,6 +197,37 @@ function App() {
               <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>
+          </div>
+        </div>
+
+        {/* Search & Filters */}
+        <div className="bg-white rounded-3xl p-6 card-shadow mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <input value={search} onChange={(e)=>setSearch(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Zoeken op naam/beschrijving" />
+            <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="School" />
+            <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Richting" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Jaar" />
+            <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Tags (komma-gescheiden)" />
+            <button
+              className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold"
+              onClick={async ()=>{
+                setLoading(true)
+                const tagArray = filterTags.split(',').map(t=>t.trim()).filter(Boolean)
+                let query = supabase.from('vocab_sets').select('*')
+                if (search) {
+                  query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+                }
+                if (filterSchool) query = query.ilike('school', `%${filterSchool}%`)
+                if (filterDirection) query = query.ilike('direction', `%${filterDirection}%`)
+                if (filterYear) query = query.ilike('year', `%${filterYear}%`)
+                if (tagArray.length) query = query.contains('tags', tagArray)
+                const { data, error } = await query
+                if (!error && data) setSets(data as any)
+                setLoading(false)
+              }}
+            >Zoek</button>
           </div>
         </div>
 
