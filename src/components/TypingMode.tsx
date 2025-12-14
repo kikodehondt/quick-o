@@ -323,14 +323,6 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                     type="text"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        // Zorg dat Enter altijd de form submit triggert
-                        e.preventDefault()
-                        // Roep dezelfde submitlogica aan
-                        handleSubmit(e as unknown as React.FormEvent)
-                      }
-                    }}
                     className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all mb-4"
                     placeholder="Type je antwoord..."
                     autoComplete="off"
@@ -380,36 +372,24 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                 </form>
               )}
 
-              {/* Feedback */}
-              {showFeedback && (
+              {/* Feedback alleen bij fout */}
+              {showFeedback && !isCorrect && (
                 <div className="space-y-6">
-                  <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+                  <div className={`p-6 rounded-2xl bg-red-50 border-2 border-red-200`}>
                     <div className="flex items-center justify-center gap-3 mb-4">
-                      {isCorrect ? (
-                        <>
-                          <CheckCircle className="w-8 h-8 text-green-600" />
-                          <span className="text-2xl font-bold text-green-700">Correct!</span>
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-8 h-8 text-red-600" />
-                          <span className="text-2xl font-bold text-red-700">Fout</span>
-                        </>
-                      )}
+                      <XCircle className="w-8 h-8 text-red-600" />
+                      <span className="text-2xl font-bold text-red-700">Fout</span>
                     </div>
-                    
-                    {!isCorrect && (
-                      <div className="space-y-2">
-                        <div>
-                          <p className="text-sm text-gray-600">Jouw antwoord:</p>
-                          <p className="text-xl font-semibold text-red-600">{userAnswer}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Correct antwoord:</p>
-                          <p className="text-xl font-semibold text-green-600">{currentWord.word2}</p>
-                        </div>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-sm text-gray-600">Jouw antwoord:</p>
+                        <p className="text-xl font-semibold text-red-600">{userAnswer}</p>
                       </div>
-                    )}
+                      <div>
+                        <p className="text-sm text-gray-600">Correct antwoord:</p>
+                        <p className="text-xl font-semibold text-green-600">{currentWord.word2}</p>
+                      </div>
+                    </div>
                   </div>
 
                   <button
