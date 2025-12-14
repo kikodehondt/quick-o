@@ -1,4 +1,4 @@
-import { PlayCircle, BookOpen, Trash2, ClipboardCopy, Check } from 'lucide-react'
+import { PlayCircle, BookOpen, Trash2, Link as LinkIcon, Check } from 'lucide-react'
 import { useState } from 'react'
 import { VocabSet } from '../lib/supabase'
 import { getOrCreateUserId } from '../lib/userUtils'
@@ -100,7 +100,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
                       <Check className="w-5 h-5" />
                     </>
                   ) : (
-                    <ClipboardCopy className="w-5 h-5" />
+                    <LinkIcon className="w-5 h-5" />
                   )}
                 </button>
                 {copiedId === set.id && (
