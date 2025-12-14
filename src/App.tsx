@@ -178,7 +178,7 @@ function App() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 backdrop-blur"
           >
             <Code2 className="w-5 h-5" />
-            <span className="text-sm font-medium">Gemaakt door Kiko De Hondt</span>
+            <span className="text-sm font-medium">Gemaakt door Kiko Dehondt</span>
           </a>
         </div>
 
