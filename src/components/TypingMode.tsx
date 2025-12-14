@@ -102,20 +102,24 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     )
 
     setIsCorrect(correct)
-    setShowFeedback(true)
 
     if (correct) {
       setCorrectCount(prev => prev + 1)
+      // Snel verder gaan: bij correct antwoord meteen door zonder extra Enter
+      nextWord(true)
     } else {
       setIncorrectCount(prev => prev + 1)
+      // Toon feedback en wacht op Enter/klik om opnieuw te proberen
+      setShowFeedback(true)
     }
   }
 
-  function nextWord() {
+  function nextWord(forceAdvance?: boolean) {
     setShowFeedback(false)
     setUserAnswer('')
     setShowHint(false)
-    if (!isCorrect) {
+    const advance = forceAdvance ?? isCorrect
+    if (!advance) {
       // blijf op hetzelfde woord tot het juist is
       return
     }
@@ -401,7 +405,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                   </div>
 
                   <button
-                    onClick={nextWord}
+                    onClick={() => nextWord()}
                     className="w-full btn-gradient text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity"
                   >
                     Volgende
