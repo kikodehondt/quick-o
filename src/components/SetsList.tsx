@@ -1,31 +1,12 @@
-import { PlayCircle, Trash2, BookOpen } from 'lucide-react'
-import { VocabSet, supabase } from '../lib/supabase'
+import { PlayCircle, BookOpen } from 'lucide-react'
+import { VocabSet } from '../lib/supabase'
 
 interface SetsListProps {
   sets: VocabSet[]
   onStartStudy: (set: VocabSet) => void
-  onDelete: () => void
 }
 
-export default function SetsList({ sets, onStartStudy, onDelete }: SetsListProps) {
-  async function handleDelete(setId: number) {
-    if (!confirm('Weet je zeker dat je deze set wilt verwijderen?')) {
-      return
-    }
-
-    try {
-      const { error } = await supabase
-        .from('vocab_sets')
-        .delete()
-        .eq('id', setId)
-
-      if (error) throw error
-      onDelete()
-    } catch (err) {
-      console.error('Error deleting set:', err)
-      alert('Er is een fout opgetreden bij het verwijderen')
-    }
-  }
+export default function SetsList({ sets, onStartStudy }: SetsListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -54,21 +35,13 @@ export default function SetsList({ sets, onStartStudy, onDelete }: SetsListProps
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => onStartStudy(set)}
-              className="flex-1 btn-gradient text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-            >
-              <PlayCircle className="w-5 h-5" />
-              Oefenen
-            </button>
-            <button
-              onClick={() => handleDelete(set.id!)}
-              className="bg-red-50 text-red-600 px-4 py-3 rounded-xl hover:bg-red-100 transition-colors"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={() => onStartStudy(set)}
+            className="w-full btn-gradient text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          >
+            <PlayCircle className="w-5 h-5" />
+            Oefenen
+          </button>
         </div>
       ))}
     </div>

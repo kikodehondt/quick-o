@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, AlertCircle, Target } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
+import SessionSettings from './SessionSettings'
 
 interface LearnModeProps {
   set: VocabSet
@@ -9,7 +10,8 @@ interface LearnModeProps {
   onEnd: () => void
 }
 
-export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
+export default function LearnMode({ set, settings: initialSettings, onEnd }: LearnModeProps) {
+  const [settings, setSettings] = useState<StudySettings>(initialSettings)
   const [allWords, setAllWords] = useState<WordPair[]>([])
   const [activeWords, setActiveWords] = useState<WordPair[]>([])
   const [masteredWords, setMasteredWords] = useState<WordPair[]>([])
@@ -25,6 +27,7 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    loadProgress()
     loadWords()
   }, [])
 
@@ -33,6 +36,48 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
       inputRef.current.focus()
     }
   }, [currentIndex, showFeedback])
+
+  useEffect(() => {
+    if (!loading && allWords.length > 0) {
+      saveProgressToStorage()
+    }
+  }, [currentIndex, correctCount, incorrectCount, masteredWords, activeWords])
+
+  function loadProgress() {
+    const key = `progress_learn_${set.id}`
+    const saved = localStorage.getItem(key)
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        // Only load if recent (within 24 hours)
+        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+          setCorrectCount(data.correctCount || 0)
+          setIncorrectCount(data.incorrectCount || 0)
+          // Note: words will be set after loading from database
+        }
+      } catch (e) {
+        console.error('Error loading progress:', e)
+      }
+    }
+  }
+
+  function saveProgressToStorage() {
+    const key = `progress_learn_${set.id}`
+    const data = {
+      currentIndex,
+      correctCount,
+      incorrectCount,
+      masteredCount: masteredWords.length,
+      activeCount: activeWords.length,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(key, JSON.stringify(data))
+  }
+
+  function clearProgress() {
+    const key = `progress_learn_${set.id}`
+    localStorage.removeItem(key)
+  }
 
   async function loadWords() {
     try {
@@ -109,6 +154,7 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
       // Check if finished
       if (newActive.length === 0) {
         setFinished(true)
+        clearProgress()
         saveProgress()
         return
       }
@@ -176,6 +222,7 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
     setShowFeedback(false)
     setShowHint(false)
     setFinished(false)
+    clearProgress()
   }
 
   function getHint() {
@@ -291,6 +338,7 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
             <ArrowLeft className="w-5 h-5" />
             Terug
           </button>
+          <SessionSettings settings={settings} onUpdate={setSettings} mode="learn" />
           <div className="text-white text-center">
             <div className="flex items-center gap-2 justify-center">
               <Target className="w-5 h-5" />
@@ -348,90 +396,80 @@ export default function LearnMode({ set, settings, onEnd }: LearnModeProps) {
                     autoComplete="off"
                     autoFocus
                   />
-                  
-                  {/* Hint Button */}
-                  {!showHint && userAnswer.length === 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setShowHint(true)}
-                      className="text-purple-600 hover:text-purple-700 text-sm font-semibold flex items-center gap-2 mx-auto mb-4"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      Hint tonen
-                    </button>
-                  )}
 
-                  {/* Hint */}
-                  {showHint && (
-                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 mb-4">
-                      <p className="text-blue-700 font-mono text-lg">{getHint()}</p>
-                    </div>
-                  )}
-
-                  {/* Similarity Indicator */}
-                  {userAnswer.length > 0 && !showFeedback && (
+                  {/* Similarity Bar */}
+                  {userAnswer && similarity > 0 && (
                     <div className="mb-4">
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-300 ${
-                            similarity > 70 ? 'bg-green-500' : similarity > 40 ? 'bg-yellow-500' : 'bg-red-500'
+                          className={`h-2 transition-all duration-300 ${
+                            similarity >= 80 ? 'bg-green-500' :
+                            similarity >= 50 ? 'bg-yellow-500' :
+                            'bg-red-500'
                           }`}
                           style={{ width: `${similarity}%` }}
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">{similarity}% correct</p>
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={!userAnswer.trim()}
-                    className="w-full btn-gradient text-white px-8 py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-                  >
-                    Controleren
-                  </button>
+                  {/* Hint */}
+                  {showHint && (
+                    <div className="mb-4 bg-blue-50 rounded-xl p-4">
+                      <p className="text-sm text-gray-600 mb-1">💡 Hint:</p>
+                      <p className="text-xl font-semibold text-blue-600">{getHint()}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={!userAnswer.trim()}
+                      className="flex-1 btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Controleer
+                    </button>
+                    {!showHint && (
+                      <button
+                        type="button"
+                        onClick={() => setShowHint(true)}
+                        className="bg-blue-100 text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-200 transition-colors flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-5 h-5" />
+                        Hint
+                      </button>
+                    )}
+                  </div>
                 </form>
               )}
 
               {/* Feedback */}
               {showFeedback && (
-                <div className="space-y-6">
-                  <div className={`p-6 rounded-2xl ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-orange-50 border-2 border-orange-200'}`}>
-                    <div className="flex items-center justify-center gap-3 mb-4">
-                      {isCorrect ? (
-                        <>
-                          <CheckCircle className="w-8 h-8 text-green-600" />
-                          <span className="text-2xl font-bold text-green-700">Perfect! ✨</span>
-                        </>
-                      ) : (
-                        <>
-                          <RotateCcw className="w-8 h-8 text-orange-600" />
-                          <span className="text-2xl font-bold text-orange-700">Komt terug</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    {!isCorrect && (
-                      <div className="space-y-2">
-                        <div>
-                          <p className="text-sm text-gray-600">Jouw antwoord:</p>
-                          <p className="text-xl font-semibold text-orange-600">{userAnswer}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Correct antwoord:</p>
-                          <p className="text-xl font-semibold text-green-600">{currentWord.word2}</p>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-3">
-                          💡 Dit woord komt straks nog een keer terug
-                        </p>
-                      </div>
+                <div className={`rounded-2xl p-8 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+                  <div className="flex items-center justify-center mb-4">
+                    {isCorrect ? (
+                      <CheckCircle className="w-16 h-16 text-green-500" />
+                    ) : (
+                      <XCircle className="w-16 h-16 text-red-500" />
                     )}
                   </div>
-
+                  <p className={`text-2xl font-bold mb-4 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                    {isCorrect ? 'Correct!' : 'Helaas, niet correct'}
+                  </p>
+                  {!isCorrect && (
+                    <div className="mb-6">
+                      <p className="text-gray-600 mb-2">Het juiste antwoord is:</p>
+                      <p className="text-3xl font-bold text-gray-800">{currentWord.word2}</p>
+                      <p className="text-gray-600 mt-2">Jouw antwoord was:</p>
+                      <p className="text-xl text-gray-600">{userAnswer}</p>
+                    </div>
+                  )}
                   <button
                     onClick={nextWord}
-                    className="w-full btn-gradient text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity"
+                    className="btn-gradient text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
                   >
-                    Volgende
+                    {activeWords.length === 1 && isCorrect ? 'Afronden' : 'Volgende'}
                   </button>
                 </div>
               )}

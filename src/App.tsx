@@ -134,7 +134,7 @@ function App() {
             </p>
           </div>
         ) : (
-          <SetsList sets={sets} onStartStudy={handleStartStudy} onDelete={loadSets} />
+          <SetsList sets={sets} onStartStudy={handleStartStudy} />
         )}
 
         {/* Create Set Modal */}
