@@ -86,11 +86,10 @@ function App() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <Sparkles className="w-12 h-12 text-yellow-300 animate-pulse-slow" />
-            <h1 className="text-5xl md:text-6xl font-bold text-white mx-4">
+            <img src="/logo.png" alt="Woordjes Trainer Logo" className="w-16 h-16 md:w-20 md:h-20 mr-4" />
+            <h1 className="text-5xl md:text-6xl font-bold text-white">
               Woordjes Trainer
             </h1>
-            <Sparkles className="w-12 h-12 text-yellow-300 animate-pulse-slow" />
           </div>
           <p className="text-xl text-white/90 mb-2">
             Leer woordjes op een leuke en effectieve manier! 🚀
