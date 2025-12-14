@@ -250,19 +250,22 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     )
 
     setIsCorrect(correct)
-    setShowFeedback(true)
 
     if (correct) {
       setCorrectCount(prev => prev + 1)
+      // Direct doorgaan bij correct antwoord
+      nextWord(true)
     } else {
       setIncorrectCount(prev => prev + 1)
+      setShowFeedback(true)
     }
   }
 
-  function nextWord() {
+  function nextWord(forceAdvance?: boolean) {
     const currentWord = activeWords[currentIndex]
+    const wasCorrect = forceAdvance ?? isCorrect
 
-    if (isCorrect) {
+    if (wasCorrect) {
       const newMastered = [...masteredWords, currentWord]
       const newActive = activeWords.filter((_, idx) => idx !== currentIndex)
 
@@ -530,32 +533,24 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
                 </form>
               )}
 
-              {/* Feedback */}
-              {showFeedback && (
-                <div className={`rounded-2xl p-8 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+              {/* Feedback alleen bij fout */}
+              {showFeedback && !isCorrect && (
+                <div className="rounded-2xl p-8 bg-red-50">
                   <div className="flex items-center justify-center mb-4">
-                    {isCorrect ? (
-                      <CheckCircle className="w-16 h-16 text-green-500" />
-                    ) : (
-                      <XCircle className="w-16 h-16 text-red-500" />
-                    )}
+                    <XCircle className="w-16 h-16 text-red-500" />
                   </div>
-                  <p className={`text-2xl font-bold mb-4 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                    {isCorrect ? 'Correct!' : 'Helaas, niet correct'}
-                  </p>
-                  {!isCorrect && (
-                    <div className="mb-6">
-                      <p className="text-gray-600 mb-2">Het juiste antwoord is:</p>
-                      <p className="text-3xl font-bold text-gray-800">{currentWord.word2}</p>
-                      <p className="text-gray-600 mt-2">Jouw antwoord was:</p>
-                      <p className="text-xl text-gray-600">{userAnswer}</p>
-                    </div>
-                  )}
+                  <p className="text-2xl font-bold mb-4 text-red-700">Helaas, niet correct</p>
+                  <div className="mb-6">
+                    <p className="text-gray-600 mb-2">Het juiste antwoord is:</p>
+                    <p className="text-3xl font-bold text-gray-800">{currentWord.word2}</p>
+                    <p className="text-gray-600 mt-2">Jouw antwoord was:</p>
+                    <p className="text-xl text-gray-600">{userAnswer}</p>
+                  </div>
                   <button
-                    onClick={nextWord}
+                    onClick={() => nextWord()}
                     className="btn-gradient text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
                   >
-                    {activeWords.length === 1 && isCorrect ? 'Afronden' : 'Volgende'}
+                    Volgende
                   </button>
                 </div>
               )}
