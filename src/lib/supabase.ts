@@ -29,6 +29,7 @@ export interface StudyProgress {
   correct_count: number
   incorrect_count: number
   last_studied?: string
+  progress_state?: any
 }
 
 export type StudyMode = 'flashcard' | 'typing' | 'learn'

@@ -7,3 +7,6 @@ ALTER TABLE vocab_sets ADD COLUMN IF NOT EXISTS language2 TEXT DEFAULT 'Frans';
 -- Rename existing columns to be language-agnostic
 ALTER TABLE word_pairs RENAME COLUMN dutch TO word1;
 ALTER TABLE word_pairs RENAME COLUMN french TO word2;
+
+-- Progress state storage
+ALTER TABLE study_progress ADD COLUMN IF NOT EXISTS progress_state JSONB;

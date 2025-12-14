@@ -10,6 +10,19 @@ interface LearnModeProps {
   onEnd: () => void
 }
 
+interface LearnProgressState {
+  mode: 'learn'
+  activeWords: WordPair[]
+  masteredWords: WordPair[]
+  currentIndex: number
+  correctCount: number
+  incorrectCount: number
+  settings: StudySettings
+  timestamp: number
+}
+
+const LOCAL_KEY_PREFIX = 'progress_learn_'
+
 export default function LearnMode({ set, settings: initialSettings, onEnd }: LearnModeProps) {
   const [settings, setSettings] = useState<StudySettings>(initialSettings)
   const [allWords, setAllWords] = useState<WordPair[]>([])
@@ -24,11 +37,11 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
   const [showHint, setShowHint] = useState(false)
+  const [initialized, setInitialized] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    loadProgress()
-    loadWords()
+    initSession()
   }, [])
 
   useEffect(() => {
@@ -37,49 +50,39 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     }
   }, [currentIndex, showFeedback])
 
+  // Rebuild words when direction or shuffle changes
   useEffect(() => {
-    if (!loading && allWords.length > 0) {
-      saveProgressToStorage()
+    if (initialized) {
+      rebuildWithSettings()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.direction, settings.shuffle])
+
+  useEffect(() => {
+    if (!loading && initialized) {
+      saveProgressLocal()
+      saveProgressCloud()
     }
   }, [currentIndex, correctCount, incorrectCount, masteredWords, activeWords])
 
-  function loadProgress() {
-    const key = `progress_learn_${set.id}`
-    const saved = localStorage.getItem(key)
-    if (saved) {
-      try {
-        const data = JSON.parse(saved)
-        // Only load if recent (within 24 hours)
-        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-          setCorrectCount(data.correctCount || 0)
-          setIncorrectCount(data.incorrectCount || 0)
-          // Note: words will be set after loading from database
-        }
-      } catch (e) {
-        console.error('Error loading progress:', e)
-      }
-    }
+  async function initSession() {
+    setLoading(true)
+    const words = await fetchWordsWithSettings(settings)
+    const restored = await restoreProgress()
+    applyProgress(restored || { activeWords: words, masteredWords: [], currentIndex: 0, correctCount: 0, incorrectCount: 0, settings, timestamp: Date.now(), mode: 'learn' })
+    setInitialized(true)
+    setLoading(false)
   }
 
-  function saveProgressToStorage() {
-    const key = `progress_learn_${set.id}`
-    const data = {
-      currentIndex,
-      correctCount,
-      incorrectCount,
-      masteredCount: masteredWords.length,
-      activeCount: activeWords.length,
-      timestamp: Date.now()
-    }
-    localStorage.setItem(key, JSON.stringify(data))
+  async function rebuildWithSettings() {
+    setLoading(true)
+    const words = await fetchWordsWithSettings(settings)
+    applyProgress({ activeWords: words, masteredWords: [], currentIndex: 0, correctCount: 0, incorrectCount: 0, settings, timestamp: Date.now(), mode: 'learn' })
+    setFinished(false)
+    setLoading(false)
   }
 
-  function clearProgress() {
-    const key = `progress_learn_${set.id}`
-    localStorage.removeItem(key)
-  }
-
-  async function loadWords() {
+  async function fetchWordsWithSettings(currentSettings: StudySettings) {
     try {
       const { data, error } = await supabase
         .from('word_pairs')
@@ -88,38 +91,154 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
       if (error) throw error
 
-      let processedWords = data || []
-      
-      // Handle direction
-      if (settings.direction === 'both') {
-        const forwardWords = processedWords
-        const reverseWords = processedWords.map(w => ({
-          ...w,
-          word1: w.word2,
-          word2: w.word1,
-        }))
-        processedWords = [...forwardWords, ...reverseWords]
-      } else if (settings.direction === 'reverse') {
-        processedWords = processedWords.map(w => ({
-          ...w,
-          word1: w.word2,
-          word2: w.word1,
-        }))
+      let processed = data || []
+
+      if (currentSettings.direction === 'both') {
+        const forward = processed
+        const reverse = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
+        processed = [...forward, ...reverse]
+      } else if (currentSettings.direction === 'reverse') {
+        processed = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
       }
 
-      const shuffled = shuffleArray(processedWords)
+      const shuffled = currentSettings.shuffle ? shuffleArray(processed) : processed
       setAllWords(shuffled)
       setActiveWords(shuffled)
+      return shuffled
     } catch (err) {
       console.error('Error loading words:', err)
-    } finally {
-      setLoading(false)
+      return []
+    }
+  }
+
+  function applyProgress(state: LearnProgressState) {
+    setActiveWords(state.activeWords)
+    setMasteredWords(state.masteredWords)
+    setCurrentIndex(Math.min(state.currentIndex, Math.max(state.activeWords.length - 1, 0)))
+    setCorrectCount(state.correctCount)
+    setIncorrectCount(state.incorrectCount)
+    setUserAnswer('')
+    setShowFeedback(false)
+    setShowHint(false)
+    setFinished(false)
+  }
+
+  async function restoreProgress() {
+    const local = loadProgressLocal()
+    const cloud = await loadProgressCloud()
+
+    const latest = [local, cloud]
+      .filter(Boolean)
+      .sort((a, b) => (b!.timestamp || 0) - (a!.timestamp || 0))[0] as LearnProgressState | undefined
+
+    if (latest && latest.activeWords && latest.activeWords.length > 0) {
+      return latest
+    }
+
+    return null
+  }
+
+  function loadProgressLocal(): LearnProgressState | null {
+    const raw = localStorage.getItem(LOCAL_KEY_PREFIX + set.id)
+    if (!raw) return null
+    try {
+      const parsed = JSON.parse(raw)
+      if (parsed.mode === 'learn') return parsed as LearnProgressState
+    } catch (err) {
+      console.error('Error parsing local progress', err)
+    }
+    return null
+  }
+
+  async function loadProgressCloud(): Promise<LearnProgressState | null> {
+    try {
+      const { data, error } = await supabase
+        .from('study_progress')
+        .select('progress_state, correct_count, incorrect_count')
+        .eq('set_id', set.id!)
+        .maybeSingle()
+
+      if (error) throw error
+      const state = data?.progress_state
+      if (state && state.mode === 'learn') {
+        return {
+          ...(state as LearnProgressState),
+          correctCount: data?.correct_count ?? state.correctCount ?? 0,
+          incorrectCount: data?.incorrect_count ?? state.incorrectCount ?? 0,
+        }
+      }
+    } catch (err) {
+      console.error('Error loading cloud progress:', err)
+    }
+    return null
+  }
+
+  function saveProgressLocal() {
+    const payload: LearnProgressState = {
+      mode: 'learn',
+      activeWords,
+      masteredWords,
+      currentIndex,
+      correctCount,
+      incorrectCount,
+      settings,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem(LOCAL_KEY_PREFIX + set.id, JSON.stringify(payload))
+  }
+
+  async function saveProgressCloud() {
+    try {
+      const payload: LearnProgressState = {
+        mode: 'learn',
+        activeWords,
+        masteredWords,
+        currentIndex,
+        correctCount,
+        incorrectCount,
+        settings,
+        timestamp: Date.now(),
+      }
+
+      const { error } = await supabase
+        .from('study_progress')
+        .upsert({
+          set_id: set.id!,
+          correct_count: correctCount,
+          incorrect_count: incorrectCount,
+          last_studied: new Date().toISOString(),
+          progress_state: payload,
+        }, {
+          onConflict: 'set_id'
+        })
+
+      if (error) throw error
+    } catch (err) {
+      console.error('Error saving progress:', err)
+    }
+  }
+
+  async function clearCloudProgress() {
+    try {
+      const { error } = await supabase
+        .from('study_progress')
+        .upsert({
+          set_id: set.id!,
+          correct_count: 0,
+          incorrect_count: 0,
+          last_studied: new Date().toISOString(),
+          progress_state: null,
+        }, {
+          onConflict: 'set_id'
+        })
+      if (error) throw error
+    } catch (err) {
+      console.error('Error clearing cloud progress:', err)
     }
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    
     if (!userAnswer.trim() || showFeedback || activeWords.length === 0) return
 
     const currentWord = activeWords[currentIndex]
@@ -142,78 +261,57 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   function nextWord() {
     const currentWord = activeWords[currentIndex]
-    
+
     if (isCorrect) {
-      // Word mastered - remove from active pool
       const newMastered = [...masteredWords, currentWord]
       const newActive = activeWords.filter((_, idx) => idx !== currentIndex)
-      
+
       setMasteredWords(newMastered)
       setActiveWords(newActive)
-      
-      // Check if finished
+
       if (newActive.length === 0) {
         setFinished(true)
         clearProgress()
-        saveProgress()
         return
       }
-      
-      // Adjust index if needed
+
       if (currentIndex >= newActive.length) {
         setCurrentIndex(0)
       }
     } else {
-      // Word incorrect - shuffle it back into the pool
       const wordToReinsert = activeWords[currentIndex]
       const remainingWords = activeWords.filter((_, idx) => idx !== currentIndex)
-      
-      // Insert at random position (not immediately next)
+
       const minPosition = Math.min(2, remainingWords.length)
       const maxPosition = remainingWords.length
       const randomPosition = minPosition + Math.floor(Math.random() * (maxPosition - minPosition + 1))
-      
+
       const newActive = [
         ...remainingWords.slice(0, randomPosition),
         wordToReinsert,
         ...remainingWords.slice(randomPosition)
       ]
-      
+
       setActiveWords(newActive)
-      
-      // Move to next word (which is now at current index in the new array)
+
       if (currentIndex >= newActive.length) {
         setCurrentIndex(0)
       }
     }
-    
+
     setShowFeedback(false)
     setUserAnswer('')
     setShowHint(false)
   }
 
-  async function saveProgress() {
-    try {
-      const { error } = await supabase
-        .from('study_progress')
-        .upsert({
-          set_id: set.id!,
-          correct_count: correctCount,
-          incorrect_count: incorrectCount,
-          last_studied: new Date().toISOString()
-        }, {
-          onConflict: 'set_id'
-        })
-
-      if (error) throw error
-    } catch (err) {
-      console.error('Error saving progress:', err)
-    }
+  function clearProgress() {
+    localStorage.removeItem(LOCAL_KEY_PREFIX + set.id)
+    clearCloudProgress()
   }
 
   function restart() {
-    const shuffled = shuffleArray(allWords)
-    setActiveWords(shuffled)
+    const reshuffled = settings.shuffle ? shuffleArray(allWords) : allWords
+    setActiveWords(reshuffled)
     setMasteredWords([])
     setCurrentIndex(0)
     setCorrectCount(0)
@@ -338,7 +436,12 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
             <ArrowLeft className="w-5 h-5" />
             Terug
           </button>
-          <SessionSettings settings={settings} onUpdate={setSettings} mode="learn" />
+          <SessionSettings
+            settings={settings}
+            onUpdate={setSettings}
+            mode="learn"
+            onResetProgress={restart}
+          />
           <div className="text-white text-center">
             <div className="flex items-center gap-2 justify-center">
               <Target className="w-5 h-5" />

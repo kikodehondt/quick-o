@@ -6,9 +6,10 @@ interface SessionSettingsProps {
   settings: StudySettings
   onUpdate: (settings: StudySettings) => void
   mode: 'learn' | 'typing' | 'flashcard'
+  onResetProgress?: () => void
 }
 
-export default function SessionSettings({ settings, onUpdate, mode }: SessionSettingsProps) {
+export default function SessionSettings({ settings, onUpdate, mode, onResetProgress }: SessionSettingsProps) {
   const [showModal, setShowModal] = useState(false)
   const [localSettings, setLocalSettings] = useState(settings)
 
@@ -82,13 +83,26 @@ export default function SessionSettings({ settings, onUpdate, mode }: SessionSet
                 </p>
               </div>
 
-              {/* Save Button */}
-              <button
-                onClick={handleSave}
-                className="w-full btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
-              >
-                Toepassen
-              </button>
+              <div className="flex gap-3">
+                {onResetProgress && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onResetProgress()
+                      setShowModal(false)
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl border-2 border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors"
+                  >
+                    Reset voortgang
+                  </button>
+                )}
+                <button
+                  onClick={handleSave}
+                  className="flex-1 btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Toepassen
+                </button>
+              </div>
             </div>
           </div>
         </div>
