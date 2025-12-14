@@ -88,8 +88,10 @@ export default function SessionSettings({ settings, onUpdate, mode, onResetProgr
                   <button
                     type="button"
                     onClick={() => {
-                      onResetProgress()
-                      setShowModal(false)
+                      if (confirm('Weet je zeker dat je je voortgang wilt verwijderen?')) {
+                        onResetProgress()
+                        setShowModal(false)
+                      }
                     }}
                     className="flex-1 px-4 py-3 rounded-xl border-2 border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors"
                   >
