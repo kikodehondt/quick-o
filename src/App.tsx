@@ -120,7 +120,7 @@ function App() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur">
-            <img src="/logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" />
+            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" />
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Quick-O</h1>
               <p className="text-base md:text-lg text-white/80">Motiverend oefenen op je eigen tempo</p>
