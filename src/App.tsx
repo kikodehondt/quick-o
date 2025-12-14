@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Plus, Trophy } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Code2 } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import CreateSetModal from './components/CreateSetModal'
 import StudyMode from './components/StudyMode'
@@ -123,7 +123,7 @@ function App() {
             <img src="/logo.png" alt="Woordjes Trainer Logo" className="w-16 h-16 md:w-20 md:h-20" />
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Woordjes Trainer</h1>
-              <p className="text-base md:text-lg text-white/80">Motiverend oefenen in je eigen tempo</p>
+              <p className="text-base md:text-lg text-white/80">Motiverend oefenen op je eigen tempo</p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-white/80 mt-6">
@@ -168,6 +168,19 @@ function App() {
         ) : (
           <SetsList sets={sets} onStartStudy={handleStartStudy} onDeleteSet={handleDeleteSet} />
         )}
+
+        {/* Developer Credit */}
+        <div className="mt-12 text-center">
+          <a
+            href="https://www.kikodehondt.be"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 backdrop-blur"
+          >
+            <Code2 className="w-5 h-5" />
+            <span className="text-sm font-medium">Gemaakt door Kiko De Hondt</span>
+          </a>
+        </div>
 
         {/* Create Set Modal */}
         {showCreateModal && (
