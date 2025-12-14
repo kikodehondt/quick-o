@@ -229,15 +229,15 @@ function App() {
 
         {/* Search & Filters */}
         {showFilters && (
-          <div className="bg-white rounded-3xl p-6 card-shadow mb-8">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 card-shadow mb-8 animate-slide-in-down text-white">
             <h3 className="text-xl font-bold mb-3">Geavanceerde filters</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="School" />
-              <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Richting" />
-              <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Jaar" />
+              <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="School" />
+              <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Richting" />
+              <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Jaar" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border-2" placeholder="Tags (komma-gescheiden)" />
+              <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Tags (komma-gescheiden)" />
               <div className="col-span-2 flex items-center gap-3">
                 <button
                   className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold"
@@ -259,7 +259,7 @@ function App() {
                   }}
                 >Zoek</button>
                 <button
-                  className="px-4 py-3 rounded-xl bg-gray-100 text-gray-800 font-semibold border border-gray-300"
+                  className="px-4 py-3 rounded-xl bg-white/10 text-white font-semibold border border-white/20 hover:bg-white/20 transition-all"
                   onClick={()=>{
                     setFilterSchool(''); setFilterDirection(''); setFilterYear(''); setFilterTags('')
                   }}

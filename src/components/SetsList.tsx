@@ -32,10 +32,11 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {sets.map((set) => (
+      {sets.map((set, idx) => (
         <div
           key={set.id}
-          className="bg-white rounded-2xl p-6 card-shadow hover:scale-105 transition-all duration-200 group"
+          className="bg-white rounded-2xl p-6 card-shadow hover:scale-105 transition-all duration-200 group animate-scale-in"
+          style={{ animationDelay: `${idx * 50}ms` }}
         >
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
