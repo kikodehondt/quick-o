@@ -323,6 +323,14 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
                     type="text"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        // Zorg dat Enter altijd de form submit triggert
+                        e.preventDefault()
+                        // Roep dezelfde submitlogica aan
+                        handleSubmit(e as unknown as React.FormEvent)
+                      }
+                    }}
                     className="w-full px-6 py-4 text-2xl text-center rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all mb-4"
                     placeholder="Type je antwoord..."
                     autoComplete="off"
