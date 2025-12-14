@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, AlertCircle, Target }
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 import SessionSettings from './SessionSettings'
+import { getOrCreateUserId } from '../lib/userUtils'
 
 interface LearnModeProps {
   set: VocabSet
@@ -52,7 +53,10 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   }, [settings.direction, settings.shuffle])
 
   useEffect(() => {
-    if (!loading && initialized) saveProgressLocal()
+    if (!loading && initialized) {
+      saveProgressLocal()
+      saveProgressCloud()
+    }
   }, [currentIndex, correctCount, incorrectCount, masteredWords, activeWords])
 
   // Enter tijdens feedback (bij fout) schakelt terug naar typen
@@ -70,7 +74,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   async function initSession() {
     setLoading(true)
     const words = await fetchWordsWithSettings(settings)
-    const restored = restoreProgress()
+    const restored = await restoreProgress()
     applyProgress(restored || { activeWords: words, masteredWords: [], currentIndex: 0, correctCount: 0, incorrectCount: 0, settings, timestamp: Date.now(), mode: 'learn' })
     setInitialized(true)
     setLoading(false)
@@ -121,9 +125,13 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     setFinished(false)
   }
 
-  function restoreProgress(): LearnProgressState | null {
+  async function restoreProgress(): Promise<LearnProgressState | null> {
     const local = loadProgressLocal()
-    if (local && local.activeWords && local.activeWords.length > 0) return local
+    const cloud = await loadProgressCloud()
+    const latest = [local, cloud]
+      .filter(Boolean)
+      .sort((a, b) => (b!.timestamp || 0) - (a!.timestamp || 0))[0] as LearnProgressState | undefined
+    if (latest && latest.activeWords && latest.activeWords.length > 0) return latest
     return null
   }
 
@@ -135,6 +143,30 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
       if (parsed.mode === 'learn') return parsed as LearnProgressState
     } catch (err) {
       console.error('Error parsing local progress', err)
+    }
+    return null
+  }
+
+  async function loadProgressCloud(): Promise<LearnProgressState | null> {
+    try {
+      const userId = getOrCreateUserId()
+      const { data, error } = await supabase
+        .from('study_progress')
+        .select('progress_state, correct_count, incorrect_count')
+        .eq('set_id', set.id!)
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (error) throw error
+      const state = data?.progress_state
+      if (state && state.mode === 'learn') {
+        return {
+          ...(state as LearnProgressState),
+          correctCount: data?.correct_count ?? state.correctCount ?? 0,
+          incorrectCount: data?.incorrect_count ?? state.incorrectCount ?? 0,
+        }
+      }
+    } catch (err) {
+      console.error('Error loading cloud progress:', err)
     }
     return null
   }
@@ -151,6 +183,51 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
       timestamp: Date.now(),
     }
     localStorage.setItem(LOCAL_KEY_PREFIX + set.id, JSON.stringify(payload))
+  }
+
+  async function saveProgressCloud() {
+    try {
+      const userId = getOrCreateUserId()
+      const payload: LearnProgressState = {
+        mode: 'learn',
+        activeWords,
+        masteredWords,
+        currentIndex,
+        correctCount,
+        incorrectCount,
+        settings,
+        timestamp: Date.now(),
+      }
+      const { error } = await supabase
+        .from('study_progress')
+        .upsert({
+          set_id: set.id!,
+          user_id: userId,
+          correct_count: correctCount,
+          incorrect_count: incorrectCount,
+          last_studied: new Date().toISOString(),
+          progress_state: payload,
+        }, {
+          onConflict: 'set_id,user_id'
+        })
+      if (error) throw error
+    } catch (err) {
+      console.error('Error saving progress:', err)
+    }
+  }
+
+  async function clearCloudProgress() {
+    try {
+      const userId = getOrCreateUserId()
+      const { error } = await supabase
+        .from('study_progress')
+        .delete()
+        .eq('set_id', set.id!)
+        .eq('user_id', userId)
+      if (error) throw error
+    } catch (err) {
+      console.error('Error clearing cloud progress:', err)
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -191,6 +268,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   function clearProgress() {
     localStorage.removeItem(LOCAL_KEY_PREFIX + set.id)
+    clearCloudProgress()
   }
 
   function restart() {

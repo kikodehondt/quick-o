@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Plus, Trophy, Code2 } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Code2, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
+import { getOrCreateUserId } from './lib/userUtils'
 import CreateSetModal from './components/CreateSetModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
@@ -15,10 +16,40 @@ function App() {
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
   const [studySettings, setStudySettings] = useState<StudySettings | null>(null)
   const [isStudying, setIsStudying] = useState(false)
+    const [onlineCount, setOnlineCount] = useState<number>(1)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadSets()
+  }, [])
+
+  // Presence: track how many users have the app open
+  useEffect(() => {
+    const userId = getOrCreateUserId()
+    const channel = supabase.channel('quick-o-presence', {
+      config: {
+        presence: {
+          key: userId,
+        },
+      },
+    })
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState()
+      // presenceState is a record of keys -> array of metas
+      const total = Object.values(state).reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0)
+      setOnlineCount(total || 1)
+    })
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await channel.track({ online_at: new Date().toISOString() })
+      }
+    })
+
+    return () => {
+      channel.unsubscribe()
+    }
   }, [])
 
   async function loadSets() {
@@ -124,12 +155,17 @@ function App() {
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Quick-O</h1>
               <p className="text-base md:text-lg text-white/80">Motiverend oefenen op je eigen tempo</p>
+              <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-white/80 mt-6">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
               <BookOpen className="w-5 h-5" />
               <span>{sets.length} Sets</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
+              <Users className="w-5 h-5" />
+              <span>{onlineCount} online</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
               <Trophy className="w-5 h-5" />

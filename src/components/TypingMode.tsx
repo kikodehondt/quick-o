@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
+import { getOrCreateUserId } from '../lib/userUtils'
 
 interface TypingModeProps {
   set: VocabSet
@@ -141,8 +142,23 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
         timestamp: Date.now(),
       }
       localStorage.setItem('progress_typing_' + set.id, JSON.stringify(payload))
+      
+      // Device-specific cloud sync
+      const userId = getOrCreateUserId()
+      supabase
+        .from('study_progress')
+        .upsert({
+          set_id: set.id!,
+          user_id: userId,
+          correct_count: correctCount,
+          incorrect_count: incorrectCount,
+          last_studied: new Date().toISOString()
+        }, {
+          onConflict: 'set_id,user_id'
+        })
+        .then(() => {}) // fire and forget
     } catch (err) {
-      console.error('Error saving local progress:', err)
+      console.error('Error saving progress:', err)
     }
   }
 
