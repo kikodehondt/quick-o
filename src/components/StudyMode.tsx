@@ -370,18 +370,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Flashcard */}
+        {/* Flashcard (no animations; instant toggle) */}
         <div className="flex-1 flex items-center justify-center mb-8">
           <div
-            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer transition-all duration-500 ${
-              showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50 scale-105' : 'hover:scale-105'
+            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer ${
+              showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             onClick={() => setShowAnswer(prev => !prev)}
-            style={{
-              perspective: '1000px',
-              // Only animate when revealing the answer (one-way animation)
-              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'none'
-            }}
           >
             <div className="text-center">
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
@@ -391,7 +386,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               {!showAnswer && (
-                <p className="text-gray-400 text-sm animate-bounce" style={{animationDelay: '0.2s'}}>Klik om het antwoord te zien</p>
+                <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
               )}
             </div>
           </div>
