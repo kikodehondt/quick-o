@@ -26,6 +26,7 @@ ALTER TABLE IF EXISTS vocab_sets
   ADD COLUMN IF NOT EXISTS direction text,
   ADD COLUMN IF NOT EXISTS year text,
   ADD COLUMN IF NOT EXISTS author_name text,
+  ADD COLUMN IF NOT EXISTS created_by text,
   ADD COLUMN IF NOT EXISTS is_anonymous boolean DEFAULT false;
 
 -- Add UNIQUE constraint on link_code
@@ -80,6 +81,7 @@ CREATE INDEX IF NOT EXISTS idx_word_pairs_set_id ON word_pairs(set_id);
 CREATE INDEX IF NOT EXISTS idx_study_progress_set_id ON study_progress(set_id);
 CREATE INDEX IF NOT EXISTS idx_study_progress_user_id ON study_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_vocab_sets_link_code ON vocab_sets(link_code);
+CREATE INDEX IF NOT EXISTS idx_vocab_sets_created_by ON vocab_sets(created_by);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE IF EXISTS vocab_sets ENABLE ROW LEVEL SECURITY;

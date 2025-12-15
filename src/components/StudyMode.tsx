@@ -22,6 +22,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
   const [selected, setSelected] = useState<SelectionState>(null)
+  
+  // Swipe state
+  const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(null)
+  const [dragOffset, setDragOffset] = useState({x: 0, y: 0})
 
   useEffect(() => {
     loadWords()
@@ -100,6 +104,40 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }
   }
 
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    setDragStart({x: touch.clientX, y: touch.clientY})
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragStart) return
+    const touch = e.touches[0]
+    const deltaX = touch.clientX - dragStart.x
+    const deltaY = touch.clientY - dragStart.y
+    setDragOffset({x: deltaX, y: deltaY})
+  }
+
+  const handleTouchEnd = () => {
+    if (!dragStart) return
+    const threshold = window.innerWidth * 0.4
+    
+    if (Math.abs(dragOffset.x) > threshold) {
+      // Swipe detected
+      if (dragOffset.x < 0) {
+        // Swipe left = incorrect
+        handleIncorrect()
+      } else {
+        // Swipe right = correct
+        handleCorrect()
+      }
+    }
+    
+    // Reset drag state
+    setDragStart(null)
+    setDragOffset({x: 0, y: 0})
+  }
+
   function handleCorrect() {
     if (queue.length === 0) return
     setSelected('correct')
@@ -117,6 +155,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         return newQ
       })
       setSelected(null)
+      setDragOffset({x: 0, y: 0})
+      setDragStart(null)
     }, 250)
   }
 
@@ -153,6 +193,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         return [...before, current, ...after]
       })
       setSelected(null)
+      setDragOffset({x: 0, y: 0})
+      setDragStart(null)
     }, 250)
   }
 
@@ -368,19 +410,55 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Flashcard (no animations; instant toggle) */}
+        {/* Flashcard with swipe gestures */}
         <div className="flex-1 flex items-center justify-center mb-8">
           <div
-            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer ${
+            className={`bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl cursor-pointer relative ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
+            style={{
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.05}deg)`,
+              opacity: 1 - Math.abs(dragOffset.x) / (window.innerWidth * 0.7),
+              transition: dragStart ? 'none' : 'transform 0.3s ease-out, opacity 0.3s ease-out'
+            }}
             onClick={() => setShowAnswer(prev => !prev)}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <div className="text-center">
+            {/* Swipe indicators */}
+            {dragOffset.x !== 0 && (
+              <>
+                <div 
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                  style={{
+                    opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 150, 1) : 0
+                  }}
+                >
+                  <div className="bg-red-500 text-white px-6 py-3 rounded-2xl font-bold text-2xl flex items-center gap-2 shadow-2xl rotate-12">
+                    <XCircle className="w-8 h-8" />
+                    FOUT
+                  </div>
+                </div>
+                <div 
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                  style={{
+                    opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 150, 1) : 0
+                  }}
+                >
+                  <div className="bg-green-500 text-white px-6 py-3 rounded-2xl font-bold text-2xl flex items-center gap-2 shadow-2xl -rotate-12">
+                    <CheckCircle className="w-8 h-8" />
+                    CORRECT
+                  </div>
+                </div>
+              </>
+            )}
+            
+            <div className="text-center relative z-10">
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+              <p className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               {!showAnswer && (
@@ -390,9 +468,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - hidden on mobile, shown on desktop */}
         {showAnswer && (
-          <div className="md:static fixed bottom-0 left-0 right-0 z-20 px-4 pt-3 flex gap-3 justify-center flex-col sm:flex-row animate-slide-in-up md:bg-transparent" style={{background: 'rgba(0,0,0,0.18)', backdropFilter: 'blur(8px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)'}}>
+          <div className="hidden md:flex gap-3 justify-center flex-col sm:flex-row animate-slide-in-up">
             <button
               onClick={handleIncorrect}
               disabled={selected !== null}
@@ -420,15 +498,22 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         )}
 
-        {/* Keyboard Hints */}
+        {/* Keyboard Hints - hidden on mobile */}
         {!showAnswer && (
-          <div className="text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
+          <div className="hidden md:block text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
             <p className="font-semibold">Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen</p>
           </div>
         )}
         {showAnswer && (
-          <div className="text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
+          <div className="hidden md:block text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
             <p className="font-semibold"><kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct</p>
+          </div>
+        )}
+        
+        {/* Mobile swipe hint */}
+        {showAnswer && (
+          <div className="md:hidden text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
+            <p className="font-semibold">← Swipe links voor fout • Swipe rechts voor correct →</p>
           </div>
         )}
       </div>
