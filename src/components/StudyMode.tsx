@@ -188,14 +188,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   function restart() {
-    setCurrentIndex(0)
     setCorrectCount(0)
     setIncorrectCount(0)
+    setCompletedCount(0)
     setShowAnswer(false)
     setFinished(false)
-    if (settings.shuffle) {
-      setWords(shuffleArray(words))
-    }
+    loadWords()
   }
 
   if (loading) {
