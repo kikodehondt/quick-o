@@ -18,6 +18,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [completedCount, setCompletedCount] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
   const [isFlipping, setIsFlipping] = useState(false)
+  const [hasFlipped, setHasFlipped] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [incorrectCount, setIncorrectCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -110,21 +111,22 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const handleCardClick = () => {
     if (swipingAway) return
     setIsFlipping(true)
+    if (!hasFlipped) setHasFlipped(true)
     setTimeout(() => {
       setShowAnswer(prev => !prev)
       setIsFlipping(false)
     }, 150)
   }
 
-  // Touch handlers for swipe (only when answer is shown)
+  // Touch handlers for swipe (only after first flip)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!showAnswer) return
+    if (!hasFlipped) return
     const touch = e.touches[0]
     setDragStart({x: touch.clientX, y: touch.clientY})
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!showAnswer || !dragStart) return
+    if (!hasFlipped || !dragStart) return
     const touch = e.touches[0]
     const deltaX = touch.clientX - dragStart.x
     const deltaY = touch.clientY - dragStart.y
@@ -132,7 +134,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   const handleTouchEnd = () => {
-    if (!showAnswer || !dragStart) return
+    if (!hasFlipped || !dragStart) return
     const threshold = window.innerWidth * 0.35
     
     if (Math.abs(dragOffset.x) > threshold) {
@@ -162,6 +164,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     setCorrectCount(prev => prev + 1)
     setCompletedCount(prev => prev + 1)
     setShowAnswer(false)
+    setHasFlipped(false)
     // dequeue current and advance
     setQueue(prev => {
       const newQ = prev.slice(1)
@@ -181,6 +184,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     setSelected('incorrect')
     setIncorrectCount(prev => prev + 1)
     setShowAnswer(false)
+    setHasFlipped(false)
     // Reinsert current card 5-10 positions later (or later, not within first 2 remaining)
     setQueue(prev => {
       const [current, ...rest] = prev
@@ -470,7 +474,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onTouchEnd={handleTouchEnd}
           >
             {/* Swipe indicators */}
-            {dragOffset.x !== 0 && showAnswer && (
+            {dragOffset.x !== 0 && hasFlipped && (
               <>
                 <div 
                   className="absolute top-8 left-8 pointer-events-none transition-all duration-200"
