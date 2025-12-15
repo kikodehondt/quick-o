@@ -145,6 +145,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           handleCorrect()
         }
         setSwipingAway(false)
+        setDragOffset({x: 0, y: 0})
+        setDragStart(null)
       }, 300)
     } else {
       // Bounce back
@@ -197,13 +199,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       }
       return newQ
     })
-    setDragOffset({x: 0, y: 0})
-    setDragStart(null)
   }
 
   // Programmatic swipe with animation
   const handleSwipeWithAnimation = (direction: 'left' | 'right') => {
-    if (!hasFlipped) return
+    if (!hasFlipped || swipingAway) return
     setSwipingAway(true)
     const targetX = direction === 'left' ? -window.innerWidth * 1.5 : window.innerWidth * 1.5
     setDragOffset({x: targetX, y: 0})
@@ -215,6 +215,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         handleCorrect()
       }
       setSwipingAway(false)
+      setDragOffset({x: 0, y: 0})
+      setDragStart(null)
     }, 300)
   }
 
@@ -249,8 +251,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       const after = rest.slice(insertPos)
       return [...before, current, ...after]
     })
-    setDragOffset({x: 0, y: 0})
-    setDragStart(null)
   }
 
   // nextWord no longer needed; advancing handled in handlers
