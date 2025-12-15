@@ -17,6 +17,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [initialCount, setInitialCount] = useState(0)
   const [completedCount, setCompletedCount] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
+  const [isFlipping, setIsFlipping] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [incorrectCount, setIncorrectCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -103,6 +104,16 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Handle card flip
+  const handleCardClick = () => {
+    if (swipingAway) return
+    setIsFlipping(true)
+    setTimeout(() => {
+      setShowAnswer(prev => !prev)
+      setIsFlipping(false)
+    }, 150)
   }
 
   // Touch handlers for swipe (only when answer is shown)
@@ -448,11 +459,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
-              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg)`,
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
               opacity: 1,
-              transition: swipingAway ? 'transform 0.3s ease-out' : (dragStart ? 'none' : 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)')
+              transition: swipingAway ? 'transform 0.3s ease-out' : (dragStart ? 'none' : (isFlipping ? 'transform 0.15s ease-in' : 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)')),
+              transformStyle: 'preserve-3d'
             }}
-            onClick={() => !swipingAway && setShowAnswer(prev => !prev)}
+            onClick={handleCardClick}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
