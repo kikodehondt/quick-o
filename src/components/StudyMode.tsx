@@ -4,8 +4,6 @@ import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
 import { getOrCreateUserId } from '../lib/userUtils'
 
-type SelectionState = null | 'correct' | 'incorrect'
-
 interface StudyModeProps {
   set: VocabSet
   settings: StudySettings
@@ -23,7 +21,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [incorrectCount, setIncorrectCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
-  const [selected, setSelected] = useState<SelectionState>(null)
   
   // Swipe state
   const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(null)
@@ -187,7 +184,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   function handleCorrect() {
     if (queue.length === 0) return
-    setSelected('correct')
     setCorrectCount(prev => prev + 1)
     setCompletedCount(prev => prev + 1)
     setShowAnswer(false)
@@ -201,14 +197,29 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       }
       return newQ
     })
-    setSelected(null)
     setDragOffset({x: 0, y: 0})
     setDragStart(null)
   }
 
+  // Programmatic swipe with animation
+  const handleSwipeWithAnimation = (direction: 'left' | 'right') => {
+    if (!hasFlipped) return
+    setSwipingAway(true)
+    const targetX = direction === 'left' ? -window.innerWidth * 1.5 : window.innerWidth * 1.5
+    setDragOffset({x: targetX, y: 0})
+    
+    setTimeout(() => {
+      if (direction === 'left') {
+        handleIncorrect()
+      } else {
+        handleCorrect()
+      }
+      setSwipingAway(false)
+    }, 300)
+  }
+
   function handleIncorrect() {
     if (queue.length === 0) return
-    setSelected('incorrect')
     setIncorrectCount(prev => prev + 1)
     setShowAnswer(false)
     setHasFlipped(false)
@@ -238,7 +249,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       const after = rest.slice(insertPos)
       return [...before, current, ...after]
     })
-    setSelected(null)
     setDragOffset({x: 0, y: 0})
     setDragStart(null)
   }
@@ -455,6 +465,36 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
+        {/* Swipe status indicator - above cards */}
+        {(dragOffset.x !== 0 || swipingAway) && hasFlipped && (
+          <div className="flex justify-center mb-4 animate-slide-in-down">
+            <div 
+              className="transition-all duration-200"
+              style={{
+                opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 80, 1) : 0,
+                transform: `scale(${dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 100, 1.2) : 0})`
+              }}
+            >
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-10 py-5 rounded-2xl font-black text-4xl flex items-center gap-4 shadow-2xl border-4 border-white/50 backdrop-blur">
+                <XCircle className="w-12 h-12" strokeWidth={3} />
+                <span>FOUT</span>
+              </div>
+            </div>
+            <div 
+              className="transition-all duration-200"
+              style={{
+                opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 80, 1) : 0,
+                transform: `scale(${dragOffset.x > 0 ? Math.min(dragOffset.x / 100, 1.2) : 0})`
+              }}
+            >
+              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-10 py-5 rounded-2xl font-black text-4xl flex items-center gap-4 shadow-2xl border-4 border-white/50 backdrop-blur">
+                <CheckCircle className="w-12 h-12" strokeWidth={3} />
+                <span>CORRECT</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Flashcard stack with swipe gestures */}
         <div className="flex-1 flex items-center justify-center mb-8 relative">
           {/* Next card (underneath) */}
@@ -504,36 +544,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {/* Swipe indicators */}
-            {dragOffset.x !== 0 && hasFlipped && (
-              <>
-                <div 
-                  className="absolute top-8 left-8 pointer-events-none transition-all duration-200"
-                  style={{
-                    opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 80, 1) : 0,
-                    transform: `scale(${dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 100, 1.2) : 0.8})`
-                  }}
-                >
-                  <div className="bg-red-500 text-white px-6 py-3 rounded-xl font-bold text-xl flex items-center gap-2 shadow-lg border-4 border-white">
-                    <XCircle className="w-8 h-8" />
-                    FOUT
-                  </div>
-                </div>
-                <div 
-                  className="absolute top-8 right-8 pointer-events-none transition-all duration-200"
-                  style={{
-                    opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 80, 1) : 0,
-                    transform: `scale(${dragOffset.x > 0 ? Math.min(dragOffset.x / 100, 1.2) : 0.8})`
-                  }}
-                >
-                  <div className="bg-green-500 text-white px-6 py-3 rounded-xl font-bold text-xl flex items-center gap-2 shadow-lg border-4 border-white">
-                    <CheckCircle className="w-8 h-8" />
-                    CORRECT
-                  </div>
-                </div>
-              </>
-            )}
-            
             <div className="text-center relative z-10">
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
@@ -548,32 +558,28 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Action Buttons - hidden on mobile, shown on desktop */}
-        {showAnswer && (
-          <div className="hidden md:flex gap-3 justify-center flex-col sm:flex-row animate-slide-in-up">
+        {/* Arrow buttons - desktop only */}
+        {hasFlipped && (
+          <div className="hidden md:flex gap-8 justify-center items-center animate-slide-in-up">
             <button
-              onClick={handleIncorrect}
-              disabled={selected !== null}
-              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform relative group ${
-                selected === 'incorrect'
-                  ? 'scale-95 opacity-75 bg-gradient-to-r from-red-600 to-red-700 ring-4 ring-red-400'
-                  : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:scale-110 hover:shadow-2xl'
-              } text-white disabled:cursor-not-allowed`}
+              onClick={() => handleSwipeWithAnimation('left')}
+              disabled={swipingAway}
+              className="group relative bg-white/20 hover:bg-red-500/30 backdrop-blur text-white p-6 rounded-full transition-all duration-300 hover:scale-125 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/30 hover:border-red-400"
+              title="Fout (← arrow key)"
             >
-              <XCircle className="w-6 h-6 group-hover:animate-spin-slow" />
-              Fout
+              <svg className="w-10 h-10 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
             <button
-              onClick={handleCorrect}
-              disabled={selected !== null}
-              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform relative group ${
-                selected === 'correct'
-                  ? 'scale-95 opacity-75 bg-gradient-to-r from-green-600 to-green-700 ring-4 ring-green-400'
-                  : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-110 hover:shadow-2xl'
-              } text-white disabled:cursor-not-allowed`}
+              onClick={() => handleSwipeWithAnimation('right')}
+              disabled={swipingAway}
+              className="group relative bg-white/20 hover:bg-green-500/30 backdrop-blur text-white p-6 rounded-full transition-all duration-300 hover:scale-125 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/30 hover:border-green-400"
+              title="Correct (→ arrow key)"
             >
-              <CheckCircle className="w-6 h-6 group-hover:animate-spin-slow" />
-              Correct
+              <svg className="w-10 h-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         )}
