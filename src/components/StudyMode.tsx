@@ -118,22 +118,20 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }, 150)
   }
 
-  // Touch handlers for swipe (only after first flip)
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Touch/Mouse handlers for swipe (only after first flip)
+  const handleDragStart = (clientX: number, clientY: number) => {
     if (!hasFlipped) return
-    const touch = e.touches[0]
-    setDragStart({x: touch.clientX, y: touch.clientY})
+    setDragStart({x: clientX, y: clientY})
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleDragMove = (clientX: number, clientY: number) => {
     if (!hasFlipped || !dragStart) return
-    const touch = e.touches[0]
-    const deltaX = touch.clientX - dragStart.x
-    const deltaY = touch.clientY - dragStart.y
+    const deltaX = clientX - dragStart.x
+    const deltaY = clientY - dragStart.y
     setDragOffset({x: deltaX, y: deltaY})
   }
 
-  const handleTouchEnd = () => {
+  const handleDragEnd = () => {
     if (!hasFlipped || !dragStart) return
     const threshold = window.innerWidth * 0.35
     
@@ -156,6 +154,35 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setDragStart(null)
       setDragOffset({x: 0, y: 0})
     }
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    handleDragStart(touch.clientX, touch.clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragStart) return
+    const touch = e.touches[0]
+    handleDragMove(touch.clientX, touch.clientY)
+  }
+
+  const handleTouchEnd = () => {
+    handleDragEnd()
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    handleDragStart(e.clientX, e.clientY)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragStart) return
+    handleDragMove(e.clientX, e.clientY)
+  }
+
+  const handleMouseUp = () => {
+    handleDragEnd()
   }
 
   function handleCorrect() {
@@ -472,6 +499,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
           >
             {/* Swipe indicators */}
             {dragOffset.x !== 0 && hasFlipped && (
