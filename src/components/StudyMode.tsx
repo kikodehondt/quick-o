@@ -418,8 +418,19 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {/* Next card (underneath) */}
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl opacity-50 scale-95 pointer-events-none">
-                <div className="text-center blur-sm">
+              <div 
+                className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl pointer-events-none transition-all duration-300"
+                style={{
+                  opacity: swipingAway ? 1 : 0.5,
+                  transform: swipingAway ? 'scale(1)' : 'scale(0.95)'
+                }}
+              >
+                <div 
+                  className="text-center transition-all duration-300"
+                  style={{
+                    filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
+                  }}
+                >
                   <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
