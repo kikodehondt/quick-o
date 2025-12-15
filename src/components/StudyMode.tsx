@@ -126,11 +126,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     if (Math.abs(dragOffset.x) > threshold) {
       // Swipe detected
       if (dragOffset.x < 0) {
-        // Swipe left = correct
-        handleCorrect()
-      } else {
-        // Swipe right = incorrect
+        // Swipe left = incorrect
         handleIncorrect()
+      } else {
+        // Swipe right = correct
+        handleCorrect()
       }
     }
     
@@ -401,13 +401,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Score */}
         <div className="flex justify-center gap-6 mb-8 flex-wrap">
-          <div className="flex items-center gap-2 bg-green-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-left hover:bg-green-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0s'}}>
-            <CheckCircle className="w-5 h-5 animate-bounce" />
-            <span className="font-bold text-lg">{correctCount}</span>
-          </div>
-          <div className="flex items-center gap-2 bg-red-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-right hover:bg-red-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0.1s'}}>
+          <div className="flex items-center gap-2 bg-red-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-left hover:bg-red-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0s'}}>
             <XCircle className="w-5 h-5 animate-bounce" />
             <span className="font-bold text-lg">{incorrectCount}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-green-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-right hover:bg-green-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0.1s'}}>
+            <CheckCircle className="w-5 h-5 animate-bounce" />
+            <span className="font-bold text-lg">{correctCount}</span>
           </div>
         </div>
 
@@ -437,9 +437,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                     transform: `scale(${1 + Math.min(Math.abs(dragOffset.x) / 300, 0.3)})`
                   }}
                 >
-                  <div className="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl -rotate-12">
-                    <CheckCircle className="w-10 h-10" />
-                    CORRECT
+                  <div className="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl rotate-12">
+                    <XCircle className="w-10 h-10" />
+                    FOUT
                   </div>
                 </div>
                 <div 
@@ -449,9 +449,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                     transform: `scale(${1 + Math.min(dragOffset.x / 300, 0.3)})`
                   }}
                 >
-                  <div className="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl rotate-12">
-                    <XCircle className="w-10 h-10" />
-                    FOUT
+                  <div className="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl -rotate-12">
+                    <CheckCircle className="w-10 h-10" />
+                    CORRECT
                   </div>
                 </div>
               </>
@@ -516,7 +516,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         {/* Mobile swipe hint */}
         {showAnswer && (
           <div className="md:hidden text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
-            <p className="font-semibold">← Swipe links voor correct • Swipe rechts voor fout →</p>
+            <p className="font-semibold">← Swipe links voor fout • Swipe rechts voor correct →</p>
           </div>
         )}
       </div>
