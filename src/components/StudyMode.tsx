@@ -276,66 +276,100 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const progress = ((currentIndex + 1) / words.length) * 100
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)', backgroundSize: '400% 400%', animation: 'gradient 15s ease infinite'}}>
+    <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <style>{`
-        @keyframes gradient {
+        @keyframes gradientShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        @keyframes cardFlip {
+          0% { transform: rotateY(0deg); }
+          50% { transform: rotateY(90deg); }
+          100% { transform: rotateY(0deg); }
+        }
+        @keyframes cardFlipIn {
+          0% { transform: rotateY(-90deg); opacity: 0; }
+          100% { transform: rotateY(0deg); opacity: 1; }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+          50% { text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
       `}</style>
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 animate-fade-in">
           <button
             onClick={onEnd}
-            className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-colors flex items-center gap-2"
+            className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-110"
           >
             <ArrowLeft className="w-5 h-5" />
             Terug
           </button>
-          <div className="text-white text-lg font-semibold">
+          <div className="text-white text-lg font-semibold animate-pulse-glow">
             {currentIndex + 1} / {words.length}
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-white/20 rounded-full h-3 mb-8">
+        <div className="w-full bg-white/20 rounded-full h-3 mb-8 overflow-hidden animate-slide-in-down">
           <div
-            className="bg-white h-3 rounded-full transition-all duration-300"
+            className="bg-white h-3 rounded-full transition-all duration-500 shadow-lg"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Score */}
-        <div className="flex justify-center gap-6 mb-8">
-          <div className="flex items-center gap-2 bg-green-500/20 text-white px-4 py-2 rounded-xl">
-            <CheckCircle className="w-5 h-5" />
-            <span className="font-bold">{correctCount}</span>
+        <div className="flex justify-center gap-6 mb-8 flex-wrap">
+          <div className="flex items-center gap-2 bg-green-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-left hover:bg-green-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0s'}}>
+            <CheckCircle className="w-5 h-5 animate-bounce" />
+            <span className="font-bold text-lg">{correctCount}</span>
           </div>
-          <div className="flex items-center gap-2 bg-red-500/20 text-white px-4 py-2 rounded-xl">
-            <XCircle className="w-5 h-5" />
-            <span className="font-bold">{incorrectCount}</span>
+          <div className="flex items-center gap-2 bg-red-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-right hover:bg-red-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0.1s'}}>
+            <XCircle className="w-5 h-5 animate-bounce" />
+            <span className="font-bold text-lg">{incorrectCount}</span>
           </div>
         </div>
 
         {/* Flashcard */}
         <div className="flex-1 flex items-center justify-center mb-8">
           <div
-            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer hover:scale-105 transition-all duration-300 ${
-              showAnswer ? 'bg-gradient-to-br from-green-50 to-emerald-50' : ''
+            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer transition-all duration-500 ${
+              showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50 scale-105' : 'hover:scale-105'
             }`}
             onClick={() => setShowAnswer(!showAnswer)}
+            style={{
+              perspective: '1000px',
+              transform: showAnswer ? 'rotateX(0deg)' : 'rotateX(0deg)',
+              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'none'
+            }}
           >
             <div className="text-center">
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-wide">
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest animate-pulse-glow">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 animate-pulse-glow">
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               {!showAnswer && (
-                <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
+                <p className="text-gray-400 text-sm animate-bounce" style={{animationDelay: '0.2s'}}>Klik om het antwoord te zien</p>
               )}
             </div>
           </div>
@@ -343,29 +377,29 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Action Buttons */}
         {showAnswer && (
-          <div className="flex gap-4 justify-center flex-col sm:flex-row">
+          <div className="flex gap-4 justify-center flex-col sm:flex-row animate-slide-in-up">
             <button
               onClick={handleIncorrect}
               disabled={selected !== null}
-              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform ${
+              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform relative group ${
                 selected === 'incorrect'
                   ? 'scale-95 opacity-75 bg-gradient-to-r from-red-600 to-red-700 ring-4 ring-red-400'
                   : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:scale-110 hover:shadow-2xl'
               } text-white disabled:cursor-not-allowed`}
             >
-              <XCircle className="w-6 h-6" />
+              <XCircle className="w-6 h-6 group-hover:animate-spin-slow" />
               Fout
             </button>
             <button
               onClick={handleCorrect}
               disabled={selected !== null}
-              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform ${
+              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform relative group ${
                 selected === 'correct'
                   ? 'scale-95 opacity-75 bg-gradient-to-r from-green-600 to-green-700 ring-4 ring-green-400'
                   : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-110 hover:shadow-2xl'
               } text-white disabled:cursor-not-allowed`}
             >
-              <CheckCircle className="w-6 h-6" />
+              <CheckCircle className="w-6 h-6 group-hover:animate-spin-slow" />
               Correct
             </button>
           </div>
@@ -373,13 +407,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Keyboard Hints */}
         {!showAnswer && (
-          <div className="text-center text-white/70 text-sm mt-4 animate-pulse">
-            <p>Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">↑↓</kbd> om te flippen</p>
+          <div className="text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
+            <p className="font-semibold">Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen</p>
           </div>
         )}
         {showAnswer && (
-          <div className="text-center text-white/70 text-sm mt-4 animate-pulse">
-            <p><kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">→</kbd> Correct</p>
+          <div className="text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
+            <p className="font-semibold"><kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct</p>
           </div>
         )}
       </div>
