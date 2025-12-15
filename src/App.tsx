@@ -209,7 +209,7 @@ function App() {
         {/* Header */}
         <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
           <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur hover:bg-white/20 hover:border-white/20 transition-all duration-300 transform hover:scale-105">
-            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20 animate-bounce" style={{animationDelay: '0.2s'}} />
+            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" />
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Quick-O</h1>
               <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>
@@ -217,15 +217,15 @@ function App() {
           </div>
           <div className="flex items-center justify-center gap-4 text-white/80 mt-6 flex-wrap">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
-              <BookOpen className="w-5 h-5 animate-bounce" style={{animationDelay: '0s'}} />
+              <BookOpen className="w-5 h-5" />
               <span>{sets.length} Sets</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
-              <Users className="w-5 h-5 animate-bounce" style={{animationDelay: '0.1s'}} />
+              <Users className="w-5 h-5" />
               <span>{onlineCount} online</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
-              <Trophy className="w-5 h-5 animate-bounce" style={{animationDelay: '0.2s'}} />
+              <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>
             {/* Subtiele zoekbalk */}
