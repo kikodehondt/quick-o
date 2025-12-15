@@ -464,8 +464,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             }`}
             style={{
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
-              opacity: 1,
-              transition: swipingAway ? 'transform 0.3s ease-out' : (dragStart ? 'none' : (isFlipping ? 'transform 0.15s ease-in' : 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)')),
+              opacity: swipingAway ? 0 : 1,
+              transition: swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : (dragStart ? 'none' : (isFlipping ? 'transform 0.15s ease-in' : 'none')),
               transformStyle: 'preserve-3d'
             }}
             onClick={handleCardClick}
