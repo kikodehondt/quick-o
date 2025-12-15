@@ -121,16 +121,16 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   const handleTouchEnd = () => {
     if (!showAnswer || !dragStart) return
-    const threshold = window.innerWidth * 0.4
+    const threshold = window.innerWidth * 0.35
     
     if (Math.abs(dragOffset.x) > threshold) {
       // Swipe detected
       if (dragOffset.x < 0) {
-        // Swipe left = incorrect
-        handleIncorrect()
-      } else {
-        // Swipe right = correct
+        // Swipe left = correct
         handleCorrect()
+      } else {
+        // Swipe right = incorrect
+        handleIncorrect()
       }
     }
     
@@ -418,9 +418,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
-              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.05}deg)`,
-              opacity: 1 - Math.abs(dragOffset.x) / (window.innerWidth * 0.7),
-              transition: dragStart ? 'none' : 'transform 0.3s ease-out, opacity 0.3s ease-out'
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.5}px) rotate(${dragOffset.x * 0.08}deg) scale(${1 - Math.abs(dragOffset.x) / (window.innerWidth * 1.5)})`,
+              opacity: Math.max(0.3, 1 - Math.abs(dragOffset.x) / (window.innerWidth * 0.6)),
+              transition: dragStart ? 'none' : 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out'
             }}
             onClick={() => setShowAnswer(prev => !prev)}
             onTouchStart={handleTouchStart}
@@ -428,28 +428,30 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onTouchEnd={handleTouchEnd}
           >
             {/* Swipe indicators */}
-            {dragOffset.x !== 0 && (
+            {dragOffset.x !== 0 && showAnswer && (
               <>
                 <div 
                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
                   style={{
-                    opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 150, 1) : 0
+                    opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 120, 1) : 0,
+                    transform: `scale(${1 + Math.min(Math.abs(dragOffset.x) / 300, 0.3)})`
                   }}
                 >
-                  <div className="bg-red-500 text-white px-6 py-3 rounded-2xl font-bold text-2xl flex items-center gap-2 shadow-2xl rotate-12">
-                    <XCircle className="w-8 h-8" />
-                    FOUT
+                  <div className="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl -rotate-12">
+                    <CheckCircle className="w-10 h-10" />
+                    CORRECT
                   </div>
                 </div>
                 <div 
                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
                   style={{
-                    opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 150, 1) : 0
+                    opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 120, 1) : 0,
+                    transform: `scale(${1 + Math.min(dragOffset.x / 300, 0.3)})`
                   }}
                 >
-                  <div className="bg-green-500 text-white px-6 py-3 rounded-2xl font-bold text-2xl flex items-center gap-2 shadow-2xl -rotate-12">
-                    <CheckCircle className="w-8 h-8" />
-                    CORRECT
+                  <div className="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-3xl flex items-center gap-3 shadow-2xl rotate-12">
+                    <XCircle className="w-10 h-10" />
+                    FOUT
                   </div>
                 </div>
               </>
@@ -514,7 +516,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         {/* Mobile swipe hint */}
         {showAnswer && (
           <div className="md:hidden text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
-            <p className="font-semibold">← Swipe links voor fout • Swipe rechts voor correct →</p>
+            <p className="font-semibold">← Swipe links voor correct • Swipe rechts voor fout →</p>
           </div>
         )}
       </div>
