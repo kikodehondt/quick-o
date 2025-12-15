@@ -5,13 +5,17 @@ export function parseVocabText(text: string): { word1: string; word2: string }[]
   const wordPairs: { word1: string; word2: string }[] = [];
   
   for (const pair of pairs) {
-    // Split by comma to separate word1 and word2
-    const parts = pair.split(',').map(part => part.trim());
-    
-    if (parts.length >= 2) {
+    // Use ONLY the first comma to split word1 and word2
+    const firstCommaIdx = pair.indexOf(',');
+    if (firstCommaIdx === -1) continue;
+
+    const left = pair.slice(0, firstCommaIdx).trim();
+    const right = pair.slice(firstCommaIdx + 1).trim();
+
+    if (left && right) {
       wordPairs.push({
-        word1: parts[0],
-        word2: parts[1]
+        word1: left,
+        word2: right
       });
     }
   }

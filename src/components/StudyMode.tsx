@@ -4,6 +4,8 @@ import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
 import { getOrCreateUserId } from '../lib/userUtils'
 
+type SelectionState = null | 'correct' | 'incorrect'
+
 interface StudyModeProps {
   set: VocabSet
   settings: StudySettings
@@ -18,10 +20,53 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [incorrectCount, setIncorrectCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
+  const [selected, setSelected] = useState<SelectionState>(null)
 
   useEffect(() => {
     loadWords()
   }, [])
+
+  // Keyboard event handler
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!showAnswer) {
+        // Space or Enter to flip card
+        if (e.code === 'Space' || e.code === 'Enter') {
+          e.preventDefault()
+          setShowAnswer(true)
+        }
+        // Arrow up/down also flips
+        if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+          e.preventDefault()
+          setShowAnswer(true)
+        }
+      } else {
+        // Arrow left for incorrect
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault()
+          setSelected('incorrect')
+          setTimeout(() => {
+            setIncorrectCount(prev => prev + 1)
+            setShowAnswer(false)
+            setSelected(null)
+          }, 400)
+        }
+        // Arrow right for correct
+        if (e.code === 'ArrowRight') {
+          e.preventDefault()
+          setSelected('correct')
+          setTimeout(() => {
+            setCorrectCount(prev => prev + 1)
+            nextWord()
+            setSelected(null)
+          }, 400)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showAnswer, currentIndex, words.length])
 
   async function loadWords() {
     try {
@@ -67,14 +112,22 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   function handleCorrect() {
-    setCorrectCount(prev => prev + 1)
-    nextWord()
+    setSelected('correct')
+    setTimeout(() => {
+      setCorrectCount(prev => prev + 1)
+      nextWord()
+      setSelected(null)
+    }, 400)
   }
 
   function handleIncorrect() {
-    setIncorrectCount(prev => prev + 1)
-    // Blijf op dezelfde kaart tot correct
-    setShowAnswer(false)
+    setSelected('incorrect')
+    setTimeout(() => {
+      setIncorrectCount(prev => prev + 1)
+      // Blijf op dezelfde kaart tot correct
+      setShowAnswer(false)
+      setSelected(null)
+    }, 400)
   }
 
   function nextWord() {
@@ -223,7 +276,14 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const progress = ((currentIndex + 1) / words.length) * 100
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)', backgroundSize: '400% 400%', animation: 'gradient 15s ease infinite'}}>
+      <style>{`
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -283,21 +343,43 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Action Buttons */}
         {showAnswer && (
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center flex-col sm:flex-row">
             <button
               onClick={handleIncorrect}
-              className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors flex items-center gap-3 card-shadow"
+              disabled={selected !== null}
+              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform ${
+                selected === 'incorrect'
+                  ? 'scale-95 opacity-75 bg-gradient-to-r from-red-600 to-red-700 ring-4 ring-red-400'
+                  : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:scale-110 hover:shadow-2xl'
+              } text-white disabled:cursor-not-allowed`}
             >
               <XCircle className="w-6 h-6" />
               Fout
             </button>
             <button
               onClick={handleCorrect}
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors flex items-center gap-3 card-shadow"
+              disabled={selected !== null}
+              className={`px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 card-shadow transition-all duration-300 transform ${
+                selected === 'correct'
+                  ? 'scale-95 opacity-75 bg-gradient-to-r from-green-600 to-green-700 ring-4 ring-green-400'
+                  : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-110 hover:shadow-2xl'
+              } text-white disabled:cursor-not-allowed`}
             >
               <CheckCircle className="w-6 h-6" />
               Correct
             </button>
+          </div>
+        )}
+
+        {/* Keyboard Hints */}
+        {!showAnswer && (
+          <div className="text-center text-white/70 text-sm mt-4 animate-pulse">
+            <p>Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">↑↓</kbd> om te flippen</p>
+          </div>
+        )}
+        {showAnswer && (
+          <div className="text-center text-white/70 text-sm mt-4 animate-pulse">
+            <p><kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono">→</kbd> Correct</p>
           </div>
         )}
       </div>
