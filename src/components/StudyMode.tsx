@@ -26,6 +26,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   // Swipe state
   const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(null)
   const [dragOffset, setDragOffset] = useState({x: 0, y: 0})
+  const [swipingAway, setSwipingAway] = useState(false)
 
   useEffect(() => {
     loadWords()
@@ -124,79 +125,80 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     const threshold = window.innerWidth * 0.35
     
     if (Math.abs(dragOffset.x) > threshold) {
-      // Swipe detected
-      if (dragOffset.x < 0) {
-        // Swipe left = incorrect
-        handleIncorrect()
-      } else {
-        // Swipe right = correct
-        handleCorrect()
-      }
+      // Swipe detected - animate away
+      setSwipingAway(true)
+      const direction = dragOffset.x < 0 ? -1 : 1
+      setDragOffset({x: direction * window.innerWidth * 1.5, y: dragOffset.y})
+      
+      setTimeout(() => {
+        if (dragOffset.x < 0) {
+          handleIncorrect()
+        } else {
+          handleCorrect()
+        }
+        setSwipingAway(false)
+      }, 300)
+    } else {
+      // Bounce back
+      setDragStart(null)
+      setDragOffset({x: 0, y: 0})
     }
-    
-    // Reset drag state
-    setDragStart(null)
-    setDragOffset({x: 0, y: 0})
   }
 
   function handleCorrect() {
     if (queue.length === 0) return
     setSelected('correct')
-    setTimeout(() => {
-      setCorrectCount(prev => prev + 1)
-      setCompletedCount(prev => prev + 1)
-      setShowAnswer(false)
-      // dequeue current and advance
-      setQueue(prev => {
-        const newQ = prev.slice(1)
-        if (newQ.length === 0) {
-          setFinished(true)
-          saveProgress()
-        }
-        return newQ
-      })
-      setSelected(null)
-      setDragOffset({x: 0, y: 0})
-      setDragStart(null)
-    }, 250)
+    setCorrectCount(prev => prev + 1)
+    setCompletedCount(prev => prev + 1)
+    setShowAnswer(false)
+    // dequeue current and advance
+    setQueue(prev => {
+      const newQ = prev.slice(1)
+      if (newQ.length === 0) {
+        setFinished(true)
+        saveProgress()
+      }
+      return newQ
+    })
+    setSelected(null)
+    setDragOffset({x: 0, y: 0})
+    setDragStart(null)
   }
 
   function handleIncorrect() {
     if (queue.length === 0) return
     setSelected('incorrect')
-    setTimeout(() => {
-      setIncorrectCount(prev => prev + 1)
-      setShowAnswer(false)
-      // Reinsert current card 5-10 positions later (or later, not within first 2 remaining)
-      setQueue(prev => {
-        const [current, ...rest] = prev
-        const remaining = rest.length
-        if (remaining === 0) {
-          // only this card remains; put it back to end
-          return [current]
-        }
-        let minPos = Math.min(3, remaining) // index position in rest to insert after first 2
-        let maxPos = remaining
-        // Prefer 5-10 if possible
-        if (remaining >= 10) {
-          minPos = 5
-          maxPos = 10
-        } else if (remaining >= 5) {
-          minPos = 5
-          maxPos = remaining
-        }
-        // Random int between minPos and maxPos inclusive, then clamp to [minPos, remaining]
-        const randBetween = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1))
-        let insertPos = remaining >= 3 ? randBetween(minPos, Math.min(maxPos, remaining)) : remaining
-        // Build new queue: take prefix of rest up to insertPos, insert current, then suffix
-        const before = rest.slice(0, insertPos)
-        const after = rest.slice(insertPos)
-        return [...before, current, ...after]
-      })
-      setSelected(null)
-      setDragOffset({x: 0, y: 0})
-      setDragStart(null)
-    }, 250)
+    setIncorrectCount(prev => prev + 1)
+    setShowAnswer(false)
+    // Reinsert current card 5-10 positions later (or later, not within first 2 remaining)
+    setQueue(prev => {
+      const [current, ...rest] = prev
+      const remaining = rest.length
+      if (remaining === 0) {
+        // only this card remains; put it back to end
+        return [current]
+      }
+      let minPos = Math.min(3, remaining) // index position in rest to insert after first 2
+      let maxPos = remaining
+      // Prefer 5-10 if possible
+      if (remaining >= 10) {
+        minPos = 5
+        maxPos = 10
+      } else if (remaining >= 5) {
+        minPos = 5
+        maxPos = remaining
+      }
+      // Random int between minPos and maxPos inclusive, then clamp to [minPos, remaining]
+      const randBetween = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1))
+      let insertPos = remaining >= 3 ? randBetween(minPos, Math.min(maxPos, remaining)) : remaining
+      // Build new queue: take prefix of rest up to insertPos, insert current, then suffix
+      const before = rest.slice(0, insertPos)
+      const after = rest.slice(insertPos)
+      return [...before, current, ...after]
+    })
+    setSelected(null)
+    setDragOffset({x: 0, y: 0})
+    setDragStart(null)
   }
 
   // nextWord no longer needed; advancing handled in handlers
@@ -411,18 +413,35 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Flashcard with swipe gestures */}
-        <div className="flex-1 flex items-center justify-center mb-8">
+        {/* Flashcard stack with swipe gestures */}
+        <div className="flex-1 flex items-center justify-center mb-8 relative">
+          {/* Next card (underneath) */}
+          {queue.length > 1 && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl opacity-50 scale-95 pointer-events-none">
+                <div className="text-center blur-sm">
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+                    {settings.direction === 'reverse' ? set.language2 : set.language1}
+                  </p>
+                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                    {queue[1].word1}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Current card (top) */}
           <div
-            className={`bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl cursor-pointer relative ${
+            className={`bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg)`,
               opacity: 1,
-              transition: dragStart ? 'none' : 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              transition: swipingAway ? 'transform 0.3s ease-out' : (dragStart ? 'none' : 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)')
             }}
-            onClick={() => setShowAnswer(prev => !prev)}
+            onClick={() => !swipingAway && setShowAnswer(prev => !prev)}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
