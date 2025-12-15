@@ -229,15 +229,15 @@ function App() {
               <span>Oefen dagelijks!</span>
             </div>
             {/* Subtiele zoekbalk */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 w-full md:w-auto" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
               <input
                 value={search}
                 onChange={(e)=>setSearch(e.target.value)}
-                className="bg-transparent text-white placeholder:text-white/60 focus:outline-none text-sm w-40"
+                className="bg-transparent text-white placeholder:text-white/60 focus:outline-none text-sm w-full md:w-40"
                 placeholder="Zoek sets..."
               />
               <button
-                className="text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300"
+                className="text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300 px-2 py-1"
                 onClick={async ()=>{
                   setLoading(true)
                   let query = supabase.from('vocab_sets').select('*')

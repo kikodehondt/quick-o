@@ -392,7 +392,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Action Buttons */}
         {showAnswer && (
-          <div className="flex gap-4 justify-center flex-col sm:flex-row animate-slide-in-up">
+          <div className="md:static fixed bottom-0 left-0 right-0 z-20 px-4 pt-3 flex gap-3 justify-center flex-col sm:flex-row animate-slide-in-up md:bg-transparent" style={{background: 'rgba(0,0,0,0.18)', backdropFilter: 'blur(8px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)'}}>
             <button
               onClick={handleIncorrect}
               disabled={selected !== null}
