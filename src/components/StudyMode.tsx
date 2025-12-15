@@ -13,8 +13,9 @@ interface StudyModeProps {
 }
 
 export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
-  const [words, setWords] = useState<WordPair[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [queue, setQueue] = useState<WordPair[]>([])
+  const [initialCount, setInitialCount] = useState(0)
+  const [completedCount, setCompletedCount] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [incorrectCount, setIncorrectCount] = useState(0)
@@ -29,44 +30,31 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   // Keyboard event handler
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (!showAnswer) {
-        // Space or Enter to flip card
-        if (e.code === 'Space' || e.code === 'Enter') {
-          e.preventDefault()
-          setShowAnswer(true)
-        }
-        // Arrow up/down also flips
-        if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
-          e.preventDefault()
-          setShowAnswer(true)
-        }
-      } else {
+      // Space/Enter and Up/Down flip to answer; second press hides answer (no animation)
+      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+        e.preventDefault()
+        setShowAnswer(prev => !prev)
+        return
+      }
+      if (showAnswer) {
         // Arrow left for incorrect
         if (e.code === 'ArrowLeft') {
           e.preventDefault()
-          setSelected('incorrect')
-          setTimeout(() => {
-            setIncorrectCount(prev => prev + 1)
-            setShowAnswer(false)
-            setSelected(null)
-          }, 400)
+          handleIncorrect()
+          return
         }
         // Arrow right for correct
         if (e.code === 'ArrowRight') {
           e.preventDefault()
-          setSelected('correct')
-          setTimeout(() => {
-            setCorrectCount(prev => prev + 1)
-            nextWord()
-            setSelected(null)
-          }, 400)
+          handleCorrect()
+          return
         }
       }
     }
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showAnswer, currentIndex, words.length])
+  }, [showAnswer, queue])
 
   async function loadWords() {
     try {
@@ -103,7 +91,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         processedWords = shuffleArray(processedWords)
       }
 
-      setWords(processedWords)
+      setQueue(processedWords)
+      setInitialCount(processedWords.length)
     } catch (err) {
       console.error('Error loading words:', err)
     } finally {
@@ -112,33 +101,62 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   function handleCorrect() {
+    if (queue.length === 0) return
     setSelected('correct')
     setTimeout(() => {
       setCorrectCount(prev => prev + 1)
-      nextWord()
+      setCompletedCount(prev => prev + 1)
+      setShowAnswer(false)
+      // dequeue current and advance
+      setQueue(prev => {
+        const newQ = prev.slice(1)
+        if (newQ.length === 0) {
+          setFinished(true)
+          saveProgress()
+        }
+        return newQ
+      })
       setSelected(null)
-    }, 400)
+    }, 250)
   }
 
   function handleIncorrect() {
+    if (queue.length === 0) return
     setSelected('incorrect')
     setTimeout(() => {
       setIncorrectCount(prev => prev + 1)
-      // Blijf op dezelfde kaart tot correct
       setShowAnswer(false)
+      // Reinsert current card 5-10 positions later (or later, not within first 2 remaining)
+      setQueue(prev => {
+        const [current, ...rest] = prev
+        const remaining = rest.length
+        if (remaining === 0) {
+          // only this card remains; put it back to end
+          return [current]
+        }
+        let minPos = Math.min(3, remaining) // index position in rest to insert after first 2
+        let maxPos = remaining
+        // Prefer 5-10 if possible
+        if (remaining >= 10) {
+          minPos = 5
+          maxPos = 10
+        } else if (remaining >= 5) {
+          minPos = 5
+          maxPos = remaining
+        }
+        // Random int between minPos and maxPos inclusive, then clamp to [minPos, remaining]
+        const randBetween = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1))
+        let insertPos = remaining >= 3 ? randBetween(minPos, Math.min(maxPos, remaining)) : remaining
+        // Build new queue: take prefix of rest up to insertPos, insert current, then suffix
+        const before = rest.slice(0, insertPos)
+        const after = rest.slice(insertPos)
+        return [...before, current, ...after]
+      })
       setSelected(null)
-    }, 400)
+    }, 250)
   }
 
-  function nextWord() {
-    setShowAnswer(false)
-    if (currentIndex >= words.length - 1) {
-      setFinished(true)
-      saveProgress()
-    } else {
-      setCurrentIndex(prev => prev + 1)
-    }
-  }
+  // nextWord no longer needed; advancing handled in handlers
 
   function saveProgress() {
     try {
@@ -191,7 +209,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     )
   }
 
-  if (words.length === 0) {
+  if (queue.length === 0 && !finished) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-12 card-shadow text-center max-w-md">
@@ -272,8 +290,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     )
   }
 
-  const currentWord = words[currentIndex]
-  const progress = ((currentIndex + 1) / words.length) * 100
+  const currentWord = queue[0]
+  const progress = initialCount > 0 ? (completedCount / initialCount) * 100 : 0
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
@@ -328,7 +346,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             Terug
           </button>
           <div className="text-white text-lg font-semibold">
-            {currentIndex + 1} / {words.length}
+            {completedCount} / {initialCount}
           </div>
         </div>
 
@@ -358,10 +376,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer transition-all duration-500 ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50 scale-105' : 'hover:scale-105'
             }`}
-            onClick={() => setShowAnswer(!showAnswer)}
+            onClick={() => setShowAnswer(prev => !prev)}
             style={{
               perspective: '1000px',
-              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'cardFlipOut 0.6s ease-out'
+              // Only animate when revealing the answer (one-way animation)
+              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'none'
             }}
           >
             <div className="text-center">
