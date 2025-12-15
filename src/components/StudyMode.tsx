@@ -548,23 +548,27 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         )}
 
         {/* Keyboard Hints - hidden on mobile */}
-        {!showAnswer && (
-          <div className="hidden md:block text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
-            <p className="font-semibold">Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen</p>
-          </div>
-        )}
-        {showAnswer && (
-          <div className="hidden md:block text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
-            <p className="font-semibold"><kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct</p>
-          </div>
-        )}
+        <div className="hidden md:block text-center text-white/80 text-sm mt-4 h-10">
+          {!showAnswer && (
+            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
+              Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen
+            </p>
+          )}
+          {showAnswer && (
+            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
+              <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct
+            </p>
+          )}
+        </div>
         
         {/* Mobile swipe hint */}
-        {showAnswer && (
-          <div className="md:hidden text-center text-white/80 text-sm mt-4 animate-bounce" style={{animationDelay: '0.3s'}}>
-            <p className="font-semibold">← Swipe links voor fout • Swipe rechts voor correct →</p>
-          </div>
-        )}
+        <div className="md:hidden text-center text-white/80 text-sm mt-4 h-10">
+          {hasFlipped && (
+            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
+              ← Swipe links voor fout • Swipe rechts voor correct →
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )
