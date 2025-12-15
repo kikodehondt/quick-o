@@ -289,8 +289,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           100% { transform: rotateY(0deg); }
         }
         @keyframes cardFlipIn {
-          0% { transform: rotateY(-90deg); opacity: 0; }
-          100% { transform: rotateY(0deg); opacity: 1; }
+          0% { transform: rotateX(-90deg); opacity: 0; }
+          100% { transform: rotateX(0deg); opacity: 1; }
+        }
+        @keyframes cardFlipOut {
+          0% { transform: rotateX(0deg); opacity: 1; }
+          100% { transform: rotateX(90deg); opacity: 0; }
         }
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
@@ -323,7 +327,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             <ArrowLeft className="w-5 h-5" />
             Terug
           </button>
-          <div className="text-white text-lg font-semibold animate-pulse-glow">
+          <div className="text-white text-lg font-semibold">
             {currentIndex + 1} / {words.length}
           </div>
         </div>
@@ -357,15 +361,14 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onClick={() => setShowAnswer(!showAnswer)}
             style={{
               perspective: '1000px',
-              transform: showAnswer ? 'rotateX(0deg)' : 'rotateX(0deg)',
-              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'none'
+              animation: showAnswer ? 'cardFlipIn 0.6s ease-out' : 'cardFlipOut 0.6s ease-out'
             }}
           >
             <div className="text-center">
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest animate-pulse-glow">
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 animate-pulse-glow">
+              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               {!showAnswer && (

@@ -173,32 +173,63 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-950 via-green-900 to-slate-900 text-white">
+    <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulse-soft {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+      `}</style>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur">
-            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" />
+        <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
+          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur hover:bg-white/20 hover:border-white/20 transition-all duration-300 transform hover:scale-105">
+            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20 animate-bounce" style={{animationDelay: '0.2s'}} />
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Quick-O</h1>
               <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-white/80 mt-6 flex-wrap">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
-              <BookOpen className="w-5 h-5" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
+              <BookOpen className="w-5 h-5 animate-bounce" style={{animationDelay: '0s'}} />
               <span>{sets.length} Sets</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
-              <Users className="w-5 h-5" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
+              <Users className="w-5 h-5 animate-bounce" style={{animationDelay: '0.1s'}} />
               <span>{onlineCount} online</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10">
-              <Trophy className="w-5 h-5" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
+              <Trophy className="w-5 h-5 animate-bounce" style={{animationDelay: '0.2s'}} />
               <span>Oefen dagelijks!</span>
             </div>
             {/* Subtiele zoekbalk */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
               <input
                 value={search}
                 onChange={(e)=>setSearch(e.target.value)}
@@ -206,7 +237,7 @@ function App() {
                 placeholder="Zoek sets..."
               />
               <button
-                className="text-white/80 hover:text-white text-sm"
+                className="text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300"
                 onClick={async ()=>{
                   setLoading(true)
                   let query = supabase.from('vocab_sets').select('*')
@@ -229,18 +260,18 @@ function App() {
 
         {/* Search & Filters */}
         {showFilters && (
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 card-shadow mb-8 animate-slide-in-down text-white">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 card-shadow mb-8 text-white" style={{animation: 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'}}>
             <h3 className="text-xl font-bold mb-3">Geavanceerde filters</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="School" />
-              <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Richting" />
-              <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Jaar" />
+              <input value={filterSchool} onChange={(e)=>setFilterSchool(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none hover:bg-white/20" placeholder="School" />
+              <input value={filterDirection} onChange={(e)=>setFilterDirection(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none hover:bg-white/20" placeholder="Richting" />
+              <input value={filterYear} onChange={(e)=>setFilterYear(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none hover:bg-white/20" placeholder="Jaar" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none" placeholder="Tags (komma-gescheiden)" />
+              <input value={filterTags} onChange={(e)=>setFilterTags(e.target.value)} className="px-4 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur text-white placeholder-white/50 focus:border-white/40 focus:bg-white/20 transition-all outline-none hover:bg-white/20" placeholder="Tags (komma-gescheiden)" />
               <div className="col-span-2 flex items-center gap-3">
                 <button
-                  className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold"
+                  className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 hover:scale-110 transition-all duration-300 transform"
                   onClick={async ()=>{
                     setLoading(true)
                     const tagArray = filterTags.split(',').map(t=>t.trim()).filter(Boolean)
@@ -270,12 +301,12 @@ function App() {
         )}
 
         {/* Create Set Button */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8" style={{animation: 'slideInUp 0.6s ease-out'}}>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-white hover:bg-gray-50 text-green-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-105 transition-all duration-200 flex items-center gap-3"
+            className="bg-white hover:bg-gray-50 text-green-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-110 transition-all duration-300 flex items-center gap-3 transform group"
           >
-            <Plus className="w-6 h-6" />
+            <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
             <span className="text-lg">Nieuwe Set Aanmaken</span>
           </button>
         </div>
