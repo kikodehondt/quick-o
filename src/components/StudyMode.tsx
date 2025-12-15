@@ -104,14 +104,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }
   }
 
-  // Touch handlers for swipe
+  // Touch handlers for swipe (only when answer is shown)
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (!showAnswer) return
     const touch = e.touches[0]
     setDragStart({x: touch.clientX, y: touch.clientY})
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!dragStart) return
+    if (!showAnswer || !dragStart) return
     const touch = e.touches[0]
     const deltaX = touch.clientX - dragStart.x
     const deltaY = touch.clientY - dragStart.y
@@ -119,7 +120,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   const handleTouchEnd = () => {
-    if (!dragStart) return
+    if (!showAnswer || !dragStart) return
     const threshold = window.innerWidth * 0.4
     
     if (Math.abs(dragOffset.x) > threshold) {
