@@ -447,7 +447,7 @@ function App() {
               if (!user) { setShowLogin(true); return }
               setShowCreateModal(true)
             }}
-            className="bg-white hover:bg-gray-50 text-green-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-110 transition-all duration-300 flex items-center gap-3 transform group"
+            className="bg-white/10 backdrop-blur-lg border-2 border-white/20 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-2xl shadow-xl hover:scale-110 transition-all duration-300 flex items-center gap-3 transform group"
           >
             <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
             <span className="text-lg">Nieuwe Set Aanmaken</span>

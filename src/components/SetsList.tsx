@@ -37,62 +37,62 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
       {sets.map((set, idx) => (
         <div
           key={set.id}
-          className="bg-white rounded-2xl p-5 md:p-6 card-shadow transition-transform duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl"
+          className="bg-white/10 backdrop-blur-lg border-2 border-white/20 rounded-2xl p-5 md:p-6 shadow-xl transition-all duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl hover:bg-white/20"
           style={{ animationDelay: `${idx * 50}ms` }}
         >
           <div className="flex items-start justify-between mb-3 md:mb-4">
             <div className="flex-1">
-              <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-1.5 md:mb-2 group-hover:text-green-600 transition-colors line-clamp-2">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-1.5 md:mb-2 group-hover:text-green-300 transition-colors line-clamp-2">
                 {set.name}
               </h3>
               {set.description && (
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">{set.description}</p>
+                <p className="text-sm text-white/80 mb-2 line-clamp-2">{set.description}</p>
               )}
-              <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-500 mb-2">
-                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-medium">
+              <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-white/70 mb-2">
+                <span className="bg-green-500/20 text-green-300 border border-green-400/30 px-2 py-1 rounded-lg font-medium backdrop-blur-sm">
                   {set.language1} → {set.language2}
                 </span>
               </div>
               {(set.school || set.direction || set.year) && (
-                <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-2">
+                <div className="flex flex-wrap gap-2 text-xs text-white/70 mb-2">
                   {set.school && (
-                    <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg font-medium">
+                    <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-1 rounded-lg font-medium backdrop-blur-sm">
                       🏫 {set.school}
                     </span>
                   )}
                   {set.direction && (
-                    <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-lg font-medium">
+                    <span className="bg-purple-500/20 text-purple-300 border border-purple-400/30 px-2 py-1 rounded-lg font-medium backdrop-blur-sm">
                       📚 {set.direction}
                     </span>
                   )}
                   {set.year && (
-                    <span className="bg-amber-50 text-amber-700 px-2 py-1 rounded-lg font-medium">
+                    <span className="bg-amber-500/20 text-amber-300 border border-amber-400/30 px-2 py-1 rounded-lg font-medium backdrop-blur-sm">
                       📅 {set.year}
                     </span>
                   )}
                 </div>
               )}
               {set.creator_name && !set.is_anonymous && (
-                <p className="text-xs text-gray-500 mb-2">
+                <p className="text-xs text-white/60 mb-2">
                   👤 Door: {set.creator_name}
                 </p>
               )}
               {set.is_anonymous && (
-                <p className="text-xs text-gray-400 mb-2">
+                <p className="text-xs text-white/50 mb-2">
                   🔒 Anoniem
                 </p>
               )}
-              <div className="flex items-center gap-2 text-sm text-gray-500 transition-colors group-hover:text-gray-700">
+              <div className="flex items-center gap-2 text-sm text-white/70 transition-colors group-hover:text-white">
                 <BookOpen className="w-4 h-4 md:w-4 md:h-4" />
                 <span>{set.word_count || 0} woordjes</span>
               </div>
               {Array.isArray(set.tags) && set.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5 md:gap-2">
                   {set.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">{t}</span>
+                    <span key={t} className="px-2 py-1 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 text-white text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">{t}</span>
                   ))}
                   {set.tags.length > 4 && (
-                    <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">+{set.tags.length - 4}</span>
+                    <span className="px-2 py-1 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 text-white text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">+{set.tags.length - 4}</span>
                   )}
                 </div>
               )}
@@ -102,7 +102,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                 {onEditSet && (
                   <button
                     onClick={() => onEditSet(set)}
-                    className="text-blue-500 hover:text-blue-700 transition-transform p-2 -mr-2 -mt-2 hover:scale-110"
+                    className="text-blue-300 hover:text-blue-100 hover:bg-blue-500/20 rounded-lg transition-all p-2 -mr-2 -mt-2 hover:scale-110 backdrop-blur-sm"
                     title="Bewerken"
                   >
                     <Edit className="w-5 h-5" />
@@ -110,7 +110,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                 )}
                 <button
                   onClick={() => handleDelete(set)}
-                  className="text-red-500 hover:text-red-700 transition-transform p-2 -mr-2 -mt-2 hover:scale-110"
+                  className="text-red-300 hover:text-red-100 hover:bg-red-500/20 rounded-lg transition-all p-2 -mr-2 -mt-2 hover:scale-110 backdrop-blur-sm"
                   title="Verwijderen"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -131,10 +131,10 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
               <div className="relative">
                 <button
                   onClick={() => copyLink(set)}
-                  className={`w-full sm:w-auto px-4 py-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full sm:w-auto px-4 py-3 rounded-xl border-2 backdrop-blur-sm transition-all flex items-center justify-center gap-2 ${
                     copiedId === set.id
-                      ? 'bg-green-100 border-green-300 text-green-700'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-green-500/20 border-green-400/40 text-green-300'
+                      : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                   }`}
                   title="Kopieer deellink"
                 >
@@ -147,7 +147,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                   )}
                 </button>
                 {copiedId === set.id && (
-                  <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-green-700 text-white text-sm rounded-lg whitespace-nowrap animate-fade-in">
+                  <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-green-500/90 backdrop-blur-md text-white text-sm rounded-lg whitespace-nowrap animate-fade-in border border-green-400/30">
                     Link gekopieerd!
                   </div>
                 )}
