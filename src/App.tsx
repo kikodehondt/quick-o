@@ -36,6 +36,19 @@ function App() {
     loadSets()
   }, [])
 
+  // Handle auth callback from email confirmation link
+  useEffect(() => {
+    const path = window.location.pathname
+    
+    // Check if this is an auth callback
+    if (path.startsWith('/auth/callback')) {
+      // Supabase handles the token exchange automatically via onAuthStateChange in AuthContext
+      // Just clean up the URL and redirect to home
+      window.history.replaceState({}, '', '/')
+      return
+    }
+  }, [])
+
   // Open via share link /s/<code>
   useEffect(() => {
     const path = window.location.pathname
