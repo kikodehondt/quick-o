@@ -237,7 +237,23 @@ export default function AboutPage({ onClose }: AboutPageProps) {
         {/* Close Button */}
         <div className="text-center pb-8" style={{animation: 'slideInUp 0.6s ease-out 0.4s backwards'}}>
           <button
-            onClick={onClose}
+            onClick={() => {
+              // Scroll to top first
+              window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+              })
+              
+              // Wait for scroll animation to complete before closing
+              // Average scroll speed is ~500px/sec with smooth behavior
+              // Calculate approximate time based on current scroll position
+              const scrollDistance = window.pageYOffset
+              const scrollDuration = Math.min(scrollDistance / 500 * 1000, 2000) // Max 2 seconds
+              
+              setTimeout(() => {
+                onClose()
+              }, scrollDuration)
+            }}
             className="px-8 py-4 rounded-2xl bg-white/20 border-2 border-white/30 text-white font-bold hover:bg-white/30 hover:scale-105 transition-all duration-300 shadow-xl backdrop-blur"
           >
             Terug naar Home
