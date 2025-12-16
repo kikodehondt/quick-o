@@ -10,6 +10,7 @@ import LearnMode from './components/LearnMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 import LoginModal from './components/LoginModal'
+import EditProfileModal from './components/EditProfileModal'
 
 function App() {
   const { user, signOut } = useAuth()
@@ -18,6 +19,7 @@ function App() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+    const [showEditProfile, setShowEditProfile] = useState(false)
   const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
@@ -272,6 +274,12 @@ function App() {
                     <div className="font-semibold truncate">{user.email}</div>
                   </div>
                   <button
+                    onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
+                  >
+                    Account bewerken
+                  </button>
+                  <button
                     onClick={async () => { setShowProfileMenu(false); await signOut(); }}
                     className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
                   >
@@ -279,6 +287,9 @@ function App() {
                   </button>
                 </div>
               )}
+                    {showEditProfile && (
+                      <EditProfileModal onClose={() => setShowEditProfile(false)} />
+                    )}
             </div>
           )}
         </div>

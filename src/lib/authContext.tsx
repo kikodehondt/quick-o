@@ -11,6 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
+  updateProfile: (fullName?: string, password?: string) => Promise<{ error: AuthError | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -81,11 +82,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
+  const updateProfile = async (fullName?: string, password?: string) => {
+    const payload: any = {}
+    if (fullName) {
+      payload.data = { full_name: fullName }
+    }
+    if (password) {
+      payload.password = password
+    }
+    const { error } = await supabase.auth.updateUser(payload)
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
+    setUser(session?.user ?? null)
+    setUserFullName(session?.user?.user_metadata?.full_name ?? null)
+    return { error }
+  }
+
   const value = {
     user,
     session,
     loading,
     userFullName,
+    updateProfile,
     signUp,
     signIn,
     signInWithGoogle,
