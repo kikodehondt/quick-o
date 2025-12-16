@@ -2,14 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  plugins: [react({
-    // Automatisch JSX runtime injecteren
-    jsxRuntime: 'automatic',
-    // Babel helpers in chunks bundelen
-    babel: {
-      plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]]
-    }
-  })],
+  plugins: [react()],
   build: {
     // Chunk size optimalisatie
     rollupOptions: {
