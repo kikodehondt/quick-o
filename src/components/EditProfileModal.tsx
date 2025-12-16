@@ -40,11 +40,22 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         return
       }
 
+      const email = user?.email?.trim()
+      if (!email) {
+        setError('Geen e-mailadres gevonden voor deze sessie. Log opnieuw in en probeer het nog eens.')
+        setLoading(false)
+        return
+      }
+
       // Re-authenticate once for any change
-      const email = user?.email
       const { error: reauthError } = await signIn(email, currentPassword)
       if (reauthError) {
-        setError('Huidig wachtwoord is onjuist.')
+        const msg = reauthError.message?.toLowerCase() || ''
+        if (msg.includes('captcha')) {
+          setError('Captcha vereist: log eerst uit en weer in via de login-captcha en probeer daarna opnieuw.')
+        } else {
+          setError('Huidig wachtwoord is onjuist.')
+        }
         setLoading(false)
         return
       }
@@ -125,7 +136,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
                 className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                 placeholder="••••••••"
                 autoComplete="current-password"
-                minLength={8}
                 disabled={loading}
               />
               <button
