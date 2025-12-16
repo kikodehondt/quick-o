@@ -512,7 +512,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               <div 
                 className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-300"
                 style={{
-                  opacity: 0.5,
+                  opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
                 }}
@@ -573,7 +573,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               <div 
                 className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
                 style={{
-                  opacity: 0.5,
+                  opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
                 }}
