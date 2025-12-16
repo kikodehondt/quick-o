@@ -542,14 +542,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out'
+                  animation: 'nextCardAppear 1000ms ease-out',
+                  overflow: 'visible'
                 }}
               >
-                <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
+                <div className="text-center" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'visible'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4'}}>
                     {queue[1].word1}
                   </p>
                   <p className="text-gray-400 text-sm transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>Klik om het antwoord te zien</p>
@@ -574,18 +575,19 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 dragStart ? 'none' : 
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
-              transformStyle: 'preserve-3d'
+              transformStyle: 'preserve-3d',
+              overflow: 'visible'
             }}
             onClick={handleCardClick}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="text-center relative z-10" style={{paddingBottom: '24px', overflow: 'visible'}}>
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+            <div className="text-center relative z-10" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'visible'}}>
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6'}}>
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               <p className={`text-gray-400 text-sm ${showAnswer ? 'invisible' : ''}`}>Klik om het antwoord te zien</p>
@@ -607,14 +609,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out'
+                  animation: 'nextCardAppear 1000ms ease-out',
+                  overflow: 'visible'
                 }}
               >
-                <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
+                <div className="text-center" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'visible'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
+                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4'}}>
                     {queue[1].word1}
                   </p>
                   <p className="text-gray-400 text-sm transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>Klik om het antwoord te zien</p>
@@ -640,15 +643,16 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               transformStyle: 'preserve-3d',
-              perspective: '1000px'
+              perspective: '1000px',
+              overflow: 'visible'
             }}
             onClick={handleCardClick}
           >
-            <div className="text-center relative z-10" style={{paddingBottom: '24px', overflow: 'visible'}}>
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+            <div className="text-center relative z-10" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'visible'}}>
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6'}}>
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+              <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               <p className={`text-gray-400 text-sm ${showAnswer ? 'invisible' : ''}`}>Klik om het antwoord te zien</p>
