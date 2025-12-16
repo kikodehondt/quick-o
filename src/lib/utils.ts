@@ -13,10 +13,16 @@ export function parseVocabText(text: string): { word1: string; word2: string }[]
     const right = pair.slice(separatorIdx + 2).trim(); // +2 because || is 2 characters
 
     if (left && right) {
-      wordPairs.push({
-        word1: left,
-        word2: right
-      });
+      // Check if right side has multiple alternatives separated by |
+      const alternatives = right.split('|').map(alt => alt.trim()).filter(alt => alt.length > 0);
+      
+      // Create a word pair for each alternative
+      for (const alternative of alternatives) {
+        wordPairs.push({
+          word1: left,
+          word2: alternative
+        });
+      }
     }
   }
   

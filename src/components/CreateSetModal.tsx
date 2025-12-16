@@ -386,7 +386,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             <p className="text-sm text-gray-500 mt-2">
               Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1} || {language2} ||| {language1}2 || {language2}2</code>
               <br />
-              <span className="text-xs">Gebruik || om talen te scheiden en ||| om paren te scheiden. Zo kun je ook zinnen met komma's en puntkomma's gebruiken!</span>
+              <span className="text-xs">Gebruik <strong>||</strong> om talen te scheiden, <strong>|||</strong> om paren te scheiden en <strong>|</strong> voor meerdere vertalingen (bijv: hond || perro|can)</span>
             </p>
             {copyMessage && (
               <p className="text-sm text-green-600 mt-2">{copyMessage}</p>
