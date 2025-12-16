@@ -345,21 +345,25 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
-              <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded w-4 h-4"
-                />
-                <span className="text-sm font-semibold text-gray-700">
-                  Anoniem publiceren
-                </span>
-              </label>
-              <span className="text-xs text-gray-600 ml-auto">
-                {isAnonymous ? '🔒 Je naam wordt verborgen' : `✏️ Gepubliceerd als: ${userFullName || 'Onbekend'}`}
-              </span>
+            <div className="mt-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Publicatie</label>
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl border-2 border-gray-300 bg-white">
+                <div className="flex items-center gap-2">
+                  <input
+                    id="anonymous-toggle"
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label htmlFor="anonymous-toggle" className="text-sm font-medium text-gray-700 cursor-pointer">
+                    Anoniem publiceren
+                  </label>
+                </div>
+                <div className="text-xs text-gray-600">
+                  {isAnonymous ? '🔒 Naam verborgen' : `✏️ Naam zichtbaar: ${userFullName || 'Onbekend'}`}
+                </div>
+              </div>
             </div>
           </div>
 
