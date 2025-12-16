@@ -590,7 +590,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
-              <p className={`text-gray-400 text-sm ${showAnswer ? 'invisible' : ''}`}>Klik om het antwoord te zien</p>
+              <p className="text-gray-400 text-sm">
+                {showAnswer ? 'Klik om het origineel te zien' : 'Klik om het antwoord te zien'}
+              </p>
             </div>
           </div>
         </div>
@@ -655,7 +657,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
-              <p className={`text-gray-400 text-sm ${showAnswer ? 'invisible' : ''}`}>Klik om het antwoord te zien</p>
+              <p className="text-gray-400 text-sm">
+                {showAnswer ? 'Klik om het origineel te zien' : 'Klik om het antwoord te zien'}
+              </p>
             </div>
           </div>
         </div>
