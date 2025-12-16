@@ -542,8 +542,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out',
-                  minHeight: '320px'
+                  animation: 'nextCardAppear 1000ms ease-out'
                 }}
               >
                 <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
@@ -575,8 +574,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 dragStart ? 'none' : 
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
-              transformStyle: 'preserve-3d',
-              minHeight: '320px'
+              transformStyle: 'preserve-3d'
             }}
             onClick={handleCardClick}
             onTouchStart={handleTouchStart}
@@ -609,8 +607,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out',
-                  minHeight: '360px'
+                  animation: 'nextCardAppear 1000ms ease-out'
                 }}
               >
                 <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
@@ -643,8 +640,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               transformStyle: 'preserve-3d',
-              perspective: '1000px',
-              minHeight: '360px'
+              perspective: '1000px'
             }}
             onClick={handleCardClick}
           >
