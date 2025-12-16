@@ -44,7 +44,6 @@ function App() {
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
   const [studySettings, setStudySettings] = useState<StudySettings | null>(null)
   const [isStudying, setIsStudying] = useState(false)
-  const [showAbout, setShowAbout] = useState(false)
   const [onlineCount, setOnlineCount] = useState<number>(1)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -358,7 +357,17 @@ function App() {
               <span>Oefen dagelijks!</span>
             </div>
             <button
-              onClick={() => setShowAbout(true)}
+              onClick={() => {
+                const aboutSection = document.getElementById('about-section')
+                if (aboutSection) {
+                  const elementPosition = aboutSection.getBoundingClientRect().top + window.pageYOffset
+                  const offsetPosition = elementPosition - 80
+                  window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                  })
+                }
+              }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.4s'}}
             >
               <Code2 className="w-5 h-5" />
@@ -504,10 +513,8 @@ function App() {
           <LoginModal onClose={() => setShowLogin(false)} />
         )}
 
-        {/* About Page */}
-        {showAbout && (
-          <AboutPage onClose={() => setShowAbout(false)} />
-        )}
+        {/* About Page - Always visible, scroll to navigate */}
+        <AboutPage />
       </div>
     </div>
   )
