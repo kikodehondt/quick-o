@@ -221,6 +221,16 @@ export default function AboutPage() {
             Terug naar Home
           </button>
         </div>
+
+        {/* Copyright */}
+        <div className="text-center py-6 border-t border-white/10 mt-8">
+          <p className="text-white/60 text-sm">
+            © {new Date().getFullYear()} Quick-O. Alle rechten voorbehouden.
+          </p>
+          <p className="text-white/50 text-xs mt-2">
+            Ontwikkeld door Kiko Dehondt
+          </p>
+        </div>
       </div>
     </div>
   )
