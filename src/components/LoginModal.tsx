@@ -18,6 +18,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [captchaToken, setCaptchaToken] = useState('')
   const captchaRef = useRef<HCaptcha | null>(null)
   const hcaptchaSiteKey = (import.meta as any).env?.VITE_HCAPTCHA_SITEKEY as string | undefined
+  const captchaRequired = Boolean(hcaptchaSiteKey)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,7 +28,11 @@ export default function LoginModal({ onClose }: LoginModalProps) {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, hcaptchaSiteKey ? captchaToken : undefined)
+        if (captchaRequired && !captchaToken) {
+          setError('Los de captcha op om verder te gaan.')
+          return
+        }
+        const { error } = await signUp(email, password, captchaRequired ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
@@ -38,7 +43,11 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           captchaRef.current?.resetCaptcha?.()
         }
       } else {
-        const { error } = await signIn(email, password, hcaptchaSiteKey ? captchaToken : undefined)
+        if (captchaRequired && !captchaToken) {
+          setError('Los de captcha op om verder te gaan.')
+          return
+        }
+        const { error } = await signIn(email, password, captchaRequired ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
@@ -137,8 +146,8 @@ export default function LoginModal({ onClose }: LoginModalProps) {
 
           <button
             type="submit"
-            className="w-full btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
-            disabled={loading}
+            className="w-full btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || (captchaRequired && !captchaToken)}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -161,6 +170,9 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           )}
           {!hcaptchaSiteKey && (
             <p className="mt-2 text-xs text-gray-500 text-center">Captcha staat aan in Supabase. Zet <strong>VITE_HCAPTCHA_SITEKEY</strong> in je env om de captcha zichtbaar te maken.</p>
+          )}
+          {captchaRequired && !captchaToken && (
+            <p className="mt-2 text-xs text-amber-600 text-center">Captcha vereist: voltooi de captcha voordat je doorgaat.</p>
           )}
         </form>
 
