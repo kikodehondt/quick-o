@@ -65,7 +65,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [hasFlipped, swipingAway])
+  }, [hasFlipped, swipingAway, handleCardClick, handleSwipeWithAnimation])
 
   async function loadWords() {
     try {
