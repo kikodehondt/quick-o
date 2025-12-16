@@ -542,11 +542,16 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             }`}
             style={{
               transform: (() => {
-                // Base transform with drag translate and optional rotation
-                const baseTransform = `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px)`
-                const rotation = window.innerWidth >= 768 ? `rotate(${dragOffset.x * 0.03}deg)` : ''
+                // Always include flip animation for consistency
                 const flip = isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'
-                return `${baseTransform} ${rotation} ${flip}`
+                
+                // Desktop: include rotation during drag
+                if (window.innerWidth >= 768) {
+                  return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${flip}`
+                }
+                
+                // Mobile: just translate, no rotation
+                return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) ${flip}`
               })(),
               opacity: swipingAway ? 0 : 1,
               transition: 
