@@ -34,39 +34,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     loadWords()
   }, [])
 
-  // Keyboard event handler
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // Space/Enter and Up/Down flip the card with animation
-      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
-        e.preventDefault()
-        console.log('[KEYBOARD] Flip key pressed:', e.code)
-        handleCardClick()
-        return
-      }
-      // Arrow keys for swipe (only after flipping)
-      if (hasFlipped) {
-        // Arrow left for incorrect
-        if (e.code === 'ArrowLeft') {
-          e.preventDefault()
-          console.log('[KEYBOARD] Left arrow pressed, triggering swipe animation')
-          handleSwipeWithAnimation('left')
-          return
-        }
-        // Arrow right for correct
-        if (e.code === 'ArrowRight') {
-          e.preventDefault()
-          console.log('[KEYBOARD] Right arrow pressed, triggering swipe animation')
-          handleSwipeWithAnimation('right')
-          return
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [handleCardClick, handleSwipeWithAnimation, hasFlipped])
-
   async function loadWords() {
     try {
       console.log('[LOAD] Starting loadWords for set.id:', set.id)
@@ -412,6 +379,39 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     const t = setTimeout(() => setNextDesktopAppear(true), 20)
     return () => clearTimeout(t)
   }, [nextCardKey])
+
+  // Keyboard handler - separate effect so it registers after all handlers are defined
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Space/Enter and Up/Down flip the card with animation
+      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+        e.preventDefault()
+        console.log('[KEYBOARD] Flip key pressed:', e.code)
+        handleCardClick()
+        return
+      }
+      // Arrow keys for swipe (only after flipping)
+      if (hasFlipped) {
+        // Arrow left for incorrect
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault()
+          console.log('[KEYBOARD] Left arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('left')
+          return
+        }
+        // Arrow right for correct
+        if (e.code === 'ArrowRight') {
+          e.preventDefault()
+          console.log('[KEYBOARD] Right arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('right')
+          return
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [handleCardClick, handleSwipeWithAnimation, hasFlipped])
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
