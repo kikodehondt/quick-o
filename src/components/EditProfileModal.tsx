@@ -7,8 +7,9 @@ interface EditProfileModalProps {
 }
 
 export default function EditProfileModal({ onClose }: EditProfileModalProps) {
-  const { userFullName, updateProfile } = useAuth()
+  const { user, userFullName, updateProfile, signIn } = useAuth() as any
   const [fullName, setFullName] = useState(userFullName || '')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -20,11 +21,29 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
     setSuccess('')
     setLoading(true)
     try {
+      // If changing password, require current password re-auth
+      if (newPassword.trim()) {
+        if (!currentPassword.trim()) {
+          setError('Vul je huidige wachtwoord in om het te wijzigen.')
+          setLoading(false)
+          return
+        }
+        // Re-authenticate
+        const email = user?.email
+        const { error: reauthError } = await signIn(email, currentPassword)
+        if (reauthError) {
+          setError('Huidig wachtwoord is onjuist.')
+          setLoading(false)
+          return
+        }
+      }
+
       const { error } = await updateProfile(fullName.trim() || undefined, newPassword.trim() || undefined)
       if (error) {
         setError(error.message)
       } else {
         setSuccess('Account bijgewerkt!')
+        setCurrentPassword('')
         setNewPassword('')
       }
     } catch (err: any) {
@@ -89,10 +108,25 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
               placeholder="••••••••"
-              minLength={6}
+              minLength={8}
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-1">Minimaal 6 karakters</p>
+            <p className="text-xs text-gray-500 mt-1">Minimaal 8 karakters</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <Lock className="w-4 h-4 inline mr-2" />
+              Huidig wachtwoord (vereist bij wijzigen)
+            </label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+              placeholder="••••••••"
+              disabled={loading}
+            />
           </div>
 
           <button

@@ -177,11 +177,11 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
               placeholder="••••••••"
               required
-              minLength={6}
+              minLength={8}
               disabled={loading}
             />
             {isSignUp && (
-              <p className="text-xs text-gray-500 mt-1">Minimaal 6 karakters</p>
+              <p className="text-xs text-gray-500 mt-1">Minimaal 8 karakters</p>
             )}
           </div>
 
