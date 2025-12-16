@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Plus, Trophy, Code2, Users } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Code2, Users, LogOut, User as UserIcon } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
-import { getOrCreateUserId } from './lib/userUtils'
+import { useAuth } from './lib/authContext'
 import CreateSetModal from './components/CreateSetModal'
 import EditSetModal from './components/EditSetModal'
+import LoginModal from './components/LoginModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
 import LearnMode from './components/LearnMode'
@@ -11,8 +12,10 @@ import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 
 function App() {
+    const { user, loading: authLoading, signOut } = useAuth()
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showLoginModal, setShowLoginModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
