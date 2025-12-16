@@ -137,12 +137,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setSwipingAway(true)
       const direction = dragOffset.x < 0 ? -1 : 1
       
-      // Desktop: translate card to side; Mobile: just reset offset
-      if (window.innerWidth >= 768) {
-        setDragOffset({x: direction * window.innerWidth * 1.5, y: dragOffset.y})
-      } else {
-        setDragOffset({x: 0, y: 0})
-      }
+      // Both platforms: keep card off-screen after animation
+      setDragOffset({x: direction * window.innerWidth * 1.5, y: dragOffset.y})
       
       setTimeout(() => {
         if (dragOffset.x < 0) {
@@ -546,16 +542,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             }`}
             style={{
               transform: (() => {
-                // Mobile: fade out without swipe translate
-                if (swipingAway && window.innerWidth < 768) {
-                  return `scale(0.9) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
-                }
-                // Desktop: swipe translate to side
-                if (swipingAway) {
-                  return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
-                }
-                // Normal drag state
-                return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
+                // Base transform with drag translate and optional rotation
+                const baseTransform = `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px)`
+                const rotation = window.innerWidth >= 768 ? `rotate(${dragOffset.x * 0.03}deg)` : ''
+                const flip = isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'
+                return `${baseTransform} ${rotation} ${flip}`
               })(),
               opacity: swipingAway ? 0 : 1,
               transition: 
