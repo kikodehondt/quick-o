@@ -21,8 +21,15 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
+      <style>{`
+        @keyframes modalEnter {
+          0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
       <div 
         className="bg-white rounded-3xl p-8 max-w-lg w-full card-shadow"
+        style={{animation: 'modalEnter 0.3s ease-out'}}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
