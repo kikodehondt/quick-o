@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { X, Save, Lock, User as UserIcon, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { useAuth } from '../lib/authContext'
 
 interface EditProfileModalProps {
@@ -13,9 +14,13 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
   const [newPassword, setNewPassword] = useState('')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const captchaRef = useRef<HCaptcha | null>(null)
+  const hcaptchaSiteKey = (import.meta as any).env?.VITE_HCAPTCHA_SITEKEY as string | undefined
+  const captchaRequired = Boolean(hcaptchaSiteKey)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,6 +45,12 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         return
       }
 
+      if (captchaRequired && !captchaToken) {
+        setError('Los de captcha op om wijzigingen op te slaan.')
+        setLoading(false)
+        return
+      }
+
       const email = user?.email?.trim()
       if (!email) {
         setError('Geen e-mailadres gevonden voor deze sessie. Log opnieuw in en probeer het nog eens.')
@@ -48,7 +59,7 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
       }
 
       // Re-authenticate once for any change
-      const { error: reauthError } = await signIn(email, currentPassword)
+      const { error: reauthError } = await signIn(email, currentPassword, captchaRequired ? captchaToken : undefined)
       if (reauthError) {
         const msg = reauthError.message?.toLowerCase() || ''
         if (msg.includes('captcha')) {
@@ -70,6 +81,8 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         setSuccess('Account bijgewerkt!')
         setCurrentPassword('')
         setNewPassword('')
+        setCaptchaToken('')
+        captchaRef.current?.resetCaptcha?.()
       }
     } catch (err: any) {
       setError(err.message || 'Er is een fout opgetreden')
@@ -178,10 +191,24 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
             <p className="text-xs text-gray-500 mt-1">Laat leeg als je je wachtwoord niet wilt wijzigen (min. 8 karakters indien ingevuld).</p>
           </div>
 
+          {hcaptchaSiteKey && (
+            <div className="mt-4 flex justify-center">
+              <HCaptcha
+                ref={captchaRef as any}
+                sitekey={hcaptchaSiteKey}
+                onVerify={(token: string) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken('')}
+              />
+            </div>
+          )}
+          {captchaRequired && !captchaToken && (
+            <p className="text-xs text-amber-600 text-center">Captcha vereist voor wijzigingen.</p>
+          )}
+
           <button
             type="submit"
             className="w-full btn-gradient text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
+            disabled={loading || (captchaRequired && !captchaToken)}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
