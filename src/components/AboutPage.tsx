@@ -7,16 +7,14 @@ interface AboutPageProps {
 
 export default function AboutPage({ onClose }: AboutPageProps) {
   useEffect(() => {
-    // Wait for the page to render, then scroll smoothly with custom timing
+    // Wait for the page to render, then scroll smoothly
     const timer = setTimeout(() => {
       const element = document.getElementById('over-quick-o')
       if (element) {
-        // Smooth scroll with the section title at the top
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        
-        // Alternative: Use window.scrollTo for more control over the animation
+        // Get the position of the element
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-        const offsetPosition = elementPosition - 20 // 20px from top for some breathing room
+        // Add offset to show the title - accounting for padding and positioning
+        const offsetPosition = elementPosition - 80 // More space from top to show title
         
         window.scrollTo({
           top: offsetPosition,
