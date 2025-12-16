@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
@@ -22,9 +22,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
   
-  // Smooth appearance for the newly created blurred next-card (desktop)
-  const [nextDesktopAppear, setNextDesktopAppear] = useState(true)
-  
   // Swipe state
   const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(null)
   const [dragOffset, setDragOffset] = useState({x: 0, y: 0})
@@ -34,19 +31,47 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     loadWords()
   }, [])
 
+  // Keyboard event handler
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Space/Enter and Up/Down flip the card with animation
+      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+        e.preventDefault()
+        console.log('[KEYBOARD] Flip key pressed:', e.code)
+        handleCardClick()
+        return
+      }
+      // Arrow keys for swipe (only after flipping)
+      if (hasFlipped) {
+        // Arrow left for incorrect
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault()
+          console.log('[KEYBOARD] Left arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('left')
+          return
+        }
+        // Arrow right for correct
+        if (e.code === 'ArrowRight') {
+          e.preventDefault()
+          console.log('[KEYBOARD] Right arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('right')
+          return
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [hasFlipped, swipingAway])
+
   async function loadWords() {
     try {
-      console.log('[LOAD] Starting loadWords for set.id:', set.id)
-      if (!set?.id) {
-        throw new Error('Set ID is missing!')
-      }
       const { data, error } = await supabase
         .from('word_pairs')
         .select('*')
-        .eq('set_id', set.id)
+        .eq('set_id', set.id!)
 
       if (error) throw error
-      console.log('[LOAD] Loaded', data?.length || 0, 'words')
 
       let processedWords = data || []
       
@@ -76,16 +101,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
       setQueue(processedWords)
       setInitialCount(processedWords.length)
-      console.log('[LOAD] Queue set, final count:', processedWords.length)
     } catch (err) {
-      console.error('[LOAD] Error loading words:', err)
+      console.error('Error loading words:', err)
     } finally {
       setLoading(false)
     }
   }
 
   // Handle card flip
-  const handleCardClick = useCallback(() => {
+  const handleCardClick = () => {
     console.log('[FLIP] Click detected, swipingAway:', swipingAway)
     if (swipingAway) return
     console.log('[FLIP] Setting isFlipping to true')
@@ -96,7 +120,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setShowAnswer(prev => !prev)
       setIsFlipping(false)
     }, 150)
-  }, [swipingAway])
+  }
 
   // Touch/Mouse handlers for swipe (only after first flip)
   const handleDragStart = (clientX: number, clientY: number) => {
@@ -173,7 +197,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   // Programmatic swipe with animation
-  const handleSwipeWithAnimation = useCallback((direction: 'left' | 'right') => {
+  const handleSwipeWithAnimation = (direction: 'left' | 'right') => {
     console.log('[SWIPE] Animation triggered, direction:', direction, 'hasFlipped:', hasFlipped, 'swipingAway:', swipingAway)
     if (!hasFlipped || swipingAway) return
     console.log('[SWIPE] Starting animation, setting swipingAway to true')
@@ -198,7 +222,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setDragOffset({x: 0, y: 0})
       setDragStart(null)
     }, 300)
-  }, [hasFlipped, swipingAway])
+  }
 
   function handleIncorrect() {
     if (queue.length === 0) return
@@ -367,51 +391,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   const currentWord = queue[0]
   const progress = initialCount > 0 ? (completedCount / initialCount) * 100 : 0
-
-  // Compute stable next card key for dependency tracking
-  const nextCardKey = queue.length > 1 ? `${queue[1]?.id}-${queue[1]?.word1}-${queue.length}` : 'empty'
-
-  useEffect(() => {
-    // Smooth appearance for the newly created blurred next-card (desktop)
-    // Only relevant on desktop
-    if (typeof window !== 'undefined' && window.innerWidth < 768) return
-    setNextDesktopAppear(false)
-    const t = setTimeout(() => setNextDesktopAppear(true), 20)
-    return () => clearTimeout(t)
-  }, [nextCardKey])
-
-  // Keyboard handler - separate effect so it registers after all handlers are defined
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // Space/Enter and Up/Down flip the card with animation
-      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
-        e.preventDefault()
-        console.log('[KEYBOARD] Flip key pressed:', e.code)
-        handleCardClick()
-        return
-      }
-      // Arrow keys for swipe (only after flipping)
-      if (hasFlipped) {
-        // Arrow left for incorrect
-        if (e.code === 'ArrowLeft') {
-          e.preventDefault()
-          console.log('[KEYBOARD] Left arrow pressed, triggering swipe animation')
-          handleSwipeWithAnimation('left')
-          return
-        }
-        // Arrow right for correct
-        if (e.code === 'ArrowRight') {
-          e.preventDefault()
-          console.log('[KEYBOARD] Right arrow pressed, triggering swipe animation')
-          handleSwipeWithAnimation('right')
-          return
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [handleCardClick, handleSwipeWithAnimation, hasFlipped])
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
@@ -592,12 +571,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
                 style={{
-                  opacity: swipingAway ? 1 : (nextDesktopAppear ? 0.5 : 0),
-                  transform: swipingAway ? 'scale(1)' : (nextDesktopAppear ? 'scale(0.95)' : 'scale(0.93)'),
-                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  transition: 'opacity 200ms ease, transform 300ms ease, filter 300ms ease'
+                  opacity: swipingAway ? 1 : 0.5,
+                  transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
+                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
                 }}
               >
                 <div className="text-center">
