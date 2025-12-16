@@ -433,6 +433,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        @keyframes thirdCardAppear {
+          0% { opacity: 0; transform: scale(0.85); filter: blur(12px); }
+          100% { opacity: 0.3; transform: scale(0.9); filter: blur(8px); }
+        }
       `}</style>
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         {/* Header */}
@@ -510,7 +514,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-1000"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-300"
                 key={`next-mobile-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -535,12 +539,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 2 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-1000"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl"
                 key={`next-next-mobile-${queue[2]?.id || queue[2]?.word1}`}
                 style={{
                   opacity: 0.3,
                   transform: 'scale(0.9)',
-                  filter: 'blur(8px)'
+                  filter: 'blur(8px)',
+                  animation: 'thirdCardAppear 1500ms ease forwards'
                 }}
               >
                 <div className="text-center">
@@ -597,7 +602,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-1000"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
                 key={`next-desktop-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -622,12 +627,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 2 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-500"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl"
                 key={`next-next-desktop-${queue[2]?.id || queue[2]?.word1}`}
                 style={{
                   opacity: 0.3,
                   transform: 'scale(0.9)',
-                  filter: 'blur(8px)'
+                  filter: 'blur(8px)',
+                  animation: 'thirdCardAppear 1500ms ease forwards'
                 }}
               >
                 <div className="text-center">
