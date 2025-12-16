@@ -1,4 +1,4 @@
-import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin } from 'lucide-react'
+import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin, Globe } from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -153,7 +153,7 @@ export default function AboutPage() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
                 >
-                  <Code2 className="w-5 h-5" />
+                  <Globe className="w-5 h-5" />
                   Portfolio
                 </a>
                 <a
