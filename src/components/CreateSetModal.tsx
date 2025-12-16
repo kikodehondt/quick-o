@@ -31,11 +31,19 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
 FORMATTERINGS REGELS (KRITISCH - VOLG EXACT):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+⚠️ BELANGRIJKSTE REGEL: VERWERK ALLE WOORDEN - LAAT NIETS ACHTER! ⚠️
+Als het document groot is en de output te lang wordt voor één chatbericht, dan:
+- Meldt dit expliciet: "OUTPUT IS TE GROOT - SAVE AS TXT FILE"
+- Geef instructie om de output in een .txt bestand op te slaan
+- Maar verwerk WEL alle woorden, geen enkele mag overgeslagen worden
+- Het is beter om een groot bestand te hebben dan incomplete data
+
 1. SCHEIDINGSTEKENS:
    - Gebruik DUBBELE PIPE (||) om woord/zin in ${language1} te scheiden van ${language2}
    - Gebruik TRIPLE PIPE (|||) om verschillende paren te scheiden
+   - Gebruik ENKELE PIPE (|) om meerdere vertalingen/synoniemen voor hetzelfde woord te geven
    - Deze tekens zijn gekozen omdat ze zelden voorkomen in normale tekst
-   - Voorbeeld formaat: ${language1}tekst || ${language2}tekst ||| ${language1}tekst2 || ${language2}tekst2
+   - Voorbeeld formaat: ${language1}tekst || ${language2}tekst1|${language2}tekst2 ||| ${language1}tekst2 || ${language2}tekst3
 
 2. OUTPUT FORMAAT:
    - Produceer ALLEEN de geformatteerde tekst op één enkele regel
@@ -49,71 +57,106 @@ FORMATTERINGS REGELS (KRITISCH - VOLG EXACT):
 3. TAAL IDENTIFICATIE:
    - Eerste taal (bron): ${language1}
    - Tweede taal (vertaling): ${language2}
+   - ✅ ALLE TALEN ZIJN MOGELIJK: Nederlands, Frans, Engels, Duits, Spaans, Italiaans, Portugees, Russisch, Chinees, Japans, Koreaans, Arabisch, Hindi, Turks, Pools, Zweeds, Noors, Deens, Fins, etc.
+   - ✅ Ook minder gangbare talen werken: Latijn, Grieks, Hebreeuws, Thai, Vietnamees, Swahili, Afrikaans, etc.
    - Identificeer automatisch welke tekst in welke taal is
    - Als beide talen gemengd zijn, analyseer de context
 
-4. CONTENT REGELS:
+4. CONTENT REGELS (VOLLEDIGHEID IS CRUCIAAL):
    - Behoud EXACT alle leestekens (komma's, punten, vraagtekens, etc.) in de woorden/zinnen
    - Behoud hoofdletters/kleine letters precies zoals in bron
-   - Behoud alle accenten en speciale karakters (é, ñ, ü, ç, etc.)
-   - Verwijder GEEN enkel woord uit de input
+   - Behoud alle accenten en speciale karakters (é, ñ, ü, ç, 中, 日, ا, etc.)
+   - ⚠️ Verwijder GEEN ENKEL WOORD uit de input - ALLES moet worden verwerkt
+   - ⚠️ Sla NIETS over, ook niet als het document lang is
    - Voeg GEEN extra woorden toe die niet in input staan
    - Als tekst al gestructureerd is (met streepjes, nummers), verwijder die structuur
 
 5. MEERDERE VERTALINGEN:
-   - Als één woord/zin meerdere vertalingen heeft, kies de meest algemene/gebruikelijke
-   - Gebruik NOOIT komma's om alternatieven te geven
-   - Maak aparte paren als je echt beide wilt behouden:
-     ${language1}hond || ${language2}perro ||| ${language1}hond || ${language2}can
+   - Als één woord/zin meerdere vertalingen heeft, gebruik | om ze te scheiden
+   - Voorbeeld: hond || perro|can (betekent: hond kan vertaald worden als perro OF can)
+   - De app zal automatisch aparte flashcards maken voor elke vertaling
+   - Zet de meest gebruikelijke vertaling eerst
+   - Maximum 3-4 alternatieven per woord (anders wordt het te veel)
 
 6. CONTEXTUELE AANWIJZINGEN:
    - Als er tussen haakjes context staat (bijv. "perro (dier)"), behoud dit EXACT
    - Als er toelichting na een dubbele punt staat, analyseer of dit bij het woord hoort of een vertaling is
 
-7. ONVOLLEDIGE DATA:
-   - Als een woord geen duidelijke vertaling heeft: SKIP dat paar volledig
-   - Als een vertaling onduidelijk of ambigu is: SKIP dat paar
-   - Beter 80% goede paren dan 100% met fouten
+7. VOLLEDIGHEID (ALLERBELANGRIJKST):
+   - ⚠️ VERWERK ABSOLUUT ALLE woorden/zinnen uit het document
+   - ⚠️ Sla NIETS over, ook niet als je denkt dat het onbelangrijk is
+   - ⚠️ Als het document 500 woorden heeft, moeten er 500 paren in de output staan
+   - Als je denkt "dit is te lang": FOUT - verwerk alles toch
+   - Enige uitzondering: onduidelijke/corrupte data zonder vertaling
 
-8. ZINNEN MET LEESTEKENS:
+8. GROTE DOCUMENTEN:
+   - Als de output te lang wordt voor één chatbericht (>10.000 karakters):
+     * Meldt expliciet bovenaan: "⚠️ OUTPUT IS TE GROOT - SAVE AS TXT FILE ⚠️"
+     * Geef duidelijke instructie: "Kopieer de volledige output hieronder en save als vocab.txt"
+     * Maar blijf WEL ALLE woorden verwerken - geen shortcuts
+   - Splits NOOIT de lijst op in meerdere berichten zonder dit te melden
+   - Volledigheid > gemak
+
+9. ONVOLLEDIGE DATA:
+   - Als een woord geen duidelijke vertaling heeft: SKIP dat specifieke paar
+   - Als een vertaling onduidelijk of ambigu is: SKIP dat paar
+   - Maar de rest van het document MOET wel verwerkt worden
+
+10. ZINNEN MET LEESTEKENS:
    - Zinnen mogen komma's, puntkomma's, dubbele punten, punten bevatten
    - Voorbeeld: "Hoe gaat het, ben je er klaar voor? || Comment ça va, tu es prêt ?"
    - Behoud vraag- en uitroeptekens: "Wat doe je! || Qu'est-ce que tu fais !"
 
-9. CONSISTENTIE:
+11. CONSISTENTIE:
    - Als input gemengde volgorde heeft (soms ${language1} eerst, soms ${language2}), normaliseer naar:
      ALTIJD ${language1} || ${language2}
    - Als input getallen/nummering bevat (1. huis - maison), strip de nummers
 
-10. QUALITY CHECK:
-    - Tel mentaal: aantal || moet gelijk zijn aan aantal paren
-    - Tel mentaal: aantal ||| moet gelijk zijn aan (aantal paren - 1)
+12. QUALITY CHECK:
+    - Tel mentaal: aantal || moet gelijk zijn aan aantal basisparen
+    - Tel mentaal: aantal ||| moet gelijk zijn aan (aantal basisparen - 1)
     - Controleer dat er geen trailing/leading spaces zijn rondom |||
+    - Zorg dat | alleen binnen de ${language2} kant wordt gebruikt
+    - ⚠️ BELANGRIJKST: Tel of je alle woorden uit het document hebt verwerkt
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VOORBEELD INPUT EN CORRECTE OUTPUT:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Voorbeeld 1 (Simpele woorden):
-Input: "1. huis - maison\n2. auto - voiture\n3. kat - chat"
+Input: "1. huis - maison\\n2. auto - voiture\\n3. kat - chat"
 Correct: huis || maison ||| auto || voiture ||| kat || chat
 
-Voorbeeld 2 (Zinnen met leestekens):
-Input: "- Hoe gaat het? = Comment ça va?\n- Ik hou van koffie, jij ook? = J'aime le café, toi aussi?"
+Voorbeeld 2 (Meerdere vertalingen):
+Input: "hond: perro, can\\nkat: gato\\neten: comer, consumir"
+Correct: hond || perro|can ||| kat || gato ||| eten || comer|consumir
+
+Voorbeeld 3 (Zinnen met leestekens):
+Input: "- Hoe gaat het? = Comment ça va?\\n- Ik hou van koffie, jij ook? = J'aime le café, toi aussi?"
 Correct: Hoe gaat het? || Comment ça va? ||| Ik hou van koffie, jij ook? || J'aime le café, toi aussi?
 
-Voorbeeld 3 (Met context tussen haakjes):
-Input: "perro (hond) masc.\nfaire (doen/maken)"
-Correct: perro || hond ||| faire || doen
+Voorbeeld 4 (Combinatie met alternatieven en zinnen):
+Input: "Goedemorgen - Buenos días / Buen día\\nDankjewel - Gracias\\nWaar is...? - ¿Dónde está...?"
+Correct: Goedemorgen || Buenos días|Buen día ||| Dankjewel || Gracias ||| Waar is...? || ¿Dónde está...?
 
-Voorbeeld 4 (Gemengde volgorde normaliseren):
-Input: "Engels: cat - Nederlands: kat\nNederlands: hond - Engels: dog"
-Correct (als ${language1}=Nederlands en ${language2}=Engels): kat || cat ||| hond || dog
+Voorbeeld 5 (Verschillende talen - Japans, Arabisch, Chinees):
+Input: "こんにちは - hallo\\n本 - boek\\nمرحبا - hallo\\n你好 - hallo"
+Correct: こんにちは || hallo ||| 本 || boek ||| مرحبا || hallo ||| 你好 || hallo
+
+Voorbeeld 6 (Met context tussen haakjes):
+Input: "perro (hond) masc.\\nfaire (doen/maken)"
+Correct: perro || hond ||| faire || doen
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+⚠️ FINAL REMINDER: VERWERK ALLE WOORDEN UIT HET DOCUMENT ⚠️
+Als je klaar bent, check nog eens:
+- Heb ik echt ALLE woorden/zinnen uit de input verwerkt?
+- Is er ook maar één regel die ik per ongeluk heb overgeslagen?
+- Als de output te groot is, heb ik dat gemeld met "OUTPUT IS TE GROOT - SAVE AS TXT FILE"?
+
 VERWERK NU DE INPUT VOLGENS BOVENSTAANDE REGELS.
-OutputFormat: ${language1}tekst || ${language2}tekst ||| ${language1}tekst || ${language2}tekst ||| ...
+OutputFormat: ${language1}tekst || ${language2}tekst ||| ${language1}tekst || ${language2}tekst1|tekst2 ||| ...
 
 BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`  
 
