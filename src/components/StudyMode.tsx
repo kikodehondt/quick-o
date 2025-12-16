@@ -392,6 +392,17 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const currentWord = queue[0]
   const progress = initialCount > 0 ? (completedCount / initialCount) * 100 : 0
 
+  // Smooth appearance for the newly created blurred next-card (desktop)
+  const [nextDesktopAppear, setNextDesktopAppear] = useState(true)
+  useEffect(() => {
+    // Only relevant on desktop
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return
+    setNextDesktopAppear(false)
+    const t = setTimeout(() => setNextDesktopAppear(true), 20)
+    return () => clearTimeout(t)
+    // Re-run when the desktop's next card changes
+  }, [queue.length > 1 ? (queue[1]?.id ?? queue[1]?.word1 ?? queue[1]?.word2) : 'none'])
+
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <style>{`
@@ -571,11 +582,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl"
                 style={{
-                  opacity: swipingAway ? 1 : 0.5,
-                  transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
-                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
+                  opacity: swipingAway ? 1 : (nextDesktopAppear ? 0.5 : 0),
+                  transform: swipingAway ? 'scale(1)' : (nextDesktopAppear ? 'scale(0.95)' : 'scale(0.93)'),
+                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
+                  transition: 'opacity 200ms ease, transform 300ms ease, filter 300ms ease'
                 }}
               >
                 <div className="text-center">
