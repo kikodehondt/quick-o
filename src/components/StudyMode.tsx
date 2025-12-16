@@ -34,23 +34,27 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   // Keyboard event handler
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Space/Enter and Up/Down flip to answer; second press hides answer (no animation)
+      // Space/Enter and Up/Down flip the card with animation
       if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
         e.preventDefault()
-        setShowAnswer(prev => !prev)
+        console.log('[KEYBOARD] Flip key pressed:', e.code)
+        handleCardClick()
         return
       }
-      if (showAnswer) {
+      // Arrow keys for swipe (only after flipping)
+      if (hasFlipped) {
         // Arrow left for incorrect
         if (e.code === 'ArrowLeft') {
           e.preventDefault()
-          handleIncorrect()
+          console.log('[KEYBOARD] Left arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('left')
           return
         }
         // Arrow right for correct
         if (e.code === 'ArrowRight') {
           e.preventDefault()
-          handleCorrect()
+          console.log('[KEYBOARD] Right arrow pressed, triggering swipe animation')
+          handleSwipeWithAnimation('right')
           return
         }
       }
@@ -58,7 +62,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showAnswer, queue])
+  }, [hasFlipped, swipingAway])
 
   async function loadWords() {
     try {
@@ -106,10 +110,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   // Handle card flip
   const handleCardClick = () => {
+    console.log('[FLIP] Click detected, swipingAway:', swipingAway)
     if (swipingAway) return
+    console.log('[FLIP] Setting isFlipping to true')
     setIsFlipping(true)
     if (!hasFlipped) setHasFlipped(true)
     setTimeout(() => {
+      console.log('[FLIP] Toggling answer, setting isFlipping to false')
       setShowAnswer(prev => !prev)
       setIsFlipping(false)
     }, 150)
@@ -191,16 +198,21 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   // Programmatic swipe with animation
   const handleSwipeWithAnimation = (direction: 'left' | 'right') => {
+    console.log('[SWIPE] Animation triggered, direction:', direction, 'hasFlipped:', hasFlipped, 'swipingAway:', swipingAway)
     if (!hasFlipped || swipingAway) return
+    console.log('[SWIPE] Starting animation, setting swipingAway to true')
     setSwipingAway(true)
     const targetX = direction === 'left' ? -window.innerWidth * 1.5 : window.innerWidth * 1.5
+    console.log('[SWIPE] Target X:', targetX)
     
     // Animate card away smoothly
     requestAnimationFrame(() => {
+      console.log('[SWIPE] requestAnimationFrame - setting dragOffset')
       setDragOffset({x: targetX, y: 0})
     })
     
     setTimeout(() => {
+      console.log('[SWIPE] Animation complete, calling handle function')
       if (direction === 'left') {
         handleIncorrect()
       } else {
