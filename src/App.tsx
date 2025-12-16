@@ -470,19 +470,6 @@ function App() {
           <SetsList sets={sets} onStartStudy={handleStartStudy} onDeleteSet={handleDeleteSet} onEditSet={handleEditSet} />
         )}
 
-        {/* Developer Credit */}
-        <div className="mt-12 text-center">
-          <a
-            href="https://www.kikodehondt.be"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 backdrop-blur"
-          >
-            <Code2 className="w-5 h-5" />
-            <span className="text-sm font-medium">Gemaakt door Kiko Dehondt</span>
-          </a>
-        </div>
-
         {/* Create Set Modal */}
         {showCreateModal && (
           <CreateSetModal
