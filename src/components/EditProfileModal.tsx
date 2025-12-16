@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Save, Lock, User as UserIcon, AlertCircle } from 'lucide-react'
+import { X, Save, Lock, User as UserIcon, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../lib/authContext'
 
 interface EditProfileModalProps {
@@ -11,6 +11,8 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
   const [fullName, setFullName] = useState(userFullName || '')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -115,16 +117,26 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
               <Lock className="w-4 h-4 inline mr-2" />
               Huidig wachtwoord (vereist bij wijzigen)
             </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              minLength={8}
-              disabled={loading}
-            />
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                minLength={8}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(v => !v)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                aria-label={showCurrentPassword ? 'Verberg wachtwoord' : 'Toon wachtwoord'}
+              >
+                {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
             <p className="text-xs text-gray-500 mt-1">Vul je huidige wachtwoord in om je naam en/of wachtwoord op te slaan.</p>
           </div>
 
@@ -133,16 +145,26 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
               <Lock className="w-4 h-4 inline mr-2" />
               Nieuw wachtwoord (optioneel)
             </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              minLength={8}
-              disabled={loading}
-            />
+            <div className="relative">
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                minLength={8}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(v => !v)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                aria-label={showNewPassword ? 'Verberg nieuw wachtwoord' : 'Toon nieuw wachtwoord'}
+              >
+                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
             <p className="text-xs text-gray-500 mt-1">Laat leeg als je je wachtwoord niet wilt wijzigen (min. 8 karakters indien ingevuld).</p>
           </div>
 
