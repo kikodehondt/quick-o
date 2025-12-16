@@ -534,6 +534,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             className={`bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
+            key={currentWord?.id ?? `${currentWord?.word1}-${currentWord?.word2}-mobile`}
             style={{
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
               opacity: swipingAway ? 0 : 1,
@@ -595,6 +596,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
+            key={currentWord?.id ?? `${currentWord?.word1}-${currentWord?.word2}-desktop`}
             style={{
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : ''}`,
               opacity: swipingAway ? 0 : 1,
