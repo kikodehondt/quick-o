@@ -510,13 +510,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         )}
 
-        {/* Flashcard stack with swipe gestures */}
-        <div className="flex-1 flex items-center justify-center mb-8 relative">
-          {/* Next card (underneath) - Unified animated card stack */}
+        {/* ============================================ */}
+        {/* MOBILE FLASHCARD STACK - DO NOT MODIFY */}
+        {/* ============================================ */}
+        <div className="md:hidden flex-1 flex items-center justify-center mb-8 relative">
+          {/* Next card (underneath) - Mobile */}
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-300"
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
@@ -527,7 +529,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
                     {queue[1].word1}
                   </p>
                 </div>
@@ -535,24 +537,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             </div>
           )}
           
-          {/* Current card (top) */}
+          {/* Current card (top) - Mobile */}
           <div
-            className={`bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
+            className={`bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
-              transform: (() => {
-                // Always include flip animation for consistency
-                const flip = isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'
-                
-                // Desktop: include rotation during drag
-                if (window.innerWidth >= 768) {
-                  return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${flip}`
-                }
-                
-                // Mobile: just translate, no rotation
-                return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) ${flip}`
-              })(),
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
               opacity: swipingAway ? 0 : 1,
               transition: 
                 swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 
@@ -565,6 +556,64 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+          >
+            <div className="text-center relative z-10">
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+                {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
+              </p>
+              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                {showAnswer ? currentWord.word2 : currentWord.word1}
+              </p>
+              {!showAnswer && (
+                <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================ */}
+        {/* DESKTOP FLASHCARD STACK - MODIFIABLE */}
+        {/* ============================================ */}
+        <div className="hidden md:flex flex-1 items-center justify-center mb-8 relative">
+          {/* Next card (underneath) - Desktop */}
+          {queue.length > 1 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div 
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
+                style={{
+                  opacity: swipingAway ? 1 : 0.5,
+                  transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
+                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+                    {settings.direction === 'reverse' ? set.language2 : set.language1}
+                  </p>
+                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                    {queue[1].word1}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Current card (top) - Desktop */}
+          <div
+            className={`bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl cursor-pointer relative z-10 ${
+              showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
+            }`}
+            style={{
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
+              opacity: swipingAway ? 0 : 1,
+              transition: 
+                swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 
+                dragStart ? 'none' : 
+                isFlipping ? 'transform 0.15s ease-in' : 
+                'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
+              transformStyle: 'preserve-3d'
+            }}
+            onClick={handleCardClick}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -574,7 +623,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+              <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               {!showAnswer && (
