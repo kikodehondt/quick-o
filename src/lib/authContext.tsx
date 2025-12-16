@@ -28,13 +28,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let isMounted = true
+
+    const initSession = async () => {
+      // Handle recovery links containing access_token/refresh_token in the URL hash
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        const params = new URLSearchParams(hash.substring(1))
+        const access_token = params.get('access_token')
+        const refresh_token = params.get('refresh_token')
+        const type = params.get('type')
+        if (access_token && refresh_token) {
+          await supabase.auth.setSession({ access_token, refresh_token })
+          if (type === 'recovery' && isMounted) {
+            setIsPasswordRecovery(true)
+          }
+          // Clean the URL
+          window.history.replaceState({}, '', window.location.pathname)
+        }
+      }
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!isMounted) return
       setSession(session)
       setUser(session?.user ?? null)
       setUserFullName(session?.user?.user_metadata?.full_name ?? null)
       setLoading(false)
-    })
+    }
+
+    initSession()
 
     // Listen for auth changes
     const {
@@ -49,7 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string, fullName: string, captchaToken?: string) => {
