@@ -37,7 +37,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
       {sets.map((set, idx) => (
         <div
           key={set.id}
-          className="bg-white rounded-2xl p-5 md:p-6 shadow-xl transition-all duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl flex flex-col"
+          className="bg-green-50 rounded-2xl p-5 md:p-6 shadow-xl transition-all duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl flex flex-col"
           style={{ animationDelay: `${idx * 50}ms` }}
         >
           <div className="flex items-start justify-between mb-3 md:mb-4 flex-1">
