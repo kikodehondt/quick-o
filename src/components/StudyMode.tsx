@@ -136,7 +136,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       // Swipe detected - animate away
       setSwipingAway(true)
       const direction = dragOffset.x < 0 ? -1 : 1
-      setDragOffset({x: direction * window.innerWidth * 1.5, y: dragOffset.y})
+      
+      // Desktop: translate card to side; Mobile: just reset offset
+      if (window.innerWidth >= 768) {
+        setDragOffset({x: direction * window.innerWidth * 1.5, y: dragOffset.y})
+      } else {
+        setDragOffset({x: 0, y: 0})
+      }
       
       setTimeout(() => {
         if (dragOffset.x < 0) {
@@ -539,7 +545,18 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
-              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
+              transform: (() => {
+                // Mobile: fade out without swipe translate
+                if (swipingAway && window.innerWidth < 768) {
+                  return `scale(0.9) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
+                }
+                // Desktop: swipe translate to side
+                if (swipingAway) {
+                  return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
+                }
+                // Normal drag state
+                return `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`
+              })(),
               opacity: swipingAway ? 0 : 1,
               transition: 
                 swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 
