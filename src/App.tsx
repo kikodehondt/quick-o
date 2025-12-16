@@ -12,11 +12,12 @@ import SetsList from './components/SetsList'
 import LoginModal from './components/LoginModal'
 
 function App() {
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
@@ -231,6 +232,43 @@ function App() {
         }
       `}</style>
       <div className="max-w-6xl mx-auto">
+        {/* Auth Header Controls */}
+        <div className="absolute top-4 right-4 z-20">
+          {!user ? (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur"
+            >
+              Inloggen
+            </button>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(v => !v)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur"
+              >
+                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
+                  {(user.email || 'U')[0]?.toUpperCase()}
+                </div>
+                <span className="hidden sm:block max-w-[180px] truncate">{user.email}</span>
+              </button>
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+                  <div className="px-4 py-3 text-sm border-b border-gray-100">
+                    Ingelogd als
+                    <div className="font-semibold truncate">{user.email}</div>
+                  </div>
+                  <button
+                    onClick={async () => { setShowProfileMenu(false); await signOut(); }}
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
+                  >
+                    Uitloggen
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         {/* Header */}
         <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
           <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur hover:bg-white/20 hover:border-white/20 transition-all duration-300 transform hover:scale-105">
