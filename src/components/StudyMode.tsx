@@ -172,26 +172,6 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     handleDragEnd()
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // Desktop only uses arrow buttons, not mouse drag
-    if (window.innerWidth >= 768) return
-    e.preventDefault()
-    handleDragStart(e.clientX, e.clientY)
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    // Desktop only uses arrow buttons, not mouse drag
-    if (window.innerWidth >= 768) return
-    if (!dragStart) return
-    handleDragMove(e.clientX, e.clientY)
-  }
-
-  const handleMouseUp = () => {
-    // Desktop only uses arrow buttons, not mouse drag
-    if (window.innerWidth >= 768) return
-    handleDragEnd()
-  }
-
   function handleCorrect() {
     if (queue.length === 0) return
     setCorrectCount(prev => prev + 1)
@@ -604,20 +584,17 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               showAnswer ? 'bg-gradient-to-br from-emerald-50 to-green-50' : ''
             }`}
             style={{
-              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : ''}`,
               opacity: swipingAway ? 0 : 1,
               transition: 
-                swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 
+                swipingAway ? 'all 0.3s ease-out' : 
                 dragStart ? 'none' : 
                 isFlipping ? 'transform 0.15s ease-in' : 
-                'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
-              transformStyle: 'preserve-3d'
+                'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transformStyle: 'preserve-3d',
+              perspective: '1000px'
             }}
             onClick={handleCardClick}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
           >
             <div className="text-center relative z-10">
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
