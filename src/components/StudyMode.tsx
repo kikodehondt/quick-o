@@ -467,11 +467,29 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Score */}
         <div className="flex justify-center gap-6 mb-8 flex-wrap">
-          <div className="flex items-center gap-2 bg-red-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-left hover:bg-red-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0s'}}>
+          <div
+            className="flex items-center gap-2 bg-red-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-left hover:bg-red-400/50 transition-all duration-300 hover:scale-110 cursor-pointer select-none"
+            style={{animationDelay: '0s'}}
+            role="button"
+            tabIndex={0}
+            title="Klik om als fout te rekenen (of druk ←)"
+            aria-disabled={!hasFlipped || swipingAway}
+            onClick={() => { if (hasFlipped && !swipingAway) handleSwipeWithAnimation('left') }}
+            onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && hasFlipped && !swipingAway) { e.preventDefault(); handleSwipeWithAnimation('left') } }}
+          >
             <XCircle className="w-5 h-5 animate-bounce" />
             <span className="font-bold text-lg">{incorrectCount}</span>
           </div>
-          <div className="flex items-center gap-2 bg-green-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-right hover:bg-green-400/50 transition-all duration-300 hover:scale-110" style={{animationDelay: '0.1s'}}>
+          <div
+            className="flex items-center gap-2 bg-green-400/30 backdrop-blur text-white px-4 py-2 rounded-xl border border-white/30 animate-slide-in-right hover:bg-green-400/50 transition-all duration-300 hover:scale-110 cursor-pointer select-none"
+            style={{animationDelay: '0.1s'}}
+            role="button"
+            tabIndex={0}
+            title="Klik om als correct te rekenen (of druk →)"
+            aria-disabled={!hasFlipped || swipingAway}
+            onClick={() => { if (hasFlipped && !swipingAway) handleSwipeWithAnimation('right') }}
+            onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && hasFlipped && !swipingAway) { e.preventDefault(); handleSwipeWithAnimation('right') } }}
+          >
             <CheckCircle className="w-5 h-5 animate-bounce" />
             <span className="font-bold text-lg">{correctCount}</span>
           </div>
