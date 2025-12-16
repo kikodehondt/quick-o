@@ -514,7 +514,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-700 ease-out"
                 key={`next-mobile-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -523,13 +523,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 }}
               >
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {queue[1].word1}
                   </p>
-                  <p className="text-gray-400 text-sm transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>Klik om het antwoord te zien</p>
+                  <p className="text-gray-400 text-sm transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
                 </div>
               </div>
             </div>
@@ -578,7 +578,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-700 ease-out"
                 key={`next-desktop-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -587,13 +587,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 }}
               >
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>
+                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {queue[1].word1}
                   </p>
-                  <p className="text-gray-400 text-sm transition-opacity duration-300" style={{opacity: swipingAway ? 1 : 0}}>Klik om het antwoord te zien</p>
+                  <p className="text-gray-400 text-sm transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
                 </div>
               </div>
             </div>
@@ -635,26 +635,32 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         {/* Removed on-screen desktop arrow buttons per request */}
 
         {/* Keyboard Hints - hidden on mobile */}
-        <div className="hidden md:block text-center text-white/80 text-sm mt-4 h-10">
-          {!showAnswer && (
-            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
-              Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen
-            </p>
-          )}
-          {showAnswer && (
-            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
-              <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct
-            </p>
-          )}
+        <div className="hidden md:block text-center text-white/80 text-sm mt-4 h-10 relative overflow-hidden">
+          <p
+            className="font-semibold absolute inset-0 flex items-center justify-center transition-opacity duration-500"
+            style={{ opacity: showAnswer ? 0 : 1 }}
+            aria-hidden={showAnswer}
+          >
+            Druk <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">SPATIE</kbd>, <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">ENTER</kbd>, of <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">↑↓</kbd> om te flippen
+          </p>
+          <p
+            className="font-semibold absolute inset-0 flex items-center justify-center transition-opacity duration-500"
+            style={{ opacity: showAnswer ? 1 : 0 }}
+            aria-hidden={!showAnswer}
+          >
+            <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">←</kbd> Fout • <kbd className="bg-white/20 px-3 py-1 rounded-lg font-mono mx-1">→</kbd> Correct
+          </p>
         </div>
         
         {/* Mobile swipe hint */}
         <div className="md:hidden text-center text-white/80 text-xs mt-4 h-10 flex items-center justify-center">
-          {hasFlipped && !swipingAway && (
-            <p className="font-semibold animate-bounce whitespace-nowrap" style={{animationDelay: '0.3s'}}>
-              ← Fout  •  Correct →
-            </p>
-          )}
+          <p
+            className="font-semibold whitespace-nowrap transition-opacity duration-400"
+            style={{ opacity: hasFlipped && !swipingAway ? 1 : 0 }}
+            aria-hidden={!(hasFlipped && !swipingAway)}
+          >
+            ← Fout  •  Correct →
+          </p>
         </div>
       </div>
     </div>
