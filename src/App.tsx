@@ -167,10 +167,7 @@ function App() {
   }
 
   function handleStartStudy(set: VocabSet) {
-    if (!user) {
-      setShowLogin(true)
-      return
-    }
+    // Studying is allowed without login; only create/edit require auth
     setSelectedSet(set)
     setShowSettingsModal(true)
   }
@@ -268,20 +265,20 @@ function App() {
                 <span className="hidden sm:block max-w-[180px] truncate">{user.email}</span>
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-                  <div className="px-4 py-3 text-sm border-b border-gray-100">
-                    Ingelogd als
+                <div className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
+                  <div className="px-4 py-3 text-sm border-b border-white/10">
+                    <div className="text-white/80">Ingelogd als</div>
                     <div className="font-semibold truncate">{user.email}</div>
                   </div>
                   <button
                     onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
                   >
                     Account bewerken
                   </button>
                   <button
                     onClick={async () => { setShowProfileMenu(false); await signOut(); }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
                   >
                     Uitloggen
                   </button>
