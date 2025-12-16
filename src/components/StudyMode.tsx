@@ -22,6 +22,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
   
+  // Smooth appearance for the newly created blurred next-card (desktop)
+  const [nextDesktopAppear, setNextDesktopAppear] = useState(true)
+  
   // Swipe state
   const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(null)
   const [dragOffset, setDragOffset] = useState({x: 0, y: 0})
@@ -66,12 +69,17 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   async function loadWords() {
     try {
+      console.log('[LOAD] Starting loadWords for set.id:', set.id)
+      if (!set?.id) {
+        throw new Error('Set ID is missing!')
+      }
       const { data, error } = await supabase
         .from('word_pairs')
         .select('*')
-        .eq('set_id', set.id!)
+        .eq('set_id', set.id)
 
       if (error) throw error
+      console.log('[LOAD] Loaded', data?.length || 0, 'words')
 
       let processedWords = data || []
       
@@ -101,8 +109,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
       setQueue(processedWords)
       setInitialCount(processedWords.length)
+      console.log('[LOAD] Queue set, final count:', processedWords.length)
     } catch (err) {
-      console.error('Error loading words:', err)
+      console.error('[LOAD] Error loading words:', err)
     } finally {
       setLoading(false)
     }
@@ -392,9 +401,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const currentWord = queue[0]
   const progress = initialCount > 0 ? (completedCount / initialCount) * 100 : 0
 
-  // Smooth appearance for the newly created blurred next-card (desktop)
-  const [nextDesktopAppear, setNextDesktopAppear] = useState(true)
   useEffect(() => {
+    // Smooth appearance for the newly created blurred next-card (desktop)
     // Only relevant on desktop
     if (typeof window !== 'undefined' && window.innerWidth < 768) return
     setNextDesktopAppear(false)
