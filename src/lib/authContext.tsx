@@ -33,18 +33,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initSession = async () => {
       // Handle recovery links containing access_token/refresh_token in the URL hash
       const hash = window.location.hash
-      if (hash && hash.includes('access_token')) {
+      const pathname = window.location.pathname
+      
+      if (hash && (hash.includes('access_token') || hash.includes('recovery'))) {
         const params = new URLSearchParams(hash.substring(1))
         const access_token = params.get('access_token')
         const refresh_token = params.get('refresh_token')
         const type = params.get('type')
+        
+        console.log('[AuthContext] Recovery URL detected:', { type, hasToken: !!access_token })
+        
         if (access_token && refresh_token) {
-          await supabase.auth.setSession({ access_token, refresh_token })
-          if (type === 'recovery' && isMounted) {
+          const { data, error } = await supabase.auth.setSession({ access_token, refresh_token })
+          console.log('[AuthContext] setSession result:', { hasSession: !!data.session, error })
+          
+          if ((type === 'recovery' || pathname.includes('recovery')) && isMounted) {
+            console.log('[AuthContext] Setting isPasswordRecovery to true')
             setIsPasswordRecovery(true)
           }
           // Clean the URL
-          window.history.replaceState({}, '', window.location.pathname)
+          window.history.replaceState({}, '', '/')
         }
       }
 
