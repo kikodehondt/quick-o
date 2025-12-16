@@ -437,6 +437,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           0% { opacity: 0; transform: scale(0.85); filter: blur(12px); }
           100% { opacity: 0.3; transform: scale(0.9); filter: blur(8px); }
         }
+          @keyframes nextCardAppear {
+            0% { opacity: 0.2; transform: scale(0.9); filter: blur(8px); }
+            100% { opacity: 0.5; transform: scale(0.95); filter: blur(4px); }
+          }
       `}</style>
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         {/* Header */}
@@ -514,22 +518,23 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-700 ease-out"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-900 ease-out"
                 key={`next-mobile-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
-                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
+                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
+                  animation: 'nextCardAppear 700ms ease-out'
                 }}
               >
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {queue[1].word1}
                   </p>
-                  <p className="text-gray-400 text-sm transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
+                  <p className="text-gray-400 text-sm transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
                 </div>
               </div>
             </div>
@@ -578,22 +583,23 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-700 ease-out"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-900 ease-out"
                 key={`next-desktop-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
-                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)'
+                  filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
+                  animation: 'nextCardAppear 700ms ease-out'
                 }}
               >
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
+                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>
                     {queue[1].word1}
                   </p>
-                  <p className="text-gray-400 text-sm transition-opacity duration-700" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
+                  <p className="text-gray-400 text-sm transition-opacity duration-900" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '150ms' : '0ms'}}>Klik om het antwoord te zien</p>
                 </div>
               </div>
             </div>
