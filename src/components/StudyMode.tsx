@@ -221,7 +221,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setSwipingAway(false)
       setDragOffset({x: 0, y: 0})
       setDragStart(null)
-    }, 300)
+    }, 600)
   }
 
   function handleIncorrect() {
@@ -510,7 +510,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-500"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-1000"
                 key={`next-mobile-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -535,7 +535,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 2 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-500"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-1000"
                 key={`next-next-mobile-${queue[2]?.id || queue[2]?.word1}`}
                 style={{
                   opacity: 0.3,
@@ -566,10 +566,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) ${isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)'}`,
               opacity: swipingAway ? 0 : 1,
               transition: 
-                swipingAway ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 
+                swipingAway ? 'transform 0.6s ease-out, opacity 0.6s ease-out' : 
                 dragStart ? 'none' : 
-                isFlipping ? 'transform 0.15s ease-in' : 
-                'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
+                isFlipping ? 'transform 0.3s ease-in' : 
+                'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
               transformStyle: 'preserve-3d'
             }}
             onClick={handleCardClick}
@@ -597,7 +597,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-500"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-1000"
                 key={`next-desktop-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
@@ -653,10 +653,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               transform: `translate(${dragOffset.x}px, ${dragOffset.y * 0.1}px) rotate(${dragOffset.x * 0.03}deg) ${isFlipping ? 'rotateX(90deg)' : ''}`,
               opacity: swipingAway ? 0 : 1,
               transition: 
-                swipingAway ? 'all 0.3s ease-out' : 
+                swipingAway ? 'all 0.6s ease-out' : 
                 dragStart ? 'none' : 
-                isFlipping ? 'transform 0.15s ease-in' : 
-                'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                isFlipping ? 'transform 0.3s ease-in' : 
+                'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               transformStyle: 'preserve-3d',
               perspective: '1000px'
             }}
