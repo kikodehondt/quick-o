@@ -148,6 +148,15 @@ export default function AboutPage() {
               </p>
               <div className="flex gap-4 mt-6">
                 <a
+                  href="https://www.kikodehondt.be"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
+                >
+                  <Code2 className="w-5 h-5" />
+                  Portfolio
+                </a>
+                <a
                   href="https://github.com/kikodehondt"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -201,7 +210,7 @@ export default function AboutPage() {
             <div>
               <h3 className="font-bold text-white mb-2 text-lg">Hoe kan ik feedback geven?</h3>
               <p className="text-white/80 leading-relaxed">
-                We horen graag van je! Stuur een e-mail naar contact@kikodehondt.be met suggesties, vragen of bugs.
+                We horen graag van je! Stuur een e-mail naar <a href="mailto:contact@kikodehondt.be" className="text-white hover:text-white/90 underline hover:no-underline transition-all">contact@kikodehondt.be</a> met suggesties, vragen of bugs.
               </p>
             </div>
           </div>
