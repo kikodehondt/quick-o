@@ -7,15 +7,33 @@ interface AboutPageProps {
 
 export default function AboutPage({ onClose }: AboutPageProps) {
   useEffect(() => {
-    const element = document.getElementById('over-quick-o')
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    // Wait for the page to render, then scroll smoothly with custom timing
+    const timer = setTimeout(() => {
+      const element = document.getElementById('over-quick-o')
+      if (element) {
+        // Smooth scroll with the section title at the top
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        
+        // Alternative: Use window.scrollTo for more control over the animation
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+        const offsetPosition = elementPosition - 20 // 20px from top for some breathing room
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100) // Small delay to ensure DOM is ready
+    
+    return () => clearTimeout(timer)
   }, [])
 
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden">
       <style>{`
+        html {
+          scroll-behavior: smooth;
+        }
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
