@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import { BookOpen, Plus, Trophy, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
-import CreateSetModal from './components/CreateSetModal'
-import EditSetModal from './components/EditSetModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
 import LearnMode from './components/LearnMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
-import LoginModal from './components/LoginModal'
-import EditProfileModal from './components/EditProfileModal'
-import ResetPasswordModal from './components/ResetPasswordModal'
 import AboutPage from './components/AboutPage'
+
+// Lazy load modals voor minder initial load
+const CreateSetModal = lazy(() => import('./components/CreateSetModal'))
+const EditSetModal = lazy(() => import('./components/EditSetModal'))
+const LoginModal = lazy(() => import('./components/LoginModal'))
+const EditProfileModal = lazy(() => import('./components/EditProfileModal'))
+const ResetPasswordModal = lazy(() => import('./components/ResetPasswordModal'))
 
 // SEO helper to update document title and meta description
 function updatePageMeta(title: string, description: string) {
@@ -148,7 +150,19 @@ function App() {
       const { data, error } = await supabase
         .from('vocab_sets')
         .select(`
-          *,
+          id,
+          name,
+          description,
+          language1,
+          language2,
+          created_by,
+          link_code,
+          tags,
+          school,
+          direction,
+          year,
+          creator_name,
+          is_anonymous,
           word_pairs(count)
         `)
         .order('created_at', { ascending: false })
@@ -168,12 +182,12 @@ function App() {
     }
   }
 
-  function handleSetCreated() {
+  const handleSetCreated = useCallback(() => {
     setShowCreateModal(false)
     loadSets()
-  }
+  }, [])
 
-  async function handleDeleteSet(setId: number) {
+  const handleDeleteSet = useCallback(async (setId: number) => {
     try {
       // Delete word pairs first (foreign key constraint)
       const { error: wordsError } = await supabase
@@ -205,41 +219,40 @@ function App() {
       console.error('Error deleting set:', error)
       alert('Fout bij het verwijderen van de set')
     }
-  }
+  }, [])
 
-  function handleStartStudy(set: VocabSet) {
-    // Studying is allowed without login; only create/edit require auth
+  const handleStartStudy = useCallback((set: VocabSet) => {
     setSelectedSet(set)
     setShowSettingsModal(true)
-  }
+  }, [])
 
-  function handleEditSet(set: VocabSet) {
+  const handleEditSet = useCallback((set: VocabSet) => {
     if (!user) {
       setShowLogin(true)
       return
     }
     setEditingSet(set)
     setShowEditModal(true)
-  }
+  }, [user])
 
-  function handleSetEdited() {
+  const handleSetEdited = useCallback(() => {
     setShowEditModal(false)
     setEditingSet(null)
     loadSets()
-  }
+  }, [])
 
-  function handleSettingsConfirm(settings: StudySettings) {
+  const handleSettingsConfirm = useCallback((settings: StudySettings) => {
     setStudySettings(settings)
     setShowSettingsModal(false)
     setIsStudying(true)
-  }
+  }, [])
 
-  function handleEndStudy() {
+  const handleEndStudy = useCallback(() => {
     setIsStudying(false)
     setSelectedSet(null)
     setStudySettings(null)
     loadSets()
-  }
+  }, [])
 
   if (isStudying && selectedSet && studySettings) {
     if (studySettings.mode === 'learn') {
@@ -253,37 +266,6 @@ function App() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
-      <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes pulse-soft {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-      `}</style>
       <div className="max-w-6xl mx-auto">
         {/* Auth Header Controls */}
         <div className="absolute top-4 right-4 z-20">
@@ -326,13 +308,17 @@ function App() {
                 </div>
               )}
                     {showEditProfile && (
-                      <EditProfileModal onClose={() => setShowEditProfile(false)} />
+                      <Suspense fallback={null}>
+                        <EditProfileModal onClose={() => setShowEditProfile(false)} />
+                      </Suspense>
                     )}
             </div>
           )}
         </div>
         {isPasswordRecovery && (
-          <ResetPasswordModal onClose={() => { /* modal closes itself via context clear */ }} />
+          <Suspense fallback={null}>
+            <ResetPasswordModal onClose={() => { /* modal closes itself via context clear */ }} />
+          </Suspense>
         )}
         {/* Header */}
         <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
@@ -476,19 +462,23 @@ function App() {
 
         {/* Create Set Modal */}
         {showCreateModal && (
-          <CreateSetModal
-            onClose={() => setShowCreateModal(false)}
-            onSetCreated={handleSetCreated}
-          />
+          <Suspense fallback={null}>
+            <CreateSetModal
+              onClose={() => setShowCreateModal(false)}
+              onSetCreated={handleSetCreated}
+            />
+          </Suspense>
         )}
 
         {/* Edit Set Modal */}
         {showEditModal && editingSet && (
-          <EditSetModal
-            set={editingSet}
-            onClose={() => setShowEditModal(false)}
-            onSetEdited={handleSetEdited}
-          />
+          <Suspense fallback={null}>
+            <EditSetModal
+              set={editingSet}
+              onClose={() => setShowEditModal(false)}
+              onSetEdited={handleSetEdited}
+            />
+          </Suspense>
         )}
 
         {/* Study Settings Modal */}
@@ -505,7 +495,23 @@ function App() {
 
         {/* Login Modal for unauthenticated users */}
         {!user && showLogin && (
-          <LoginModal onClose={() => setShowLogin(false)} />
+          <Suspense fallback={null}>
+            <LoginModal onClose={() => setShowLogin(false)} />
+          </Suspense>
+        )}
+
+        {/* Edit Profile Modal */}
+        {showEditProfile && (
+          <Suspense fallback={null}>
+            <EditProfileModal onClose={() => setShowEditProfile(false)} />
+          </Suspense>
+        )}
+
+        {/* Password Recovery Modal */}
+        {isPasswordRecovery && (
+          <Suspense fallback={null}>
+            <ResetPasswordModal onClose={() => { /* modal closes itself via context clear */ }} />
+          </Suspense>
         )}
 
         {/* About Page - Always visible, scroll to navigate */}

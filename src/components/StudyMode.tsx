@@ -69,7 +69,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     try {
       const { data, error } = await supabase
         .from('word_pairs')
-        .select('*')
+        .select('id, word1, word2, set_id')
         .eq('set_id', set.id!)
 
       if (error) throw error
