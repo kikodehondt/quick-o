@@ -548,10 +548,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 }}
               >
                 <div className="text-center" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'hidden'}}>
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6', fontSize: 'clamp(0.65rem, 2vw, 0.875rem)'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                  <p className="font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4', fontSize: 'clamp(1.25rem, 5vw, 1.875rem)', wordBreak: 'break-word'}}>
                     {queue[1].word1}
                   </p>
                   <p className="text-gray-400 text-sm transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>Klik om het antwoord te zien</p>
@@ -586,10 +586,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onTouchEnd={handleTouchEnd}
           >
             <div className="text-center relative z-10" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'hidden'}}>
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6', fontSize: 'clamp(0.65rem, 2vw, 0.875rem)'}}>
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+              <p className="font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4', fontSize: 'clamp(1.25rem, 5vw, 1.875rem)', wordBreak: 'break-word'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               <p className="text-gray-400 text-sm">
@@ -619,10 +619,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 }}
               >
                 <div className="text-center" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'hidden'}}>
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.6', fontSize: 'clamp(0.65rem, 1.5vw, 0.875rem)'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
-                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                  <p className="font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms', lineHeight: '1.4', fontSize: 'clamp(1.875rem, 4vw, 3rem)', wordBreak: 'break-word'}}>
                     {queue[1].word1}
                   </p>
                   <p className="text-gray-400 text-sm transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>Klik om het antwoord te zien</p>
@@ -655,10 +655,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
             onClick={handleCardClick}
           >
             <div className="text-center relative z-10" style={{paddingTop: '8px', paddingBottom: '32px', overflow: 'hidden'}}>
-              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+              <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest" style={{lineHeight: '1.6', fontSize: 'clamp(0.65rem, 1.5vw, 0.875rem)'}}>
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
-              <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+              <p className="font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4" style={{lineHeight: '1.4', fontSize: 'clamp(1.875rem, 4vw, 3rem)', wordBreak: 'break-word'}}>
                 {showAnswer ? currentWord.word2 : currentWord.word1}
               </p>
               <p className="text-gray-400 text-sm">

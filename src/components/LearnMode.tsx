@@ -352,7 +352,14 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   const similarity = userAnswer ? calculateSimilarity(userAnswer, currentWord.word2) : 0
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-6">
           <button onClick={onEnd} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-colors flex items-center gap-2"><ArrowLeft className="w-5 h-5" />Terug</button>
