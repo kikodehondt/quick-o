@@ -210,7 +210,7 @@ export default function AboutPage() {
             <div>
               <h3 className="font-bold text-white mb-2 text-lg">Hoe kan ik feedback geven?</h3>
               <p className="text-white/80 leading-relaxed">
-                We horen graag van je! Stuur een e-mail naar <a href="mailto:contact@kikodehondt.be" className="text-white hover:text-white/90 underline hover:no-underline transition-all">contact@kikodehondt.be</a> met suggesties, vragen of bugs.
+                We horen graag van je! Stuur een e-mail naar <a href="mailto:contact@kikodehondt.be" className="text-white font-bold hover:text-white/90 no-underline transition-all">contact@kikodehondt.be</a> met suggesties, vragen of bugs.
               </p>
             </div>
           </div>
