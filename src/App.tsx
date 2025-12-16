@@ -342,7 +342,7 @@ function App() {
               if (aboutSection) {
                 const elementPosition = aboutSection.getBoundingClientRect().top + window.pageYOffset
                 // Scroll to show about section at top with more offset to hide the sets list
-                const offsetPosition = elementPosition + 100 // Positive offset to scroll further down
+                const offsetPosition = elementPosition + 65 // Positive offset to scroll further down
                 window.scrollTo({
                   top: offsetPosition,
                   behavior: 'smooth'
