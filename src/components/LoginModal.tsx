@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { X, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useAuth } from '../lib/authContext'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 interface LoginModalProps {
   onClose: () => void
@@ -14,6 +15,9 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef<HCaptcha | null>(null)
+  const hcaptchaSiteKey = (import.meta as any).env?.VITE_HCAPTCHA_SITEKEY as string | undefined
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -23,16 +27,18 @@ export default function LoginModal({ onClose }: LoginModalProps) {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password)
+        const { error } = await signUp(email, password, hcaptchaSiteKey ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
           setSuccess('Account aangemaakt! Check je email voor verificatie.')
           setEmail('')
           setPassword('')
+          setCaptchaToken('')
+          captchaRef.current?.resetCaptcha?.()
         }
       } else {
-        const { error } = await signIn(email, password)
+        const { error } = await signIn(email, password, hcaptchaSiteKey ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
@@ -143,6 +149,19 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               isSignUp ? 'Account Maken' : 'Inloggen'
             )}
           </button>
+          {hcaptchaSiteKey && (
+            <div className="mt-4 flex justify-center">
+              <HCaptcha
+                ref={captchaRef as any}
+                sitekey={hcaptchaSiteKey}
+                onVerify={(token: string) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken('')}
+              />
+            </div>
+          )}
+          {!hcaptchaSiteKey && (
+            <p className="mt-2 text-xs text-gray-500 text-center">Captcha staat aan in Supabase. Zet <strong>VITE_HCAPTCHA_SITEKEY</strong> in je env om de captcha zichtbaar te maken.</p>
+          )}
         </form>
 
         {/* Optioneel: sociale login kan hier later worden toegevoegd */}
