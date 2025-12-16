@@ -206,7 +206,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     if (!hasFlipped || swipingAway) return
     setSwipingAway(true)
     const targetX = direction === 'left' ? -window.innerWidth * 1.5 : window.innerWidth * 1.5
-    setDragOffset({x: targetX, y: 0})
+    
+    // Animate card away smoothly
+    requestAnimationFrame(() => {
+      setDragOffset({x: targetX, y: 0})
+    })
     
     setTimeout(() => {
       if (direction === 'left') {
