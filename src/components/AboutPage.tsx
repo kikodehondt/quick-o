@@ -210,7 +210,7 @@ export default function AboutPage({ onClose }: AboutPageProps) {
             <div>
               <h3 className="font-bold text-white mb-2 text-lg">Hoe kan ik feedback geven?</h3>
               <p className="text-white/80 leading-relaxed">
-                We horen graag van je! Stuur een e-mail naar kikodehondt06@gmail.com met suggesties, vragen of bugs.
+                We horen graag van je! Stuur een e-mail naar contact@kikodehondt.be met suggesties, vragen of bugs.
               </p>
             </div>
           </div>
