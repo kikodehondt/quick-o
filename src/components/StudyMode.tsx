@@ -466,30 +466,33 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         </div>
 
         {/* Swipe status indicator - above cards */}
-        {(dragOffset.x !== 0 || swipingAway) && hasFlipped && (
-          <div className="flex justify-center mb-4 animate-slide-in-down">
+        {dragOffset.x !== 0 && hasFlipped && !swipingAway && (
+          <div className="flex justify-center mb-4 animate-slide-in-down h-24">
             <div 
               className="transition-all duration-200"
               style={{
-                opacity: dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 80, 1) : 0,
-                transform: `scale(${dragOffset.x < 0 ? Math.min(Math.abs(dragOffset.x) / 100, 1.2) : 0})`
+                opacity: Math.min(Math.abs(dragOffset.x) / 80, 1),
+                transform: `scale(${Math.min(Math.abs(dragOffset.x) / 100, 1.2)})`
               }}
             >
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-10 py-5 rounded-2xl font-black text-4xl flex items-center gap-4 shadow-2xl border-4 border-white/50 backdrop-blur">
-                <XCircle className="w-12 h-12" strokeWidth={3} />
-                <span>FOUT</span>
-              </div>
-            </div>
-            <div 
-              className="transition-all duration-200"
-              style={{
-                opacity: dragOffset.x > 0 ? Math.min(dragOffset.x / 80, 1) : 0,
-                transform: `scale(${dragOffset.x > 0 ? Math.min(dragOffset.x / 100, 1.2) : 0})`
-              }}
-            >
-              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-10 py-5 rounded-2xl font-black text-4xl flex items-center gap-4 shadow-2xl border-4 border-white/50 backdrop-blur">
-                <CheckCircle className="w-12 h-12" strokeWidth={3} />
-                <span>CORRECT</span>
+              <div 
+                className={`text-white px-10 py-5 rounded-2xl font-black text-4xl flex items-center gap-4 shadow-2xl border-4 border-white/50 backdrop-blur transition-all duration-200 ${
+                  dragOffset.x < 0 
+                    ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                    : 'bg-gradient-to-r from-green-500 to-green-600'
+                }`}
+              >
+                {dragOffset.x < 0 ? (
+                  <>
+                    <XCircle className="w-12 h-12" strokeWidth={3} />
+                    <span>FOUT</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-12 h-12" strokeWidth={3} />
+                    <span>CORRECT</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -599,10 +602,10 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
         </div>
         
         {/* Mobile swipe hint */}
-        <div className="md:hidden text-center text-white/80 text-sm mt-4 h-10">
-          {hasFlipped && (
-            <p className="font-semibold animate-bounce" style={{animationDelay: '0.3s'}}>
-              ← Swipe links voor fout • Swipe rechts voor correct →
+        <div className="md:hidden text-center text-white/80 text-xs mt-4 h-10 flex items-center justify-center">
+          {hasFlipped && !swipingAway && (
+            <p className="font-semibold animate-bounce whitespace-nowrap" style={{animationDelay: '0.3s'}}>
+              ← Fout  •  Correct →
             </p>
           )}
         </div>
