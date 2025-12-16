@@ -401,6 +401,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   const currentWord = queue[0]
   const progress = initialCount > 0 ? (completedCount / initialCount) * 100 : 0
 
+  // Compute stable next card key for dependency tracking
+  const nextCardKey = queue.length > 1 ? `${queue[1]?.id}-${queue[1]?.word1}` : null
+
   useEffect(() => {
     // Smooth appearance for the newly created blurred next-card (desktop)
     // Only relevant on desktop
@@ -409,7 +412,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     const t = setTimeout(() => setNextDesktopAppear(true), 20)
     return () => clearTimeout(t)
     // Re-run when the desktop's next card changes
-  }, [queue.length > 1 ? (queue[1]?.id ?? queue[1]?.word1 ?? queue[1]?.word2) : 'none'])
+  }, [nextCardKey])
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
