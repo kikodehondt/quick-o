@@ -530,6 +530,31 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
               </div>
             </div>
           )}
+
+          {/* Third card (behind next) - Mobile - appears smoothly */}
+          {queue.length > 2 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div 
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-500"
+                key={`next-next-mobile-${queue[2]?.id || queue[2]?.word1}`}
+                style={{
+                  opacity: 0.3,
+                  transform: 'scale(0.9)',
+                  filter: 'blur(8px)'
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+                    {settings.direction === 'reverse' ? set.language2 : set.language1}
+                  </p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                    {queue[2].word1}
+                  </p>
+                  <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Current card (top) - Mobile */}
           <div
@@ -586,6 +611,31 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   </p>
                   <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
                     {queue[1].word1}
+                  </p>
+                  <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Third card (behind next) - Desktop - appears smoothly */}
+          {queue.length > 2 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div 
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-500"
+                key={`next-next-desktop-${queue[2]?.id || queue[2]?.word1}`}
+                style={{
+                  opacity: 0.3,
+                  transform: 'scale(0.9)',
+                  filter: 'blur(8px)'
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
+                    {settings.direction === 'reverse' ? set.language2 : set.language1}
+                  </p>
+                  <p className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+                    {queue[2].word1}
                   </p>
                   <p className="text-gray-400 text-sm">Klik om het antwoord te zien</p>
                 </div>
