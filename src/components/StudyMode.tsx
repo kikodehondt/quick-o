@@ -65,7 +65,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [hasFlipped, swipingAway, handleCardClick, handleSwipeWithAnimation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function loadWords() {
     try {
