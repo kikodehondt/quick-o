@@ -3,6 +3,7 @@ import { BookOpen, Plus, Trophy, Code2, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { getOrCreateUserId } from './lib/userUtils'
 import CreateSetModal from './components/CreateSetModal'
+import EditSetModal from './components/EditSetModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
 import LearnMode from './components/LearnMode'
@@ -12,6 +13,8 @@ import SetsList from './components/SetsList'
 function App() {
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
   const [studySettings, setStudySettings] = useState<StudySettings | null>(null)
@@ -147,6 +150,17 @@ function App() {
   function handleStartStudy(set: VocabSet) {
     setSelectedSet(set)
     setShowSettingsModal(true)
+  }
+
+  function handleEditSet(set: VocabSet) {
+    setEditingSet(set)
+    setShowEditModal(true)
+  }
+
+  function handleSetEdited() {
+    setShowEditModal(false)
+    setEditingSet(null)
+    loadSets()
   }
 
   function handleSettingsConfirm(settings: StudySettings) {
@@ -328,7 +342,7 @@ function App() {
             </p>
           </div>
         ) : (
-          <SetsList sets={sets} onStartStudy={handleStartStudy} onDeleteSet={handleDeleteSet} />
+          <SetsList sets={sets} onStartStudy={handleStartStudy} onDeleteSet={handleDeleteSet} onEditSet={handleEditSet} />
         )}
 
         {/* Developer Credit */}
@@ -349,6 +363,15 @@ function App() {
           <CreateSetModal
             onClose={() => setShowCreateModal(false)}
             onSetCreated={handleSetCreated}
+          />
+        )}
+
+        {/* Edit Set Modal */}
+        {showEditModal && editingSet && (
+          <EditSetModal
+            set={editingSet}
+            onClose={() => setShowEditModal(false)}
+            onSetEdited={handleSetEdited}
           />
         )}
 

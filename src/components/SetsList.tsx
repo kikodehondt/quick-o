@@ -1,4 +1,4 @@
-import { PlayCircle, BookOpen, Trash2, Link as LinkIcon, Check } from 'lucide-react'
+import { PlayCircle, BookOpen, Trash2, Link as LinkIcon, Check, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { VocabSet } from '../lib/supabase'
 import { getOrCreateUserId } from '../lib/userUtils'
@@ -7,9 +7,10 @@ interface SetsListProps {
   sets: VocabSet[]
   onStartStudy: (set: VocabSet) => void
   onDeleteSet: (setId: number) => void
+  onEditSet?: (set: VocabSet) => void
 }
 
-export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListProps) {
+export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }: SetsListProps) {
   const currentUserId = getOrCreateUserId()
   const [copiedId, setCopiedId] = useState<number | null>(null)
 
@@ -51,6 +52,30 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
                   {set.language1} → {set.language2}
                 </span>
               </div>
+              {(set.school || set.direction || set.year) && (
+                <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-2">
+                  {set.school && (
+                    <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg font-medium">
+                      🏫 {set.school}
+                    </span>
+                  )}
+                  {set.direction && (
+                    <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-lg font-medium">
+                      📚 {set.direction}
+                    </span>
+                  )}
+                  {set.year && (
+                    <span className="bg-amber-50 text-amber-700 px-2 py-1 rounded-lg font-medium">
+                      📅 {set.year}
+                    </span>
+                  )}
+                </div>
+              )}
+              {set.author_name && !set.is_anonymous && (
+                <p className="text-xs text-gray-500 mb-2">
+                  👤 Door: {set.author_name}
+                </p>
+              )}
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <BookOpen className="w-4 h-4 md:w-4 md:h-4" />
                 <span>{set.word_count || 0} woordjes</span>
@@ -67,13 +92,24 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet }: SetsListPr
               )}
             </div>
             {set.created_by === currentUserId && (
-              <button
-                onClick={() => handleDelete(set)}
-                className="text-red-500 hover:text-red-700 transition-colors p-2 -mr-2 -mt-2 md:block"
-                title="Verwijderen"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
+              <div className="flex gap-1">
+                {onEditSet && (
+                  <button
+                    onClick={() => onEditSet(set)}
+                    className="text-blue-500 hover:text-blue-700 transition-colors p-2 -mr-2 -mt-2"
+                    title="Bewerken"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(set)}
+                  className="text-red-500 hover:text-red-700 transition-colors p-2 -mr-2 -mt-2"
+                  title="Verwijderen"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
             )}
           </div>
 

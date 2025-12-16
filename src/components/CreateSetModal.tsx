@@ -177,13 +177,23 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Jaar</label>
-                <input
-                  type="text"
+                <select
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                  placeholder="Bijv. 2025-2026 of 1e Bachelor"
-                />
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                >
+                  <option value="">Selecteer een jaar</option>
+                  <option value="Eerste Middelbaar">Eerste Middelbaar</option>
+                  <option value="Tweede Middelbaar">Tweede Middelbaar</option>
+                  <option value="Derde Middelbaar">Derde Middelbaar</option>
+                  <option value="Vierde Middelbaar">Vierde Middelbaar</option>
+                  <option value="Vijfde Middelbaar">Vijfde Middelbaar</option>
+                  <option value="Zesde Middelbaar">Zesde Middelbaar</option>
+                  <option value="Eerste Bachelor">Eerste Bachelor</option>
+                  <option value="Tweede Bachelor">Tweede Bachelor</option>
+                  <option value="Derde Bachelor">Derde Bachelor</option>
+                  <option value="Master">Master</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Tags (komma-gescheiden)</label>
