@@ -37,7 +37,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
       {sets.map((set, idx) => (
         <div
           key={set.id}
-          className="bg-white rounded-2xl p-5 md:p-6 card-shadow md:hover:scale-105 transition-all duration-200 group animate-scale-in"
+          className="bg-white rounded-2xl p-5 md:p-6 card-shadow transition-transform duration-300 ease-out group animate-scale-in hover:scale-[1.03] hover:shadow-2xl"
           style={{ animationDelay: `${idx * 50}ms` }}
         >
           <div className="flex items-start justify-between mb-3 md:mb-4">
@@ -82,17 +82,17 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                   🔒 Anoniem
                 </p>
               )}
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 transition-colors group-hover:text-gray-700">
                 <BookOpen className="w-4 h-4 md:w-4 md:h-4" />
                 <span>{set.word_count || 0} woordjes</span>
               </div>
               {Array.isArray(set.tags) && set.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5 md:gap-2">
                   {set.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium">{t}</span>
+                    <span key={t} className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">{t}</span>
                   ))}
                   {set.tags.length > 4 && (
-                    <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium">+{set.tags.length - 4}</span>
+                    <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-[11px] md:text-xs font-medium transition-transform duration-200 group-hover:scale-105">+{set.tags.length - 4}</span>
                   )}
                 </div>
               )}
@@ -102,7 +102,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                 {onEditSet && (
                   <button
                     onClick={() => onEditSet(set)}
-                    className="text-blue-500 hover:text-blue-700 transition-colors p-2 -mr-2 -mt-2"
+                    className="text-blue-500 hover:text-blue-700 transition-transform p-2 -mr-2 -mt-2 hover:scale-110"
                     title="Bewerken"
                   >
                     <Edit className="w-5 h-5" />
@@ -110,7 +110,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                 )}
                 <button
                   onClick={() => handleDelete(set)}
-                  className="text-red-500 hover:text-red-700 transition-colors p-2 -mr-2 -mt-2"
+                  className="text-red-500 hover:text-red-700 transition-transform p-2 -mr-2 -mt-2 hover:scale-110"
                   title="Verwijderen"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -122,7 +122,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
           <div className="flex gap-2 md:gap-3 flex-col sm:flex-row">
             <button
               onClick={() => onStartStudy(set)}
-              className="w-full sm:flex-1 btn-gradient text-white px-4 py-3 md:py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-base md:text-sm"
+              className="w-full sm:flex-1 btn-gradient text-white px-4 py-3 md:py-3 rounded-xl font-semibold hover:opacity-90 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-base md:text-sm"
             >
               <PlayCircle className="w-5 h-5" />
               Oefenen
