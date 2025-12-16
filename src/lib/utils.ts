@@ -1,16 +1,16 @@
 export function parseVocabText(text: string): { word1: string; word2: string }[] {
-  // Split by semicolon for different word pairs
-  const pairs = text.split(';').map(pair => pair.trim()).filter(pair => pair.length > 0);
+  // Split by ||| for different word pairs (supports sentences with commas, semicolons, etc.)
+  const pairs = text.split('|||').map(pair => pair.trim()).filter(pair => pair.length > 0);
   
   const wordPairs: { word1: string; word2: string }[] = [];
   
   for (const pair of pairs) {
-    // Use ONLY the first comma to split word1 and word2
-    const firstCommaIdx = pair.indexOf(',');
-    if (firstCommaIdx === -1) continue;
+    // Use ONLY the first || to split word1 and word2
+    const separatorIdx = pair.indexOf('||');
+    if (separatorIdx === -1) continue;
 
-    const left = pair.slice(0, firstCommaIdx).trim();
-    const right = pair.slice(firstCommaIdx + 1).trim();
+    const left = pair.slice(0, separatorIdx).trim();
+    const right = pair.slice(separatorIdx + 2).trim(); // +2 because || is 2 characters
 
     if (left && right) {
       wordPairs.push({

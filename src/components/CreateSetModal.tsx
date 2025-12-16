@@ -25,7 +25,97 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [error, setError] = useState('')
   const [copyMessage, setCopyMessage] = useState('')
 
-  const promptText = `Je bent een helper die een woordenlijst omzet naar het exacte formaat van deze vocab trainer.\n\nInstructies:\n1) Lees de brontekst en identificeer woordparen in twee talen: ${language1} en ${language2}.\n2) Output ALLEEN een enkele regel tekst zonder extra uitleg.\n3) Gebruik exact dit formaat: ${language1}woord, ${language2}vertaling; ${language1}woord2, ${language2}vertaling2; ...\n4) Scheid paren met een puntkomma plus spatie ('; ').\n5) Gebruik geen quotes, geen bullet points, geen nummers, geen extra tekst.\n6) Laat niets weg en verzin geen woorden.\n7) Bewaar casing en accenten zoals in de input.\n8) Als er bij een woord meerdere vertalingen zijn, kies de meest gebruikelijke en geef slechts één vertaling.\n9) Als een woordpaar ontbreekt of onduidelijk is, sla het over en noem het niet.\n10) Als er al puntkomma's of komma's staan, herstructureer naar het exacte formaat hierboven.\n\nVoorbeeld output (fictief):\n${language1} huis, ${language2} maison; ${language1} auto, ${language2} voiture; ${language1} eten, ${language2} manger` 
+  const promptText = `Je bent een expert assistent die vocabulaire-lijsten omzet naar het EXACTE formaat van deze flashcard trainer app. Je taak is om woordparen of zinnenparen te identificeren en te formatteren volgens strikte regels.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FORMATTERINGS REGELS (KRITISCH - VOLG EXACT):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. SCHEIDINGSTEKENS:
+   - Gebruik DUBBELE PIPE (||) om woord/zin in ${language1} te scheiden van ${language2}
+   - Gebruik TRIPLE PIPE (|||) om verschillende paren te scheiden
+   - Deze tekens zijn gekozen omdat ze zelden voorkomen in normale tekst
+   - Voorbeeld formaat: ${language1}tekst || ${language2}tekst ||| ${language1}tekst2 || ${language2}tekst2
+
+2. OUTPUT FORMAAT:
+   - Produceer ALLEEN de geformatteerde tekst op één enkele regel
+   - GEEN markdown formatting (geen backticks, geen code blocks)
+   - GEEN uitleg voor of na de output
+   - GEEN introductie zoals "Hier is de lijst:" of "Output:"
+   - GEEN nummering of bullet points
+   - GEEN quotes rondom de output
+   - Begin DIRECT met de eerste ${language1} tekst
+
+3. TAAL IDENTIFICATIE:
+   - Eerste taal (bron): ${language1}
+   - Tweede taal (vertaling): ${language2}
+   - Identificeer automatisch welke tekst in welke taal is
+   - Als beide talen gemengd zijn, analyseer de context
+
+4. CONTENT REGELS:
+   - Behoud EXACT alle leestekens (komma's, punten, vraagtekens, etc.) in de woorden/zinnen
+   - Behoud hoofdletters/kleine letters precies zoals in bron
+   - Behoud alle accenten en speciale karakters (é, ñ, ü, ç, etc.)
+   - Verwijder GEEN enkel woord uit de input
+   - Voeg GEEN extra woorden toe die niet in input staan
+   - Als tekst al gestructureerd is (met streepjes, nummers), verwijder die structuur
+
+5. MEERDERE VERTALINGEN:
+   - Als één woord/zin meerdere vertalingen heeft, kies de meest algemene/gebruikelijke
+   - Gebruik NOOIT komma's om alternatieven te geven
+   - Maak aparte paren als je echt beide wilt behouden:
+     ${language1}hond || ${language2}perro ||| ${language1}hond || ${language2}can
+
+6. CONTEXTUELE AANWIJZINGEN:
+   - Als er tussen haakjes context staat (bijv. "perro (dier)"), behoud dit EXACT
+   - Als er toelichting na een dubbele punt staat, analyseer of dit bij het woord hoort of een vertaling is
+
+7. ONVOLLEDIGE DATA:
+   - Als een woord geen duidelijke vertaling heeft: SKIP dat paar volledig
+   - Als een vertaling onduidelijk of ambigu is: SKIP dat paar
+   - Beter 80% goede paren dan 100% met fouten
+
+8. ZINNEN MET LEESTEKENS:
+   - Zinnen mogen komma's, puntkomma's, dubbele punten, punten bevatten
+   - Voorbeeld: "Hoe gaat het, ben je er klaar voor? || Comment ça va, tu es prêt ?"
+   - Behoud vraag- en uitroeptekens: "Wat doe je! || Qu'est-ce que tu fais !"
+
+9. CONSISTENTIE:
+   - Als input gemengde volgorde heeft (soms ${language1} eerst, soms ${language2}), normaliseer naar:
+     ALTIJD ${language1} || ${language2}
+   - Als input getallen/nummering bevat (1. huis - maison), strip de nummers
+
+10. QUALITY CHECK:
+    - Tel mentaal: aantal || moet gelijk zijn aan aantal paren
+    - Tel mentaal: aantal ||| moet gelijk zijn aan (aantal paren - 1)
+    - Controleer dat er geen trailing/leading spaces zijn rondom |||
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VOORBEELD INPUT EN CORRECTE OUTPUT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Voorbeeld 1 (Simpele woorden):
+Input: "1. huis - maison\n2. auto - voiture\n3. kat - chat"
+Correct: huis || maison ||| auto || voiture ||| kat || chat
+
+Voorbeeld 2 (Zinnen met leestekens):
+Input: "- Hoe gaat het? = Comment ça va?\n- Ik hou van koffie, jij ook? = J'aime le café, toi aussi?"
+Correct: Hoe gaat het? || Comment ça va? ||| Ik hou van koffie, jij ook? || J'aime le café, toi aussi?
+
+Voorbeeld 3 (Met context tussen haakjes):
+Input: "perro (hond) masc.\nfaire (doen/maken)"
+Correct: perro || hond ||| faire || doen
+
+Voorbeeld 4 (Gemengde volgorde normaliseren):
+Input: "Engels: cat - Nederlands: kat\nNederlands: hond - Engels: dog"
+Correct (als ${language1}=Nederlands en ${language2}=Engels): kat || cat ||| hond || dog
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERWERK NU DE INPUT VOLGENS BOVENSTAANDE REGELS.
+OutputFormat: ${language1}tekst || ${language2}tekst ||| ${language1}tekst || ${language2}tekst ||| ...
+
+BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`  
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -291,10 +381,12 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
               onChange={(e) => setVocabText(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all font-mono text-sm"
               rows={10}
-              placeholder={`${language1}, ${language2}; ${language1}2, ${language2}2`}
+              placeholder={`${language1} || ${language2} ||| ${language1}2 || ${language2}2`}
             />
             <p className="text-sm text-gray-500 mt-2">
-              Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1}, {language2}; {language1}2, {language2}2</code>
+              Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1} || {language2} ||| {language1}2 || {language2}2</code>
+              <br />
+              <span className="text-xs">Gebruik || om talen te scheiden en ||| om paren te scheiden. Zo kun je ook zinnen met komma's en puntkomma's gebruiken!</span>
             </p>
             {copyMessage && (
               <p className="text-sm text-green-600 mt-2">{copyMessage}</p>
