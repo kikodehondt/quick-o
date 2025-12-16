@@ -12,6 +12,8 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -28,17 +30,24 @@ export default function LoginModal({ onClose }: LoginModalProps) {
 
     try {
       if (isSignUp) {
+        if (!firstName.trim() || !lastName.trim()) {
+          setError('Vul je voor- en achternaam in.')
+          return
+        }
         if (captchaRequired && !captchaToken) {
           setError('Los de captcha op om verder te gaan.')
           return
         }
-        const { error } = await signUp(email, password, captchaRequired ? captchaToken : undefined)
+        const fullName = `${firstName.trim()} ${lastName.trim()}`
+        const { error } = await signUp(email, password, fullName, captchaRequired ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
           setSuccess('Account aangemaakt! Check je email voor verificatie.')
           setEmail('')
           setPassword('')
+          setFirstName('')
+          setLastName('')
           setCaptchaToken('')
           captchaRef.current?.resetCaptcha?.()
         }
@@ -108,6 +117,38 @@ export default function LoginModal({ onClose }: LoginModalProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Voornaam
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                  placeholder="Jan"
+                  required={isSignUp}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Achternaam
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                  placeholder="Jansen"
+                  required={isSignUp}
+                  disabled={loading}
+                />
+              </div>
+            </>
+          )}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               <Mail className="w-4 h-4 inline mr-2" />

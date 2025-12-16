@@ -24,7 +24,7 @@ export interface VocabSet {
   school?: string
   direction?: string
   year?: string
-  author_name?: string | null
+  creator_name?: string | null
   is_anonymous?: boolean
   created_at?: string
   created_by?: string

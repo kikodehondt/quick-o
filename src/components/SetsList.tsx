@@ -72,9 +72,14 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                   )}
                 </div>
               )}
-              {set.author_name && !set.is_anonymous && (
+              {set.creator_name && !set.is_anonymous && (
                 <p className="text-xs text-gray-500 mb-2">
-                  👤 Door: {set.author_name}
+                  👤 Door: {set.creator_name}
+                </p>
+              )}
+              {set.is_anonymous && (
+                <p className="text-xs text-gray-400 mb-2">
+                  🔒 Anoniem
                 </p>
               )}
               <div className="flex items-center gap-2 text-sm text-gray-500">

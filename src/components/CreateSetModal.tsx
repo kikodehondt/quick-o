@@ -10,7 +10,7 @@ interface CreateSetModalProps {
 }
 
 export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModalProps) {
-  const { user } = useAuth()
+  const { user, userFullName } = useAuth()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [language1, setLanguage1] = useState('Nederlands')
@@ -20,7 +20,6 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [school, setSchool] = useState('')
   const [direction, setDirection] = useState('')
   const [year, setYear] = useState('')
-  const [authorName, setAuthorName] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -222,7 +221,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           school,
           direction,
           year,
-          author_name: isAnonymous ? null : authorName || null,
+          creator_name: isAnonymous ? null : (userFullName || null),
           is_anonymous: isAnonymous
         }])
         .select()
@@ -346,29 +345,21 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Naam (optioneel)</label>
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
+              <label className="inline-flex items-center gap-2 cursor-pointer">
                 <input
-                  type="text"
-                  value={authorName}
-                  onChange={(e) => setAuthorName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                  placeholder="Je naam voor credits"
-                  disabled={isAnonymous}
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="rounded w-4 h-4"
                 />
-              </div>
-              <div className="flex items-end">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={isAnonymous}
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="rounded"
-                  />
-                  <span className="text-sm font-semibold text-gray-700">Anoniem publiceren</span>
-                </label>
-              </div>
+                <span className="text-sm font-semibold text-gray-700">
+                  Anoniem publiceren
+                </span>
+              </label>
+              <span className="text-xs text-gray-600 ml-auto">
+                {isAnonymous ? '🔒 Je naam wordt verborgen' : `✏️ Gepubliceerd als: ${userFullName || 'Onbekend'}`}
+              </span>
             </div>
           </div>
 

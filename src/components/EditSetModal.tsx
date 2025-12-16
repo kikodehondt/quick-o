@@ -15,7 +15,6 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
   const [school, setSchool] = useState(set.school || '')
   const [direction, setDirection] = useState(set.direction || '')
   const [year, setYear] = useState(set.year || '')
-  const [authorName, setAuthorName] = useState(set.author_name || '')
   const [isAnonymous, setIsAnonymous] = useState(set.is_anonymous || false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -55,7 +54,6 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
           school,
           direction,
           year,
-          author_name: isAnonymous ? null : authorName || null,
           is_anonymous: isAnonymous,
           updated_at: new Date().toISOString()
         })
@@ -168,29 +166,21 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Naam (optioneel)</label>
+          <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
+            <label className="inline-flex items-center gap-2 cursor-pointer">
               <input
-                type="text"
-                value={authorName}
-                onChange={(e) => setAuthorName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                placeholder="Je naam voor credits"
-                disabled={isAnonymous}
+                type="checkbox"
+                checked={isAnonymous}
+                onChange={(e) => setIsAnonymous(e.target.checked)}
+                className="rounded w-4 h-4"
               />
-            </div>
-            <div className="flex items-end">
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm font-semibold text-gray-700">Anoniem publiceren</span>
-              </label>
-            </div>
+              <span className="text-sm font-semibold text-gray-700">
+                Anoniem publiceren
+              </span>
+            </label>
+            <span className="text-xs text-gray-600 ml-auto">
+              {isAnonymous ? '🔒 Je naam wordt verborgen' : `✏️ Gepubliceerd als: ${set.creator_name || 'Onbekend'}`}
+            </span>
           </div>
 
           <div className="bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-xl text-sm">
