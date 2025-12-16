@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Plus, Trophy, Code2, Users, LogOut, User as UserIcon } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Code2, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
 import CreateSetModal from './components/CreateSetModal'
 import EditSetModal from './components/EditSetModal'
-import LoginModal from './components/LoginModal'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
 import LearnMode from './components/LearnMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
+import LoginModal from './components/LoginModal'
 
 function App() {
-    const { user, loading: authLoading, signOut } = useAuth()
+  const { user } = useAuth()
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
-    const [showLoginModal, setShowLoginModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
@@ -58,11 +58,11 @@ function App() {
 
   // Presence: track how many users have the app open
   useEffect(() => {
-    const userId = getOrCreateUserId()
+    const presenceKey = user?.id || 'guest'
     const channel = supabase.channel('quick-o-presence', {
       config: {
         presence: {
-          key: userId,
+          key: presenceKey,
         },
       },
     })
@@ -83,7 +83,7 @@ function App() {
     return () => {
       channel.unsubscribe()
     }
-  }, [])
+  }, [user])
 
   async function loadSets() {
     try {
@@ -151,11 +151,19 @@ function App() {
   }
 
   function handleStartStudy(set: VocabSet) {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
     setSelectedSet(set)
     setShowSettingsModal(true)
   }
 
   function handleEditSet(set: VocabSet) {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
     setEditingSet(set)
     setShowEditModal(true)
   }
@@ -320,7 +328,10 @@ function App() {
         {/* Create Set Button */}
         <div className="flex justify-center mb-8" style={{animation: 'slideInUp 0.6s ease-out'}}>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => {
+              if (!user) { setShowLogin(true); return }
+              setShowCreateModal(true)
+            }}
             className="bg-white hover:bg-gray-50 text-green-600 font-semibold px-8 py-4 rounded-2xl card-shadow hover:scale-110 transition-all duration-300 flex items-center gap-3 transform group"
           >
             <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
@@ -388,6 +399,11 @@ function App() {
             }}
             onStart={handleSettingsConfirm}
           />
+        )}
+
+        {/* Login Modal for unauthenticated users */}
+        {!user && showLogin && (
+          <LoginModal onClose={() => setShowLogin(false)} />
         )}
       </div>
     </div>

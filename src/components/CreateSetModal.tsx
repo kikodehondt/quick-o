@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
 import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
-import { getOrCreateUserId } from '../lib/userUtils'
+import { useAuth } from '../lib/authContext'
 
 interface CreateSetModalProps {
   onClose: () => void
@@ -10,6 +10,7 @@ interface CreateSetModalProps {
 }
 
 export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModalProps) {
+  const { user } = useAuth()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [language1, setLanguage1] = useState('Nederlands')
@@ -163,6 +164,11 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     
+    if (!user?.id) {
+      setError('Je moet ingelogd zijn om een set aan te maken.')
+      return
+    }
+
     if (!name.trim()) {
       setError('Vul een naam in voor de set')
       return
@@ -210,7 +216,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           description,
           language1,
           language2,
-          created_by: getOrCreateUserId(),
+          created_by: user.id,
           link_code,
           tags,
           school,

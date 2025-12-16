@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
-import { getOrCreateUserId } from '../lib/userUtils'
+import { useAuth } from '../lib/authContext'
 
 interface StudyModeProps {
   set: VocabSet
@@ -11,6 +11,7 @@ interface StudyModeProps {
 }
 
 export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
+  const { user } = useAuth()
   const [queue, setQueue] = useState<WordPair[]>([])
   const [initialCount, setInitialCount] = useState(0)
   const [completedCount, setCompletedCount] = useState(0)
@@ -270,19 +271,20 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       localStorage.setItem('progress_study_' + set.id, JSON.stringify(payload))
       
       // Device-specific cloud sync
-      const userId = getOrCreateUserId()
-      supabase
-        .from('study_progress')
-        .upsert({
-          set_id: set.id!,
-          user_id: userId,
-          correct_count: correctCount,
-          incorrect_count: incorrectCount,
-          last_studied: new Date().toISOString()
-        }, {
-          onConflict: 'set_id,user_id'
-        })
-        .then(() => {}) // fire and forget
+      if (user?.id) {
+        supabase
+          .from('study_progress')
+          .upsert({
+            set_id: set.id!,
+            user_id: user.id,
+            correct_count: correctCount,
+            incorrect_count: incorrectCount,
+            last_studied: new Date().toISOString()
+          }, {
+            onConflict: 'set_id,user_id'
+          })
+          .then(() => {})
+      }
     } catch (err) {
       console.error('Error saving local progress:', err)
     }

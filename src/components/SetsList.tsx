@@ -1,7 +1,7 @@
 import { PlayCircle, BookOpen, Trash2, Link as LinkIcon, Check, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { VocabSet } from '../lib/supabase'
-import { getOrCreateUserId } from '../lib/userUtils'
+import { useAuth } from '../lib/authContext'
 
 interface SetsListProps {
   sets: VocabSet[]
@@ -11,7 +11,8 @@ interface SetsListProps {
 }
 
 export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }: SetsListProps) {
-  const currentUserId = getOrCreateUserId()
+  const { user } = useAuth()
+  const currentUserId = user?.id
   const [copiedId, setCopiedId] = useState<number | null>(null)
 
   function handleDelete(set: VocabSet) {

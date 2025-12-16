@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCircle } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
-import { getOrCreateUserId } from '../lib/userUtils'
+import { useAuth } from '../lib/authContext'
 
 interface TypingModeProps {
   set: VocabSet
@@ -11,6 +11,7 @@ interface TypingModeProps {
 }
 
 export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
+  const { user } = useAuth()
   const [words, setWords] = useState<WordPair[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
@@ -144,19 +145,20 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
       localStorage.setItem('progress_typing_' + set.id, JSON.stringify(payload))
       
       // Device-specific cloud sync
-      const userId = getOrCreateUserId()
-      supabase
-        .from('study_progress')
-        .upsert({
-          set_id: set.id!,
-          user_id: userId,
-          correct_count: correctCount,
-          incorrect_count: incorrectCount,
-          last_studied: new Date().toISOString()
-        }, {
-          onConflict: 'set_id,user_id'
-        })
-        .then(() => {}) // fire and forget
+      if (user?.id) {
+        supabase
+          .from('study_progress')
+          .upsert({
+            set_id: set.id!,
+            user_id: user.id,
+            correct_count: correctCount,
+            incorrect_count: incorrectCount,
+            last_studied: new Date().toISOString()
+          }, {
+            onConflict: 'set_id,user_id'
+          })
+          .then(() => {})
+      }
     } catch (err) {
       console.error('Error saving progress:', err)
     }

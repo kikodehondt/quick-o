@@ -3,7 +3,7 @@ import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, AlertCircle, Target }
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 import SessionSettings from './SessionSettings'
-import { getOrCreateUserId } from '../lib/userUtils'
+import { useAuth } from '../lib/authContext'
 
 interface LearnModeProps {
   set: VocabSet
@@ -25,6 +25,7 @@ interface LearnProgressState {
 const LOCAL_KEY_PREFIX = 'progress_learn_'
 
 export default function LearnMode({ set, settings: initialSettings, onEnd }: LearnModeProps) {
+  const { user } = useAuth()
   const [settings, setSettings] = useState<StudySettings>(initialSettings)
   const [allWords, setAllWords] = useState<WordPair[]>([])
   const [activeWords, setActiveWords] = useState<WordPair[]>([])
@@ -149,12 +150,12 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   async function loadProgressCloud(): Promise<LearnProgressState | null> {
     try {
-      const userId = getOrCreateUserId()
+      if (!user?.id) return null
       const { data, error } = await supabase
         .from('study_progress')
         .select('progress_state, correct_count, incorrect_count')
         .eq('set_id', set.id!)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .maybeSingle()
       if (error) throw error
       const state = data?.progress_state
@@ -187,7 +188,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   async function saveProgressCloud() {
     try {
-      const userId = getOrCreateUserId()
+      if (!user?.id) return
       const payload: LearnProgressState = {
         mode: 'learn',
         activeWords,
@@ -202,7 +203,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
         .from('study_progress')
         .upsert({
           set_id: set.id!,
-          user_id: userId,
+          user_id: user.id,
           correct_count: correctCount,
           incorrect_count: incorrectCount,
           last_studied: new Date().toISOString(),
@@ -218,12 +219,12 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   async function clearCloudProgress() {
     try {
-      const userId = getOrCreateUserId()
+      if (!user?.id) return
       const { error } = await supabase
         .from('study_progress')
         .delete()
         .eq('set_id', set.id!)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
       if (error) throw error
     } catch (err) {
       console.error('Error clearing cloud progress:', err)

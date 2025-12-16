@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Mail, Lock, AlertCircle, Chrome } from 'lucide-react'
+import { X, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useAuth } from '../lib/authContext'
 
 interface LoginModalProps {
@@ -7,7 +7,7 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ onClose }: LoginModalProps) {
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { signIn, signUp } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -46,21 +46,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
     }
   }
 
-  async function handleGoogleSignIn() {
-    setError('')
-    setLoading(true)
-    try {
-      const { error } = await signInWithGoogle()
-      if (error) {
-        setError(error.message)
-      }
-      // Note: Google OAuth will redirect, so we don't close the modal here
-    } catch (err: any) {
-      setError(err.message || 'Er is een fout opgetreden')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Google OAuth is uitgeschakeld in deze setup
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
@@ -159,24 +145,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           </button>
         </form>
 
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-gray-500">Of</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="w-full px-6 py-3 rounded-xl border-2 border-gray-300 bg-white hover:bg-gray-50 font-semibold text-gray-700 transition-all flex items-center justify-center gap-2"
-          disabled={loading}
-        >
-          <Chrome className="w-5 h-5" />
-          {isSignUp ? 'Registreer met Google' : 'Inloggen met Google'}
-        </button>
+        {/* Optioneel: sociale login kan hier later worden toegevoegd */}
 
         <div className="mt-6 text-center">
           <button
