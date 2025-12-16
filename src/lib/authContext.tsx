@@ -7,11 +7,15 @@ interface AuthContextType {
   session: Session | null
   loading: boolean
   userFullName: string | null
+  isPasswordRecovery: boolean
   signUp: (email: string, password: string, fullName: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   updateProfile: (fullName?: string, password?: string) => Promise<{ error: AuthError | null }>
+  resetPassword: (email: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
+  updatePassword: (newPassword: string) => Promise<{ error: AuthError | null }>
+  clearAuthEvent: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [userFullName, setUserFullName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
 
   useEffect(() => {
     // Get initial session
@@ -34,11 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       setUserFullName(session?.user?.user_metadata?.full_name ?? null)
       setLoading(false)
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -103,11 +111,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     loading,
     userFullName,
+    isPasswordRecovery,
     updateProfile,
     signUp,
     signIn,
     signInWithGoogle,
     signOut,
+    resetPassword: async (email: string, captchaToken?: string) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        captchaToken,
+      } as any)
+      return { error }
+    },
+    updatePassword: async (newPassword: string) => {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (!error) setIsPasswordRecovery(false)
+      return { error }
+    },
+    clearAuthEvent: () => setIsPasswordRecovery(false),
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

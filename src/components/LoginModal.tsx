@@ -8,7 +8,7 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ onClose }: LoginModalProps) {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, resetPassword } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -199,6 +199,32 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               isSignUp ? 'Account Maken' : 'Inloggen'
             )}
           </button>
+          {!isSignUp && (
+            <div className="mt-2 text-center">
+              <button
+                type="button"
+                className="text-sm text-green-700 hover:text-green-800 underline"
+                disabled={loading}
+                onClick={async () => {
+                  setError('')
+                  setSuccess('')
+                  if (!email.trim()) {
+                    setError('Vul je email in om je wachtwoord te resetten.')
+                    return
+                  }
+                  if (captchaRequired && !captchaToken) {
+                    setError('Los de captcha op om verder te gaan.')
+                    return
+                  }
+                  const { error } = await resetPassword(email.trim(), captchaRequired ? captchaToken : undefined)
+                  if (error) setError(error.message)
+                  else setSuccess('Reset-link verstuurd! Check je email.')
+                }}
+              >
+                Wachtwoord vergeten?
+              </button>
+            </div>
+          )}
           {hcaptchaSiteKey && (
             <div className="mt-4 flex justify-center">
               <HCaptcha

@@ -11,9 +11,10 @@ import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 import LoginModal from './components/LoginModal'
 import EditProfileModal from './components/EditProfileModal'
+import ResetPasswordModal from './components/ResetPasswordModal'
 
 function App() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isPasswordRecovery } = useAuth()
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -290,6 +291,9 @@ function App() {
             </div>
           )}
         </div>
+        {isPasswordRecovery && (
+          <ResetPasswordModal onClose={() => { /* modal closes itself via context clear */ }} />
+        )}
         {/* Header */}
         <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
           <div className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur hover:bg-white/20 hover:border-white/20 transition-all duration-300 transform hover:scale-105">
