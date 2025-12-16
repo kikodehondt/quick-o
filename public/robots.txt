@@ -3,4 +3,4 @@ Allow: /
 Disallow: /auth/
 Disallow: /api/
 
-Sitemap: https://quick-o.vercel.app/sitemap.xml
+Sitemap: https://quick-o.kikodehondt.be/sitemap.xml
