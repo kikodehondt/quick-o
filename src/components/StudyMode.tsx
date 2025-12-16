@@ -542,10 +542,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out'
+                  animation: 'nextCardAppear 1000ms ease-out',
+                  minHeight: '320px'
                 }}
               >
-                <div className="text-center" style={{paddingBottom: '12px'}}>
+                <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
                   <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
@@ -574,14 +575,15 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 dragStart ? 'none' : 
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out',
-              transformStyle: 'preserve-3d'
+              transformStyle: 'preserve-3d',
+              minHeight: '320px'
             }}
             onClick={handleCardClick}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="text-center relative z-10">
+            <div className="text-center relative z-10" style={{paddingBottom: '24px', overflow: 'visible'}}>
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
@@ -607,10 +609,11 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
                   filter: swipingAway ? 'blur(0px)' : 'blur(4px)',
-                  animation: 'nextCardAppear 1000ms ease-out'
+                  animation: 'nextCardAppear 1000ms ease-out',
+                  minHeight: '360px'
                 }}
               >
-                <div className="text-center" style={{paddingBottom: '12px'}}>
+                <div className="text-center" style={{paddingBottom: '24px', overflow: 'visible'}}>
                   <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest transition-opacity duration-1200" style={{opacity: swipingAway ? 1 : 0, transitionDelay: swipingAway ? '200ms' : '0ms'}}>
                     {settings.direction === 'reverse' ? set.language2 : set.language1}
                   </p>
@@ -640,11 +643,12 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
                 isFlipping ? 'transform 0.3s ease-in' : 
                 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               transformStyle: 'preserve-3d',
-              perspective: '1000px'
+              perspective: '1000px',
+              minHeight: '360px'
             }}
             onClick={handleCardClick}
           >
-            <div className="text-center relative z-10">
+            <div className="text-center relative z-10" style={{paddingBottom: '24px', overflow: 'visible'}}>
               <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
                 {showAnswer ? (settings.direction === 'reverse' ? set.language1 : set.language2) : (settings.direction === 'reverse' ? set.language2 : set.language1)}
               </p>
