@@ -622,31 +622,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           </div>
         </div>
 
-        {/* Arrow buttons - desktop only */}
-        {hasFlipped && (
-          <div className="hidden md:flex gap-8 justify-center items-center animate-slide-in-up">
-            <button
-              onClick={() => handleSwipeWithAnimation('left')}
-              disabled={swipingAway}
-              className="group relative bg-white/20 hover:bg-red-500/30 backdrop-blur text-white p-6 rounded-full transition-all duration-300 hover:scale-125 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/30 hover:border-red-400"
-              title="Fout (← arrow key)"
-            >
-              <svg className="w-10 h-10 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => handleSwipeWithAnimation('right')}
-              disabled={swipingAway}
-              className="group relative bg-white/20 hover:bg-green-500/30 backdrop-blur text-white p-6 rounded-full transition-all duration-300 hover:scale-125 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/30 hover:border-green-400"
-              title="Correct (→ arrow key)"
-            >
-              <svg className="w-10 h-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
+        {/* Removed on-screen desktop arrow buttons per request */}
 
         {/* Keyboard Hints - hidden on mobile */}
         <div className="hidden md:block text-center text-white/80 text-sm mt-4 h-10">
