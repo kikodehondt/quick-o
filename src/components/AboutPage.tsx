@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin } from 'lucide-react'
 
 interface AboutPageProps {
@@ -5,6 +6,13 @@ interface AboutPageProps {
 }
 
 export default function AboutPage({ onClose }: AboutPageProps) {
+  useEffect(() => {
+    const element = document.getElementById('over-quick-o')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [])
+
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <style>{`
@@ -32,7 +40,7 @@ export default function AboutPage({ onClose }: AboutPageProps) {
         </div>
 
         {/* What is Quick-O */}
-        <section className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 mb-8 hover:bg-white/20 transition-all duration-300" style={{animation: 'slideInUp 0.6s ease-out'}}>
+        <section id="over-quick-o" className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 mb-8 transition-all duration-300" style={{animation: 'slideInUp 0.6s ease-out'}}>
           <h2 className="text-3xl font-bold text-white mb-4">Wat is Quick-O?</h2>
           <p className="text-white/90 mb-4 leading-relaxed">
             Quick-O is een moderne, gebruiksvriendelijke woordenlijsten trainer. Of je nu Engels, Frans, Spaans of een ander vak studeert, Quick-O helpt je om snel en effectief te leren.
