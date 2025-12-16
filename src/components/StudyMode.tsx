@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp } from 'lucide-react'
 import { VocabSet, WordPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
@@ -65,8 +65,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [handleCardClick, handleSwipeWithAnimation, hasFlipped])
 
   async function loadWords() {
     try {
@@ -119,7 +118,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   // Handle card flip
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     console.log('[FLIP] Click detected, swipingAway:', swipingAway)
     if (swipingAway) return
     console.log('[FLIP] Setting isFlipping to true')
@@ -130,7 +129,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setShowAnswer(prev => !prev)
       setIsFlipping(false)
     }, 150)
-  }
+  }, [swipingAway])
 
   // Touch/Mouse handlers for swipe (only after first flip)
   const handleDragStart = (clientX: number, clientY: number) => {
@@ -207,7 +206,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   // Programmatic swipe with animation
-  const handleSwipeWithAnimation = (direction: 'left' | 'right') => {
+  const handleSwipeWithAnimation = useCallback((direction: 'left' | 'right') => {
     console.log('[SWIPE] Animation triggered, direction:', direction, 'hasFlipped:', hasFlipped, 'swipingAway:', swipingAway)
     if (!hasFlipped || swipingAway) return
     console.log('[SWIPE] Starting animation, setting swipingAway to true')
@@ -232,7 +231,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       setDragOffset({x: 0, y: 0})
       setDragStart(null)
     }, 300)
-  }
+  }, [hasFlipped, swipingAway])
 
   function handleIncorrect() {
     if (queue.length === 0) return
