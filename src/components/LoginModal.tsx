@@ -218,7 +218,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
                   }
                   const { error } = await resetPassword(email.trim(), captchaRequired ? captchaToken : undefined)
                   if (error) setError(error.message)
-                  else setSuccess('Reset-link verstuurd! Check je email.')
+                  else setSuccess('Reset‑link verstuurd! Check je e‑mail (dit kan enkele minuten duren).')
                 }}
               >
                 Wachtwoord vergeten?
