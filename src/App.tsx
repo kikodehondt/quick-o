@@ -12,6 +12,24 @@ import SetsList from './components/SetsList'
 import LoginModal from './components/LoginModal'
 import EditProfileModal from './components/EditProfileModal'
 import ResetPasswordModal from './components/ResetPasswordModal'
+import AboutPage from './components/AboutPage'
+
+// SEO helper to update document title and meta description
+function updatePageMeta(title: string, description: string) {
+  document.title = title
+  const metaDesc = document.querySelector('meta[name="description"]')
+  if (metaDesc) {
+    metaDesc.setAttribute('content', description)
+  }
+  const ogTitle = document.querySelector('meta[property="og:title"]')
+  if (ogTitle) {
+    ogTitle.setAttribute('content', title)
+  }
+  const ogDesc = document.querySelector('meta[property="og:description"]')
+  if (ogDesc) {
+    ogDesc.setAttribute('content', description)
+  }
+}
 
 function App() {
   const { user, signOut, isPasswordRecovery } = useAuth()
@@ -26,7 +44,8 @@ function App() {
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
   const [studySettings, setStudySettings] = useState<StudySettings | null>(null)
   const [isStudying, setIsStudying] = useState(false)
-    const [onlineCount, setOnlineCount] = useState<number>(1)
+  const [showAbout, setShowAbout] = useState(false)
+  const [onlineCount, setOnlineCount] = useState<number>(1)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterSchool, setFilterSchool] = useState('')
@@ -34,6 +53,28 @@ function App() {
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    if (isStudying && selectedSet) {
+      // Update title when studying a set
+      updatePageMeta(
+        `${selectedSet.name} - Oefenen met Quick-O`,
+        `Oefen met de woordenlijst "${selectedSet.name}" op Quick-O. Verbeter je woordenschat snel en effectief.`
+      )
+    } else if (selectedSet) {
+      // Update title when set is selected but not studying
+      updatePageMeta(
+        `${selectedSet.name} - Quick-O Woordenlijsten`,
+        `Bekijk en oefen met "${selectedSet.name}" op Quick-O, de gratis woordenlijsten trainer.`
+      )
+    } else {
+      // Reset to homepage title
+      updatePageMeta(
+        'Quick-O - Gratis Woordenlijsten Trainer | Snel Leren',
+        'Quick-O is een gratis, gebruiksvriendelijke woordenlijsten trainer. Maak je eigen sets, deel ze, en oefen efficiënt.'
+      )
+    }
+  }, [isStudying, selectedSet])
 
   useEffect(() => {
     loadSets()
@@ -316,6 +357,13 @@ function App() {
               <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>
+            <button
+              onClick={() => setShowAbout(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.4s'}}
+            >
+              <Code2 className="w-5 h-5" />
+              <span>Over ons</span>
+            </button>
             {/* Subtiele zoekbalk */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 w-full md:w-auto" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
               <input
@@ -467,6 +515,11 @@ function App() {
         {/* Login Modal for unauthenticated users */}
         {!user && showLogin && (
           <LoginModal onClose={() => setShowLogin(false)} />
+        )}
+
+        {/* About Page */}
+        {showAbout && (
+          <AboutPage onClose={() => setShowAbout(false)} />
         )}
       </div>
     </div>
