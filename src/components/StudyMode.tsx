@@ -171,16 +171,22 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   }
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Desktop only uses arrow buttons, not mouse drag
+    if (window.innerWidth >= 768) return
     e.preventDefault()
     handleDragStart(e.clientX, e.clientY)
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    // Desktop only uses arrow buttons, not mouse drag
+    if (window.innerWidth >= 768) return
     if (!dragStart) return
     handleDragMove(e.clientX, e.clientY)
   }
 
   const handleMouseUp = () => {
+    // Desktop only uses arrow buttons, not mouse drag
+    if (window.innerWidth >= 768) return
     handleDragEnd()
   }
 
@@ -504,32 +510,9 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
         {/* Flashcard stack with swipe gestures */}
         <div className="flex-1 flex items-center justify-center mb-8 relative">
-          {/* Next card (underneath) - Desktop only (always blur) */}
+          {/* Next card (underneath) - Unified animated card stack */}
           {queue.length > 1 && (
-            <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none">
-              <div 
-                className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl"
-                style={{
-                  opacity: 1,
-                  transform: 'scale(0.95)',
-                  filter: 'blur(4px)'
-                }}
-              >
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-widest">
-                    {settings.direction === 'reverse' ? set.language2 : set.language1}
-                  </p>
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-                    {queue[1].word1}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Next card (underneath) - Mobile only (animated) */}
-          {queue.length > 1 && (
-            <div className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
                 className="bg-white rounded-3xl p-8 md:p-12 card-shadow w-full max-w-2xl transition-all duration-300"
                 style={{
