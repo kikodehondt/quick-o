@@ -510,7 +510,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-8 card-shadow w-full max-w-2xl transition-all duration-500"
+                key={`next-mobile-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
@@ -571,7 +572,8 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           {queue.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div 
-                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-300"
+                className="bg-white rounded-3xl p-12 card-shadow w-full max-w-2xl transition-all duration-500"
+                key={`next-desktop-${queue[1]?.id || queue[1]?.word1}`}
                 style={{
                   opacity: swipingAway ? 1 : 0.5,
                   transform: swipingAway ? 'scale(1)' : 'scale(0.95)',
