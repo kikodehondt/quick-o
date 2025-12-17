@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { BookOpen, Plus, Trophy, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
