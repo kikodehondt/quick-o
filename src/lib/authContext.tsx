@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true
 
     const initSession = async () => {
-      // Handle recovery links containing access_token/refresh_token in the URL hash
+      // Handle auth callback links containing access_token/refresh_token in the URL hash
       const hash = window.location.hash
       const pathname = window.location.pathname
       
@@ -45,9 +45,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (access_token && refresh_token) {
           const { data, error } = await supabase.auth.setSession({ access_token, refresh_token })
-          console.log('[AuthContext] setSession result:', { hasSession: !!data.session, error })
+          console.log('[AuthContext] setSession result:', { 
+            hasSession: !!data.session, 
+            error,
+            user: data.session?.user?.email 
+          })
           
-          // Check if this is a password recovery - type=recovery in hash OR pathname contains callback
+          if (!isMounted) return
+          
+          // Update state immediately with the new session
+          if (data.session && !error) {
+            setSession(data.session)
+            setUser(data.session.user)
+            setUserFullName(data.session.user.user_metadata?.full_name ?? null)
+            console.log('[AuthContext] User logged in after email verification:', data.session.user.email)
+          }
+          
+          // Check if this is a password recovery - show reset modal
           if (type === 'recovery' && isMounted) {
             console.log('[AuthContext] Password recovery detected - showing reset modal')
             setIsPasswordRecovery(true)
@@ -55,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // Clean the URL after processing
           window.history.replaceState({}, '', '/')
+          return // Don't getSession again, we already have it
         }
       }
 
