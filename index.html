@@ -6,6 +6,7 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/Quick-O_logo.png" />
     <meta name="theme-color" content="#10b981" />
+    <meta name="application-name" content="Quick-O" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -36,23 +37,52 @@
     <meta property="twitter:image" content="https://quick-o.kikodehondt.be/Quick-O_logo.png" />
     
     <!-- Preconnect to Supabase for performance -->
-    <link rel="preconnect" href="https://supabase.co" />
+    <link rel="preconnect" href="https://pstldfuyzstudasfozft.supabase.co" />
+    <link rel="dns-prefetch" href="https://pstldfuyzstudasfozft.supabase.co" />
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org/",
-      "@type": "WebApplication",
-      "name": "Quick-O",
-      "description": "Gratis woordenlijsten trainer voor studenten en taallearners",
-      "url": "https://quick-o.kikodehondt.be/",
-      "image": "https://quick-o.kikodehondt.be/Quick-O_logo.png",
-      "applicationCategory": "EducationalApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "EUR"
-      }
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Quick-O",
+          "description": "Gratis woordenlijsten trainer voor studenten en taallearners",
+          "url": "https://quick-o.kikodehondt.be/",
+          "image": "https://quick-o.kikodehondt.be/Quick-O_logo.png",
+          "applicationCategory": "EducationalApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Quick-O",
+          "url": "https://quick-o.kikodehondt.be/",
+          "inLanguage": "nl",
+          "publisher": { "@id": "https://quick-o.kikodehondt.be/#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://quick-o.kikodehondt.be/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://quick-o.kikodehondt.be/#organization",
+          "name": "Quick-O",
+          "url": "https://quick-o.kikodehondt.be/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://quick-o.kikodehondt.be/Quick-O_logo.png",
+            "width": 512,
+            "height": 512
+          }
+        }
+      ]
     }
     </script>
   </head>
