@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { X, Save, Lock, User as UserIcon, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { X, Save, Lock, User as UserIcon, AlertCircle, Eye, EyeOff, Mail } from 'lucide-react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { useAuth } from '../lib/authContext'
 
@@ -10,6 +10,8 @@ interface EditProfileModalProps {
 export default function EditProfileModal({ onClose }: EditProfileModalProps) {
   const { user, userFullName, updateProfile, signIn } = useAuth() as any
   const [fullName, setFullName] = useState(userFullName || '')
+  const [newEmail, setNewEmail] = useState('')
+  const [confirmEmail, setConfirmEmail] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -32,8 +34,11 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
       const initialName = (userFullName || '').trim()
       const wantsNameChange = trimmedName && trimmedName !== initialName
       const wantsPasswordChange = Boolean(newPassword.trim())
+      const trimmedNewEmail = newEmail.trim().toLowerCase()
+      const currentEmail = (user?.email || '').trim().toLowerCase()
+      const wantsEmailChange = trimmedNewEmail && trimmedNewEmail !== currentEmail
 
-      if (!wantsNameChange && !wantsPasswordChange) {
+      if (!wantsNameChange && !wantsPasswordChange && !wantsEmailChange) {
         setError('Geen wijzigingen om op te slaan.')
         setLoading(false)
         return
@@ -58,6 +63,20 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         return
       }
 
+      if (wantsEmailChange) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(trimmedNewEmail)) {
+          setError('Voer een geldig e-mailadres in.')
+          setLoading(false)
+          return
+        }
+        if (trimmedNewEmail !== confirmEmail.trim().toLowerCase()) {
+          setError('De nieuwe e-mailadressen komen niet overeen.')
+          setLoading(false)
+          return
+        }
+      }
+
       // Re-authenticate once for any change
       const { error: reauthError } = await signIn(email, currentPassword, captchaRequired ? captchaToken : undefined)
       if (reauthError) {
@@ -73,14 +92,21 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
 
       const { error } = await updateProfile(
         wantsNameChange ? trimmedName : undefined,
-        wantsPasswordChange ? newPassword.trim() : undefined
+        wantsPasswordChange ? newPassword.trim() : undefined,
+        wantsEmailChange ? trimmedNewEmail : undefined
       )
       if (error) {
         setError(error.message)
       } else {
-        setSuccess('Account bijgewerkt!')
+        if (wantsEmailChange) {
+          setSuccess('We hebben je e-mailwijziging gestart. Controleer je oude en nieuwe inbox om te bevestigen.')
+        } else {
+          setSuccess('Account bijgewerkt!')
+        }
         setCurrentPassword('')
         setNewPassword('')
+        setNewEmail('')
+        setConfirmEmail('')
         setCaptchaToken('')
         captchaRef.current?.resetCaptcha?.()
       }
@@ -104,7 +130,7 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
           </button>
         </div>
 
-        <p className="text-gray-600 mb-6">Beheer je naam en wachtwoord.</p>
+        <p className="text-gray-600 mb-6">Beheer je naam, e-mailadres en wachtwoord.</p>
 
         {error && (
           <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 flex items-start gap-2">
@@ -134,6 +160,32 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
               disabled={loading}
             />
             <p className="text-xs text-gray-500 mt-1">Naam aanpassen vereist je huidige wachtwoord.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <Mail className="w-4 h-4 inline mr-2" />
+              Nieuw e-mailadres (optioneel)
+            </label>
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+              placeholder="nieuw@mail.com"
+              disabled={loading}
+              autoComplete="email"
+            />
+            <input
+              type="email"
+              value={confirmEmail}
+              onChange={(e) => setConfirmEmail(e.target.value)}
+              className="w-full mt-3 px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+              placeholder="Bevestig nieuw e-mailadres"
+              disabled={loading}
+              autoComplete="email"
+            />
+            <p className="text-xs text-gray-500 mt-1">We sturen een bevestigingsmail naar je oude en nieuwe adres.</p>
           </div>
 
           <div>
