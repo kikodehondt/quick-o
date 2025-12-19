@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick-O Email Templates Diagnostics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #10b981;
+        }
+
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #10b981;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background: #10b981;
+            position: relative;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: -2px;
+            left: 3px;
+            font-weight: bold;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #047857;
+        }
+
+        .result.error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        code {
+            background: #1e293b;
+            color: #10b981;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #1e40af;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #92400e;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .template-preview {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+
+        .copy-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .copy-button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Quick-O Email Templates Diagnostics</h1>
+        <p class="subtitle">Stap-voor-stap checklist om email problemen op te lossen</p>
+
+        <!-- STAP 1: Supabase Dashboard -->
+        <div class="section">
+            <h2><span class="step-number">1</span>Supabase Dashboard Configuratie</h2>
+            
+            <div class="info-box">
+                <strong>📍 Waar:</strong> <code>app.supabase.com</code> → Je Project → <code>Authentication</code> → <code>Email Templates</code>
+            </div>
+
+            <p><strong>Upload deze 4 templates:</strong></p>
+            <ul class="checklist">
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Confirm signup</strong> ← <code>confirm-signup.html</code></span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Change Email</strong> ← <code>change-email.html</code></span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Reset password</strong> ← <code>reset-password.html</code></span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Magic Link</strong> ← <code>reauthentication.html</code></span>
+                </li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>⚠️ Belangrijk:</strong> Selecteer ALLE oude content (Ctrl+A), delete, dan paste nieuwe HTML, en klik Save!
+            </div>
+
+            <button class="test-button" onclick="testTemplatesUploaded()">✓ Test Templates</button>
+            <div id="template-result" class="result"></div>
+        </div>
+
+        <!-- STAP 2: Authentication Settings -->
+        <div class="section">
+            <h2><span class="step-number">2</span>Authentication Settings</h2>
+            
+            <div class="info-box">
+                <strong>📍 Waar:</strong> <code>Authentication</code> → <code>Settings</code>
+            </div>
+
+            <p><strong>Verify deze settings:</strong></p>
+            <ul class="checklist">
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Enable email confirmations:</strong> AAN</span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Secure email change:</strong> AAN</span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Enable password recovery:</strong> AAN</span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span><strong>Site URL:</strong> <code>https://quick-o.kikodehondt.be</code></span>
+                </li>
+            </ul>
+
+            <p style="margin-top: 15px;"><strong>Redirect URLs (voeg toe):</strong></p>
+            <div class="template-preview">
+                <code>https://quick-o.kikodehondt.be/**</code><br>
+                <code>https://quick-o.kikodehondt.be/auth/callback</code><br>
+                <code>http://localhost:5173/**</code>
+            </div>
+            <button class="copy-button" onclick="copyRedirectURLs()">📋 Copy URLs</button>
+        </div>
+
+        <!-- STAP 3: SMTP Settings -->
+        <div class="section">
+            <h2><span class="step-number">3</span>SMTP Configuration</h2>
+            
+            <div class="info-box">
+                <strong>📍 Waar:</strong> <code>Project Settings</code> → <code>Authentication</code> → <code>SMTP Settings</code>
+            </div>
+
+            <div class="warning-box">
+                <strong>💡 Tip:</strong> Voor development kan je Supabase's built-in SMTP gebruiken (Enable Custom SMTP: OFF)
+            </div>
+
+            <ul class="checklist">
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>SMTP geconfigureerd (built-in OF custom)</span>
+                </li>
+                <li>
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Test email verstuurd en ontvangen</span>
+                </li>
+            </ul>
+
+            <button class="test-button" onclick="showSMTPInstructions()">📧 SMTP Setup Guide</button>
+            <div id="smtp-result" class="result"></div>
+        </div>
+
+        <!-- STAP 4: Test Emails -->
+        <div class="section">
+            <h2><span class="step-number">4</span>Test Email Flows</h2>
+            
+            <p><strong>Test elk email template:</strong></p>
+
+            <button class="test-button" onclick="testSignup()">✅ Test Signup</button>
+            <button class="test-button" onclick="testReset()">🔑 Test Reset</button>
+            <button class="test-button" onclick="testEmailChange()">📧 Test Email Change</button>
+            
+            <div id="test-result" class="result"></div>
+
+            <div style="margin-top: 20px;">
+                <p><strong>Handmatige test:</strong></p>
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li>Open <code>https://quick-o.kikodehondt.be</code></li>
+                    <li>Klik "Account Maken"</li>
+                    <li>Vul test email in (gebruik je eigen email)</li>
+                    <li>Check inbox (en SPAM folder!)</li>
+                    <li>Klik op "Bevestig e-mailadres" knop</li>
+                    <li>Verify je wordt doorgestuurd naar website</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- STAP 5: Debugging -->
+        <div class="section">
+            <h2><span class="step-number">5</span>Debug Tools</h2>
+            
+            <p><strong>Check Supabase Logs:</strong></p>
+            <div class="template-preview">
+                <strong>Dashboard</strong> → <strong>Logs</strong> → Filter op "email"
+            </div>
+
+            <p style="margin-top: 15px;"><strong>Browser Console Tests:</strong></p>
+            <button class="test-button" onclick="copyDebugScript()">📋 Copy Debug Script</button>
+            
+            <textarea id="debug-script" readonly>
+// Paste this in your browser console on https://quick-o.kikodehondt.be
+
+// Check current auth state
+const { data: session } = await supabase.auth.getSession()
+console.log('Session:', session)
+
+// Check user
+const { data: { user } } = await supabase.auth.getUser()
+console.log('User:', user)
+
+// Test email send (replace with your email)
+const { error } = await supabase.auth.resetPasswordForEmail('your-email@gmail.com')
+console.log('Email error:', error)
+            </textarea>
+        </div>
+
+        <!-- Final Checklist -->
+        <div class="section">
+            <h2>✅ Final Checklist</h2>
+            
+            <ul class="checklist">
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Alle 4 templates geüpload in Supabase</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Email confirmations enabled</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Redirect URLs toegevoegd</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>SMTP geconfigureerd</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Signup email test succesvol</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Reset password test succesvol</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Email change test succesvol</span></li>
+                <li><div class="checkbox" onclick="toggleCheck(this)"></div><span>Mobile test gedaan</span></li>
+            </ul>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <strong>🎉 Als alle checkboxes ✓ zijn, werken je emails perfect!</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCheck(element) {
+            element.classList.toggle('checked')
+        }
+
+        function testTemplatesUploaded() {
+            const result = document.getElementById('template-result')
+            result.className = 'result show success'
+            result.innerHTML = `
+                <strong>✓ Template Upload Check</strong><br>
+                Ga naar Supabase Dashboard en verify:<br>
+                • Elke template heeft Quick-O branding<br>
+                • {{ .ConfirmationURL }} staat in de CTA button<br>
+                • Geen oude default template tekst meer zichtbaar
+            `
+        }
+
+        function showSMTPInstructions() {
+            const result = document.getElementById('smtp-result')
+            result.className = 'result show success'
+            result.innerHTML = `
+                <strong>📧 SMTP Setup</strong><br><br>
+                <strong>Optie 1: Supabase Built-in (Makkelijkst)</strong><br>
+                • Enable Custom SMTP: OFF<br>
+                • From Email: noreply@mail.app.supabase.io<br><br>
+                <strong>Optie 2: Gmail SMTP</strong><br>
+                • Host: smtp.gmail.com<br>
+                • Port: 587<br>
+                • Username: your-email@gmail.com<br>
+                • Password: [Use App Password from Google]<br>
+                • From: noreply@quick-o.kikodehondt.be
+            `
+        }
+
+        function testSignup() {
+            const result = document.getElementById('test-result')
+            result.className = 'result show success'
+            result.innerHTML = `
+                <strong>✅ Signup Test Instructions:</strong><br>
+                1. Open incognito window<br>
+                2. Ga naar https://quick-o.kikodehondt.be<br>
+                3. Klik "Account Maken"<br>
+                4. Vul je email in<br>
+                5. Check inbox binnen 1 minuut<br>
+                6. Klik "Bevestig e-mailadres" button<br>
+                7. Verify redirect naar website werkt
+            `
+        }
+
+        function testReset() {
+            const result = document.getElementById('test-result')
+            result.className = 'result show success'
+            result.innerHTML = `
+                <strong>🔑 Password Reset Test:</strong><br>
+                1. Ga naar https://quick-o.kikodehondt.be<br>
+                2. Klik "Wachtwoord vergeten"<br>
+                3. Vul email in<br>
+                4. Check inbox<br>
+                5. Klik "Nieuw wachtwoord instellen"<br>
+                6. Stel nieuw wachtwoord in<br>
+                7. Log in met nieuw wachtwoord
+            `
+        }
+
+        function testEmailChange() {
+            const result = document.getElementById('test-result')
+            result.className = 'result show success'
+            result.innerHTML = `
+                <strong>📧 Email Change Test:</strong><br>
+                1. Log in op Quick-O<br>
+                2. Ga naar Profile/Settings<br>
+                3. Verander email adres<br>
+                4. Check BEIDE inboxen (oude + nieuwe)<br>
+                5. Klik link in nieuwe email<br>
+                6. Verify email is changed
+            `
+        }
+
+        function copyRedirectURLs() {
+            const urls = `https://quick-o.kikodehondt.be/**
+https://quick-o.kikodehondt.be/auth/callback
+http://localhost:5173/**`
+            navigator.clipboard.writeText(urls)
+            alert('✓ Redirect URLs gekopieerd! Paste in Supabase → Authentication → URL Configuration')
+        }
+
+        function copyDebugScript() {
+            const script = document.getElementById('debug-script')
+            navigator.clipboard.writeText(script.value)
+            alert('✓ Debug script gekopieerd! Paste in browser console op je website')
+        }
+    </script>
+</body>
+</html>
