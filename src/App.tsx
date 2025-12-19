@@ -34,7 +34,7 @@ function updatePageMeta(title: string, description: string) {
 }
 
 function App() {
-  const { user, signOut, isPasswordRecovery } = useAuth()
+  const { user, userFullName, signOut, isPasswordRecovery } = useAuth()
   const [sets, setSets] = useState<VocabSet[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -54,6 +54,9 @@ function App() {
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+
+  const displayName = (userFullName && userFullName.trim()) || user?.email || ''
+  const avatarInitial = displayName ? displayName[0].toUpperCase() : 'U'
 
   useEffect(() => {
     if (isStudying && selectedSet) {
@@ -282,15 +285,15 @@ function App() {
                 className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur"
               >
                 <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
-                  {(user.email || 'U')[0]?.toUpperCase()}
+                  {avatarInitial}
                 </div>
-                <span className="hidden sm:block max-w-[180px] truncate">{user.email}</span>
+                <span className="hidden sm:block max-w-[180px] truncate">{displayName}</span>
               </button>
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
                   <div className="px-4 py-3 text-sm border-b border-white/10">
                     <div className="text-white/80">Ingelogd als</div>
-                    <div className="font-semibold truncate">{user.email}</div>
+                    <div className="font-semibold truncate">{displayName}</div>
                   </div>
                   <button
                     onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
@@ -306,11 +309,11 @@ function App() {
                   </button>
                 </div>
               )}
-                    {showEditProfile && (
-                      <Suspense fallback={null}>
-                        <EditProfileModal onClose={() => setShowEditProfile(false)} />
-                      </Suspense>
-                    )}
+              {showEditProfile && (
+                <Suspense fallback={null}>
+                  <EditProfileModal onClose={() => setShowEditProfile(false)} />
+                </Suspense>
+              )}
             </div>
           )}
         </div>
