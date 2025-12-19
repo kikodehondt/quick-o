@@ -87,9 +87,8 @@ function App() {
     
     // Check if this is an auth callback
     if (path.startsWith('/auth/callback')) {
-      // Supabase handles the token exchange automatically via onAuthStateChange in AuthContext
-      // Just clean up the URL and redirect to home
-      window.history.replaceState({}, '', '/')
+      // Don't immediately clear the URL - let AuthContext handle the tokens first
+      // It will clean up the URL after processing
       return
     }
   }, [])

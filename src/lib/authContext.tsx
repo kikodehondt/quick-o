@@ -35,23 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const hash = window.location.hash
       const pathname = window.location.pathname
       
-      if (hash && (hash.includes('access_token') || hash.includes('recovery'))) {
+      if (hash && hash.includes('access_token')) {
         const params = new URLSearchParams(hash.substring(1))
         const access_token = params.get('access_token')
         const refresh_token = params.get('refresh_token')
         const type = params.get('type')
         
-        console.log('[AuthContext] Recovery URL detected:', { type, hasToken: !!access_token })
+        console.log('[AuthContext] Auth callback detected:', { type, hasToken: !!access_token, pathname })
         
         if (access_token && refresh_token) {
           const { data, error } = await supabase.auth.setSession({ access_token, refresh_token })
           console.log('[AuthContext] setSession result:', { hasSession: !!data.session, error })
           
-          if ((type === 'recovery' || pathname.includes('recovery')) && isMounted) {
-            console.log('[AuthContext] Setting isPasswordRecovery to true')
+          // Check if this is a password recovery - type=recovery in hash OR pathname contains callback
+          if (type === 'recovery' && isMounted) {
+            console.log('[AuthContext] Password recovery detected - showing reset modal')
             setIsPasswordRecovery(true)
           }
-          // Clean the URL
+          
+          // Clean the URL after processing
           window.history.replaceState({}, '', '/')
         }
       }
