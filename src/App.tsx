@@ -270,7 +270,7 @@ function App() {
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
         {/* Auth Header Controls (mobile-friendly) */}
-        <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0">
+        <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0 transition-all duration-300">
           <div className="flex w-full md:w-auto justify-end">
             {!user ? (
               <button
@@ -300,7 +300,10 @@ function App() {
           </div>
           {/* Profile menu dropdown - takes up space on mobile, absolute on desktop */}
           {showProfileMenu && user && (
-            <div className="w-full md:absolute md:right-0 md:top-full mt-2 md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
+            <div 
+              className="w-full md:absolute md:right-0 md:top-full mt-2 md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden"
+              style={{animation: 'slideInDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'}}
+            >
               <div className="px-4 py-3 text-sm border-b border-white/10">
                 <div className="text-white/80">Ingelogd als</div>
                 <div className="font-semibold truncate">{displayName}</div>
@@ -326,7 +329,7 @@ function App() {
           </Suspense>
         )}
         {/* Header */}
-        <div className="text-center mb-12 animate-fadeInDown" style={{animation: 'fadeInDown 0.6s ease-out'}}>
+        <div className="text-center mb-12 animate-fadeInDown transition-all duration-300" style={{animation: 'fadeInDown 0.6s ease-out'}}>
           <div 
             onClick={() => {
               const aboutSection = document.getElementById('about-section')
