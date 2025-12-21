@@ -349,17 +349,17 @@ function App() {
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 text-white/80 mt-6 w-full">
             {/* Stats row - always inline on mobile */}
             <div className="flex gap-2 w-full sm:w-auto justify-center">
-              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
-                <BookOpen className="w-4 h-4" />
-                <span className="text-sm">{sets.length}</span>
+              <div className="flex items-center gap-1 sm:gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base">{sets.length} Sets</span>
               </div>
-              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
-                <Users className="w-4 h-4" />
-                <span className="text-sm">{onlineCount}</span>
+              <div className="flex items-center gap-1 sm:gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base">{onlineCount} online</span>
               </div>
-              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
-                <Trophy className="w-4 h-4" />
-                <span className="text-sm">Dagelijks</span>
+              <div className="flex items-center gap-1 sm:gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base"><span className="sm:hidden">Dagelijks</span><span className="hidden sm:inline">Leer dagelijks!</span></span>
               </div>
             </div>
             {/* Subtiele zoekbalk */}
