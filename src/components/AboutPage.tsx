@@ -132,24 +132,24 @@ export default function AboutPage() {
         </section>
 
         {/* Developer Section */}
-        <section className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 mb-8 hover:bg-white/20 transition-all duration-300" style={{animation: 'slideInUp 0.6s ease-out 0.2s backwards'}}>
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">Over de Developer</h2>
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+        <section className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-xl border border-white/20 mb-8 hover:bg-white/20 transition-all duration-300" style={{animation: 'slideInUp 0.6s ease-out 0.2s backwards'}}>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">Over de Developer</h2>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
             <img 
               src="/kiko-dehondt.jpg" 
               alt="Kiko Dehondt" 
-              className="w-48 h-48 rounded-full object-cover border-4 border-white/30 shadow-xl"
+              className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-white/30 shadow-xl flex-shrink-0"
             />
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-white mb-2">Kiko Dehondt</h3>
-              <p className="text-white/80 mb-3 flex items-center gap-2">
-                <Code2 className="w-5 h-5" />
-                Full-Stack Developer & Student Handelsingenieur
+            <div className="flex-1 w-full overflow-hidden">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Kiko Dehondt</h3>
+              <p className="text-white/80 mb-3 flex items-center gap-2 text-sm md:text-base">
+                <Code2 className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                <span className="break-words">Full-Stack Developer & Student Handelsingenieur</span>
               </p>
-              <p className="text-white/90 leading-relaxed mb-4">
+              <p className="text-white/90 leading-relaxed mb-4 text-sm md:text-base break-words">
                 Ik ben Kiko Dehondt, student Handelsingenieur aan KU Leuven Campus Kortrijk. Als developer ben ik gepassioneerd door het bouwen van gebruiksvriendelijke web-applicaties die échte problemen oplossen. Quick-O ontstond uit mijn eigen frustratie met bestaande leer-apps — ik wilde iets eenvoudigs, snel en gratis.
               </p>
-              <p className="text-white/90 leading-relaxed mb-4">
+              <p className="text-white/90 leading-relaxed mb-4 text-sm md:text-base break-words">
                 Met een sterke interesse in technologie, bedrijfsbeheer en design, combineer ik technische skills met een oog voor UX. Naast mijn studies werk ik aan verschillende projecten zoals Quick-O om studenten te helpen effectiever te leren.
               </p>
               <div className="flex gap-4 mt-6">

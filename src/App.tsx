@@ -270,8 +270,8 @@ function App() {
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
         {/* Auth Header Controls (mobile-friendly) */}
-        <div className="md:absolute md:top-4 md:right-4 z-20 w-full md:w-auto flex justify-end">
-          <div className="flex w-full max-w-xs md:w-auto justify-end">
+        <div className="md:absolute md:top-4 md:right-4 z-20 w-full md:w-auto flex justify-end mb-4 md:mb-0">
+          <div className="flex w-full md:w-auto justify-end">
             {!user ? (
               <button
                 onClick={() => setShowLogin(true)}
@@ -288,7 +288,7 @@ function App() {
                   <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
                     {avatarInitial}
                   </div>
-                  <span className="hidden sm:block max-w-[180px] truncate">{displayName}</span>
+                  <span className="max-w-[180px] truncate">{displayName}</span>
                 </button>
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-full md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
@@ -346,17 +346,20 @@ function App() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 text-white/80 mt-6 w-full">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
-              <BookOpen className="w-5 h-5" />
-              <span>{sets.length} Sets</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
-              <Users className="w-5 h-5" />
-              <span>{onlineCount} online</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
-              <Trophy className="w-5 h-5" />
-              <span>Oefen dagelijks!</span>
+            {/* Stats row - always inline on mobile */}
+            <div className="flex gap-2 w-full sm:w-auto justify-center">
+              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
+                <BookOpen className="w-4 h-4" />
+                <span className="text-sm">{sets.length}</span>
+              </div>
+              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
+                <Users className="w-4 h-4" />
+                <span className="text-sm">{onlineCount}</span>
+              </div>
+              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
+                <Trophy className="w-4 h-4" />
+                <span className="text-sm">Dagelijks</span>
+              </div>
             </div>
             {/* Subtiele zoekbalk */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 w-full md:w-auto" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
