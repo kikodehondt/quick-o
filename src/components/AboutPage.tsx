@@ -1,4 +1,4 @@
-import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin, Globe } from 'lucide-react'
+import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin } from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -34,10 +34,16 @@ export default function AboutPage() {
         <section id="over-quick-o" className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 mb-8 transition-all duration-300" style={{animation: 'slideInUp 0.6s ease-out'}}>
           <h2 className="text-3xl font-bold text-white mb-4">Wat is Quick-O?</h2>
           <p className="text-white/90 mb-4 leading-relaxed">
-            Quick-O is een moderne, gebruiksvriendelijke woordenlijsten trainer. Of je nu Engels, Frans, Spaans of een ander vak studeert, Quick-O helpt je om snel en effectief te leren.
+            Quick-O is een moderne, gebruiksvriendelijke woordenlijsten trainer die gebouwd is voor snelheid, eenvoud en plezier. Of je nu Engels, Frans, Spaans of een ander vak studeert, Quick-O helpt je om woorden sneller te onthouden met oefenmodi zoals leren, typen en flashcards.
+          </p>
+          <p className="text-white/90 mb-4 leading-relaxed">
+            Je maakt in minuten je eigen woordenlijsten, deelt ze via een link met klasgenoten en oefent op elk toestel. Alles is gratis: geen abonnementen, geen paywalls, gewoon direct starten met leren.
+          </p>
+          <p className="text-white/90 mb-4 leading-relaxed">
+            Quick-O bewaart je voortgang, laat je sets anoniem of persoonlijk delen, en werkt soepel op mobiel en desktop. Zo kun je dagelijks korte sessies doen en toch consistent vooruitgang boeken.
           </p>
           <p className="text-white/90 leading-relaxed">
-            Maak je eigen woordenlijsten, deel ze met klasgenoten, en oefen waar en wanneer je wilt. Geen gedoe, geen abonnement — gewoon gratis leren.
+            Daarnaast is Quick-O een PWA: je kunt het installeren als app, ook offline je lijsten bekijken, en het blijft licht en snel. We focussen op privacy (geen trackers, geen verborgen kosten) en op samenwerken: deel je sets met een link, werk samen in de klas en volg precies wat je nog moet herhalen.
           </p>
         </section>
 
@@ -148,13 +154,14 @@ export default function AboutPage() {
               </p>
               <div className="flex gap-4 mt-6">
                 <a
-                  href="https://www.kikodehondt.be"
+                  href="https://quick-o.kikodehondt.be"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
+                  title="Quick-O - gratis woordenlijsten trainer"
                 >
-                  <Globe className="w-5 h-5" />
-                  Portfolio
+                  <img src="/Quick-O_logo.compressed.webp" alt="Quick-O" className="w-5 h-5 rounded" loading="lazy" />
+                  Quick-O
                 </a>
                 <a
                   href="https://github.com/kikodehondt"
