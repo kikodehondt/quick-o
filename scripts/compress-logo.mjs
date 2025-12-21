@@ -2,6 +2,7 @@ import sharp from 'sharp'
 import { readFile } from 'fs/promises'
 import { writeFile } from 'fs/promises'
 import path from 'path'
+import pngToIco from 'png-to-ico'
 
 const root = path.resolve(process.cwd())
 const inputPng = path.join(root, 'public', 'Quick-O_logo.png')
@@ -10,6 +11,7 @@ const outCompressedWebp = path.join(root, 'public', 'Quick-O_logo.compressed.web
 const outCompressed192 = path.join(root, 'public', 'Quick-O_logo.compressed-192.png')
 const outCompressed512 = path.join(root, 'public', 'Quick-O_logo.compressed-512.png')
 const outCompressed48 = path.join(root, 'public', 'Quick-O_logo.compressed-48.png')
+const outFavicon = path.join(root, 'public', 'favicon.ico')
 
 async function run() {
   const src = await readFile(inputPng)
@@ -44,11 +46,16 @@ async function run() {
     .toBuffer()
   await writeFile(outCompressed48, png48)
 
+  // Generate .ico favicon from 48x48 PNG for maximum compatibility
+  const icoBuf = await pngToIco(outCompressed48)
+  await writeFile(outFavicon, icoBuf)
+
   console.log('Compressed logo written to:', outCompressedPng)
   console.log('Compressed logo (webp) written to:', outCompressedWebp)
   console.log('Compressed 192x192 written to:', outCompressed192)
   console.log('Compressed 512x512 written to:', outCompressed512)
   console.log('Compressed 48x48 written to:', outCompressed48)
+  console.log('Favicon .ico written to:', outFavicon)
 }
 
 run().catch(err => { console.error(err); process.exit(1) })
