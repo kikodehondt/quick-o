@@ -9,6 +9,7 @@ const outCompressedPng = path.join(root, 'public', 'Quick-O_logo.compressed.png'
 const outCompressedWebp = path.join(root, 'public', 'Quick-O_logo.compressed.webp')
 const outCompressed192 = path.join(root, 'public', 'Quick-O_logo.compressed-192.png')
 const outCompressed512 = path.join(root, 'public', 'Quick-O_logo.compressed-512.png')
+const outCompressed48 = path.join(root, 'public', 'Quick-O_logo.compressed-48.png')
 
 async function run() {
   const src = await readFile(inputPng)
@@ -37,10 +38,17 @@ async function run() {
     .toBuffer()
   await writeFile(outCompressed512, png512)
 
+  const png48 = await sharp(src)
+    .resize(48, 48, { fit: 'cover' })
+    .png({ quality: 70, compressionLevel: 9, adaptiveFiltering: true })
+    .toBuffer()
+  await writeFile(outCompressed48, png48)
+
   console.log('Compressed logo written to:', outCompressedPng)
   console.log('Compressed logo (webp) written to:', outCompressedWebp)
   console.log('Compressed 192x192 written to:', outCompressed192)
   console.log('Compressed 512x512 written to:', outCompressed512)
+  console.log('Compressed 48x48 written to:', outCompressed48)
 }
 
 run().catch(err => { console.error(err); process.exit(1) })

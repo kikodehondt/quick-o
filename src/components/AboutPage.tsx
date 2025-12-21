@@ -1,4 +1,4 @@
-import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin } from 'lucide-react'
+import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin, Globe } from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -154,14 +154,14 @@ export default function AboutPage() {
               </p>
               <div className="flex gap-4 mt-6">
                 <a
-                  href="https://quick-o.kikodehondt.be"
+                  href="https://www.kikodehondt.be"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
-                  title="Quick-O - gratis woordenlijsten trainer"
+                  title="Portfolio"
                 >
-                  <img src="/Quick-O_logo.compressed.webp" alt="Quick-O" className="w-5 h-5 rounded" loading="lazy" />
-                  Quick-O
+                  <Globe className="w-5 h-5" />
+                  Portfolio
                 </a>
                 <a
                   href="https://github.com/kikodehondt"

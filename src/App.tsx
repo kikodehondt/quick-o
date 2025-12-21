@@ -269,53 +269,55 @@ function App() {
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
-        {/* Auth Header Controls */}
-        <div className="absolute top-4 right-4 z-20">
-          {!user ? (
-            <button
-              onClick={() => setShowLogin(true)}
-              className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur"
-            >
-              Inloggen
-            </button>
-          ) : (
-            <div className="relative">
+        {/* Auth Header Controls (mobile-friendly) */}
+        <div className="md:absolute md:top-4 md:right-4 z-20 w-full md:w-auto flex justify-end">
+          <div className="flex w-full max-w-xs md:w-auto justify-end">
+            {!user ? (
               <button
-                onClick={() => setShowProfileMenu(v => !v)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur"
+                onClick={() => setShowLogin(true)}
+                className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur w-full md:w-auto"
               >
-                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
-                  {avatarInitial}
-                </div>
-                <span className="hidden sm:block max-w-[180px] truncate">{displayName}</span>
+                Inloggen
               </button>
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
-                  <div className="px-4 py-3 text-sm border-b border-white/10">
-                    <div className="text-white/80">Ingelogd als</div>
-                    <div className="font-semibold truncate">{displayName}</div>
+            ) : (
+              <div className="relative w-full md:w-auto">
+                <button
+                  onClick={() => setShowProfileMenu(v => !v)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur w-full md:w-auto justify-between md:justify-start"
+                >
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
+                    {avatarInitial}
                   </div>
-                  <button
-                    onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
-                  >
-                    Account bewerken
-                  </button>
-                  <button
-                    onClick={async () => { setShowProfileMenu(false); await signOut(); }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
-                  >
-                    Uitloggen
-                  </button>
-                </div>
-              )}
-              {showEditProfile && (
-                <Suspense fallback={null}>
-                  <EditProfileModal onClose={() => setShowEditProfile(false)} />
-                </Suspense>
-              )}
-            </div>
-          )}
+                  <span className="hidden sm:block max-w-[180px] truncate">{displayName}</span>
+                </button>
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-full md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
+                    <div className="px-4 py-3 text-sm border-b border-white/10">
+                      <div className="text-white/80">Ingelogd als</div>
+                      <div className="font-semibold truncate">{displayName}</div>
+                    </div>
+                    <button
+                      onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
+                      className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
+                    >
+                      Account bewerken
+                    </button>
+                    <button
+                      onClick={async () => { setShowProfileMenu(false); await signOut(); }}
+                      className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
+                    >
+                      Uitloggen
+                    </button>
+                  </div>
+                )}
+                {showEditProfile && (
+                  <Suspense fallback={null}>
+                    <EditProfileModal onClose={() => setShowEditProfile(false)} />
+                  </Suspense>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         {isPasswordRecovery && (
           <Suspense fallback={null}>
@@ -343,45 +345,47 @@ function App() {
               <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-4 text-white/80 mt-6 flex-wrap">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 text-white/80 mt-6 w-full">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.1s'}} >
               <BookOpen className="w-5 h-5" />
               <span>{sets.length} Sets</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.2s'}}>
               <Users className="w-5 h-5" />
               <span>{onlineCount} online</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto justify-between sm:justify-center" style={{animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s'}}>
               <Trophy className="w-5 h-5" />
               <span>Oefen dagelijks!</span>
             </div>
             {/* Subtiele zoekbalk */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 w-full md:w-auto" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 w-full md:w-auto" style={{animation: 'slideInRight 0.6s ease-out', animationDelay: '0.4s'}}>
               <input
                 value={search}
                 onChange={(e)=>setSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/60 focus:outline-none text-sm w-full md:w-40"
                 placeholder="Zoek sets..."
               />
-              <button
-                className="text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300 px-2 py-1"
-                onClick={async ()=>{
-                  setLoading(true)
-                  let query = supabase.from('vocab_sets').select('*')
-                  if (search) {
-                    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
-                  }
-                  const { data, error } = await query
-                  if (!error && data) setSets(data as any)
-                  setLoading(false)
-                }}
-              >Zoek</button>
-              <button
-                className="ml-2 px-2 py-1 rounded-lg bg-white/10 border border-white/10 text-white/80 hover:bg-white/20 text-sm"
-                onClick={()=>setShowFilters((v)=>!v)}
-                title="Geavanceerde filters"
-              >Filters</button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  className="flex-1 sm:flex-none text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300 px-2 py-1 border border-white/10 rounded-lg"
+                  onClick={async ()=>{
+                    setLoading(true)
+                    let query = supabase.from('vocab_sets').select('*')
+                    if (search) {
+                      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+                    }
+                    const { data, error } = await query
+                    if (!error && data) setSets(data as any)
+                    setLoading(false)
+                  }}
+                >Zoek</button>
+                <button
+                  className="flex-1 sm:flex-none px-2 py-1 rounded-lg bg-white/10 border border-white/10 text-white/80 hover:bg-white/20 text-sm"
+                  onClick={()=>setShowFilters((v)=>!v)}
+                  title="Geavanceerde filters"
+                >Filters</button>
+              </div>
             </div>
           </div>
         </div>
