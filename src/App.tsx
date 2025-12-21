@@ -270,7 +270,7 @@ function App() {
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
         {/* Auth Header Controls (mobile-friendly) */}
-        <div className="md:absolute md:top-4 md:right-4 z-20 w-full md:w-auto flex justify-end mb-4 md:mb-0">
+        <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0">
           <div className="flex w-full md:w-auto justify-end">
             {!user ? (
               <button
@@ -280,7 +280,7 @@ function App() {
                 Inloggen
               </button>
             ) : (
-              <div className="relative w-full md:w-auto">
+              <div className="w-full md:w-auto">
                 <button
                   onClick={() => setShowProfileMenu(v => !v)}
                   className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur w-full md:w-auto justify-between md:justify-start"
@@ -290,26 +290,6 @@ function App() {
                   </div>
                   <span className="max-w-[180px] truncate">{displayName}</span>
                 </button>
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-full md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
-                    <div className="px-4 py-3 text-sm border-b border-white/10">
-                      <div className="text-white/80">Ingelogd als</div>
-                      <div className="font-semibold truncate">{displayName}</div>
-                    </div>
-                    <button
-                      onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
-                      className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
-                    >
-                      Account bewerken
-                    </button>
-                    <button
-                      onClick={async () => { setShowProfileMenu(false); await signOut(); }}
-                      className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
-                    >
-                      Uitloggen
-                    </button>
-                  </div>
-                )}
                 {showEditProfile && (
                   <Suspense fallback={null}>
                     <EditProfileModal onClose={() => setShowEditProfile(false)} />
@@ -318,6 +298,27 @@ function App() {
               </div>
             )}
           </div>
+          {/* Profile menu dropdown - takes up space on mobile, absolute on desktop */}
+          {showProfileMenu && user && (
+            <div className="w-full md:absolute md:right-0 md:top-full mt-2 md:w-64 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur text-white overflow-hidden">
+              <div className="px-4 py-3 text-sm border-b border-white/10">
+                <div className="text-white/80">Ingelogd als</div>
+                <div className="font-semibold truncate">{displayName}</div>
+              </div>
+              <button
+                onClick={() => { setShowProfileMenu(false); setShowEditProfile(true) }}
+                className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
+              >
+                Account bewerken
+              </button>
+              <button
+                onClick={async () => { setShowProfileMenu(false); await signOut(); }}
+                className="w-full text-left px-4 py-3 text-sm hover:bg-white/20 transition-colors"
+              >
+                Uitloggen
+              </button>
+            </div>
+          )}
         </div>
         {isPasswordRecovery && (
           <Suspense fallback={null}>
