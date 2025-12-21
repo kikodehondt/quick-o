@@ -7,7 +7,7 @@
 📁 COMPLETE FILE STRUCTURE
 ════════════════════════════════════════════════════════════════════════
 
-vocab-trainer/supabase/
+quick-o/supabase/
 │
 ├── 00_START_HERE.txt
 │   └─ 📄 Complete project overview (THIS FILE DESCRIBES EVERYTHING)
@@ -354,7 +354,7 @@ Everything needed to set up professional email authentication
 for Quick-O is included and ready to use.
 
 Files are located in:
-→ vocab-trainer/supabase/
+→ quick-o/supabase/
 
 Next step:
 → Choose a guide above and get started!

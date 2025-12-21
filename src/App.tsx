@@ -337,7 +337,7 @@ function App() {
             }}
             className="inline-flex items-center gap-4 px-6 py-4 rounded-3xl bg-white/10 border border-white/10 shadow-xl backdrop-blur hover:bg-white/20 hover:border-white/20 transition-all duration-300 transform hover:scale-105 cursor-pointer"
           >
-            <img src="/Quick-O_logo.png" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" />
+            <img src="/Quick-O_logo.compressed.webp" alt="Quick-O Logo" className="w-16 h-16 md:w-20 md:h-20" loading="lazy" />
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl font-bold">Quick-O</h1>
               <p className="text-base md:text-lg text-white/80">Leer sneller, onthoud langer</p>

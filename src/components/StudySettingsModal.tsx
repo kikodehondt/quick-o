@@ -26,12 +26,9 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
           0% { opacity: 0; transform: scale(0.95) translateY(20px); }
           100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .modal-container {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
       `}</style>
       <div 
-        className="bg-white rounded-3xl p-8 max-w-lg w-full card-shadow modal-container"
+        className="bg-white rounded-3xl p-8 max-w-lg w-full card-shadow"
         style={{animation: 'modalEnter 0.3s ease-out'}}
         onClick={(e) => e.stopPropagation()}
       >

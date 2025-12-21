@@ -37,10 +37,10 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
       {sets.map((set, idx) => (
         <div
           key={set.id}
-          className="bg-green-50 rounded-2xl p-5 md:p-6 shadow-xl transition-all duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl flex flex-col"
+          className="bg-white rounded-2xl p-5 md:p-6 card-shadow transition-transform duration-300 ease-out group animate-scale-in hover:scale-[1.06] hover:shadow-2xl"
           style={{ animationDelay: `${idx * 50}ms` }}
         >
-          <div className="flex items-start justify-between mb-3 md:mb-4 flex-1">
+          <div className="flex items-start justify-between mb-3 md:mb-4">
             <div className="flex-1">
               <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-1.5 md:mb-2 group-hover:text-green-600 transition-colors line-clamp-2">
                 {set.name}
@@ -119,7 +119,7 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
             )}
           </div>
 
-          <div className="flex gap-2 md:gap-3 flex-col sm:flex-row mt-auto pt-4">
+          <div className="flex gap-2 md:gap-3 flex-col sm:flex-row">
             <button
               onClick={() => onStartStudy(set)}
               className="w-full sm:flex-1 btn-gradient text-white px-4 py-3 md:py-3 rounded-xl font-semibold hover:opacity-90 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-base md:text-sm"

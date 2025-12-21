@@ -93,7 +93,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     try {
       const { data, error } = await supabase
         .from('word_pairs')
-        .select('id, word1, word2, set_id')
+        .select('*')
         .eq('set_id', set.id!)
       if (error) throw error
       let processed = data || []

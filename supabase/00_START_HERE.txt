@@ -33,7 +33,7 @@ Total Size: ~20 KB
 📂 FILE STRUCTURE
 ════════════════════════════════════════════════════════════════════════
 
-vocab-trainer/supabase/
+quick-o/supabase/
 │
 ├── 📄 INDEX.md                    ← START HERE for overview
 ├── ⚡ SETUP_QUICK_START.md        ← 5-minute setup guide
@@ -437,7 +437,7 @@ External Resources:
 🎉 NEXT STEPS
 ════════════════════════════════════════════════════════════════════════
 
-1. Navigate to: vocab-trainer/supabase/
+1. Navigate to: quick-o/supabase/
 
 2. Choose Your Path:
    └─ Quick (5 min):    Read SETUP_QUICK_START.md

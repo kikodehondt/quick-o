@@ -252,16 +252,16 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <div 
-        className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-white/30 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-3xl p-8 max-w-2xl w-full card-shadow max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold gradient-text">Nieuwe Set Aanmaken</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100 p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="w-8 h-8" />
           </button>
@@ -276,7 +276,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
               placeholder="Bijv. Frans Hoofdstuk 1"
             />
           </div>
@@ -289,7 +289,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
               placeholder="Korte omschrijving"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -299,7 +299,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={school}
                   onChange={(e) => setSchool(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                   placeholder="Bijv. KU Leuven"
                 />
               </div>
@@ -309,7 +309,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={direction}
                   onChange={(e) => setDirection(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                   placeholder="Bijv. Toegepaste Informatica"
                 />
               </div>
@@ -318,7 +318,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 <select
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                 >
                   <option value="">Selecteer een jaar</option>
                   <option value="Eerste Middelbaar">Eerste Middelbaar</option>
@@ -339,7 +339,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                   placeholder="Bijv. Frans, hoofdstuk 1, examen"
                 />
               </div>
@@ -347,7 +347,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
 
             <div className="mt-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">Publicatie</label>
-              <div className="flex items-center justify-between px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm">
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl border-2 border-gray-300 bg-white">
                 <div className="flex items-center gap-2">
                   <input
                     id="anonymous-toggle"
@@ -376,7 +376,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 type="text"
                 value={language1}
                 onChange={(e) => setLanguage1(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                 placeholder="Bijv. Nederlands"
               />
             </div>
@@ -388,7 +388,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 type="text"
                 value={language2}
                 onChange={(e) => setLanguage2(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                 placeholder="Bijv. Frans"
               />
             </div>
@@ -413,7 +413,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                     setTimeout(() => setCopyMessage(''), 4000)
                   }
                 }}
-                className="px-3 py-2 rounded-lg border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm hover:border-gray-400 hover:shadow-lg text-sm font-semibold text-gray-700 transition-all flex items-center gap-2"
+                className="px-3 py-2 rounded-lg border-2 border-gray-300 bg-white hover:border-gray-400 hover:shadow text-sm font-semibold text-gray-700 transition-colors flex items-center gap-2"
                 title="Kopieer instructie-prompt voor AI"
               >
                 <ClipboardCopy className="w-4 h-4" />
@@ -423,7 +423,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             <textarea
               value={vocabText}
               onChange={(e) => setVocabText(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all font-mono text-sm"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all font-mono text-sm"
               rows={10}
               placeholder={`${language1} || ${language2} ||| ${language1}2 || ${language2}2`}
             />
@@ -447,7 +447,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300/50 bg-white/80 backdrop-blur-sm hover:bg-white/90 font-semibold text-gray-700 transition-all"
+              className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 bg-white hover:bg-gray-100 font-semibold text-gray-700 transition-colors"
               disabled={loading}
             >
               Annuleren

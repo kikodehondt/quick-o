@@ -51,7 +51,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     try {
       const { data, error } = await supabase
         .from('word_pairs')
-        .select('id, word1, word2, set_id')
+        .select('*')
         .eq('set_id', set.id!)
 
       if (error) throw error

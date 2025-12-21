@@ -39,10 +39,4 @@ export default {
     },
   },
   plugins: [],
-  // Optimize production builds
-  corePlugins: {
-    // Disable preflight when not needed
-    preflight: true,
-  },
 }
-
