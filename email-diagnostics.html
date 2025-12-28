@@ -264,14 +264,14 @@
                 </li>
                 <li>
                     <div class="checkbox" onclick="toggleCheck(this)"></div>
-                    <span><strong>Site URL:</strong> <code>https://quick-o.kikodehondt.be</code></span>
+                    <span><strong>Site URL:</strong> <code>https://www.quick-o.be</code></span>
                 </li>
             </ul>
 
             <p style="margin-top: 15px;"><strong>Redirect URLs (voeg toe):</strong></p>
             <div class="template-preview">
-                <code>https://quick-o.kikodehondt.be/**</code><br>
-                <code>https://quick-o.kikodehondt.be/auth/callback</code><br>
+                <code>https://www.quick-o.be/**</code><br>
+                <code>https://www.quick-o.be/auth/callback</code><br>
                 <code>http://localhost:5173/**</code>
             </div>
             <button class="copy-button" onclick="copyRedirectURLs()">📋 Copy URLs</button>
@@ -419,7 +419,7 @@ console.log('Email error:', error)
             result.innerHTML = `
                 <strong>✅ Signup Test Instructions:</strong><br>
                 1. Open incognito window<br>
-                2. Ga naar https://quick-o.kikodehondt.be<br>
+                2. Ga naar https://www.quick-o.be<br>
                 3. Klik "Account Maken"<br>
                 4. Vul je email in<br>
                 5. Check inbox binnen 1 minuut<br>
@@ -433,7 +433,7 @@ console.log('Email error:', error)
             result.className = 'result show success'
             result.innerHTML = `
                 <strong>🔑 Password Reset Test:</strong><br>
-                1. Ga naar https://quick-o.kikodehondt.be<br>
+                1. Ga naar https://www.quick-o.be<br>
                 2. Klik "Wachtwoord vergeten"<br>
                 3. Vul email in<br>
                 4. Check inbox<br>
@@ -458,8 +458,8 @@ console.log('Email error:', error)
         }
 
         function copyRedirectURLs() {
-            const urls = `https://quick-o.kikodehondt.be/**
-https://quick-o.kikodehondt.be/auth/callback
+            const urls = `https://www.quick-o.be/**
+https://www.quick-o.be/auth/callback
 http://localhost:5173/**`
             navigator.clipboard.writeText(urls)
             alert('✓ Redirect URLs gekopieerd! Paste in Supabase → Authentication → URL Configuration')
