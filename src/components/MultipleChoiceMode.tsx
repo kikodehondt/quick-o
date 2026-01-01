@@ -352,12 +352,12 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
         {/* Options Container - Better spacing */}
         <div className={`flex-1 flex ${layoutMode === 'vertical' ? 'flex-col gap-4' : 'items-center justify-center'} transition-all duration-500 min-h-0 overflow-hidden`}>
           {layoutMode === 'grid' ? (
-            <div className="grid grid-cols-2 gap-3 w-fit">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-[380px] sm:w-fit justify-center">
               {question.options.map((option, index) => {
             const isSelected = selectedAnswer === option
             const isCorrectOption = option === question.correctAnswer
             
-            let buttonClass = 'w-[240px] h-[240px] rounded-2xl border-2 font-bold text-lg text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 px-4 flex-shrink-0 '
+            let buttonClass = 'w-full aspect-square max-w-[170px] sm:max-w-[200px] md:w-[240px] md:h-[240px] md:aspect-auto rounded-2xl border-2 font-bold text-base md:text-lg text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 px-3 sm:px-4 flex-shrink-0 '
             
             if (!selectedAnswer) {
               buttonClass += 'border-white/40 bg-white/90 text-gray-900 hover:border-emerald-400 hover:bg-white hover:shadow-2xl hover:scale-105 active:scale-95'

@@ -152,7 +152,7 @@ export default function AboutPage() {
               <p className="text-white/90 leading-relaxed mb-4 text-sm md:text-base break-words">
                 Met een sterke interesse in technologie, bedrijfsbeheer en design, combineer ik technische skills met een oog voor UX. Naast mijn studies werk ik aan verschillende projecten zoals Quick-O om studenten te helpen effectiever te leren.
               </p>
-              <div className="flex gap-4 mt-6">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6 w-full">
                 <a
                   href="https://www.kikodehondt.be"
                   target="_blank"
@@ -161,7 +161,7 @@ export default function AboutPage() {
                   title="Portfolio"
                 >
                   <Globe className="w-5 h-5" />
-                  Portfolio
+                  <span className="hidden sm:inline">Portfolio</span>
                 </a>
                 <a
                   href="https://github.com/kikodehondt"
@@ -170,7 +170,7 @@ export default function AboutPage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
                 >
                   <Github className="w-5 h-5" />
-                  GitHub
+                  <span className="hidden sm:inline">GitHub</span>
                 </a>
                 <a
                   href="https://linkedin.com/in/kiko-dehondt"
@@ -179,7 +179,7 @@ export default function AboutPage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 hover:scale-105"
                 >
                   <Linkedin className="w-5 h-5" />
-                  LinkedIn
+                  <span className="hidden sm:inline">LinkedIn</span>
                 </a>
               </div>
             </div>

@@ -299,7 +299,7 @@ function App() {
               <div className="w-full md:w-auto">
                 <button
                   onClick={() => setShowProfileMenu(v => !v)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur w-full md:w-auto justify-between md:justify-start"
+                  className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur w-full md:w-auto justify-start"
                 >
                   <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold">
                     {avatarInitial}
