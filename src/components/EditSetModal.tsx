@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Save } from 'lucide-react'
 import { supabase, VocabSet } from '../lib/supabase'
+import ToggleSwitch from './ToggleSwitch'
 
 interface EditSetModalProps {
   set: VocabSet
@@ -16,6 +17,7 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
   const [direction, setDirection] = useState(set.direction || '')
   const [year, setYear] = useState(set.year || '')
   const [isAnonymous, setIsAnonymous] = useState(set.is_anonymous || false)
+  const [isPublic, setIsPublic] = useState(set.is_public ?? true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -55,6 +57,7 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
           direction,
           year,
           is_anonymous: isAnonymous,
+          is_public: isPublic,
           updated_at: new Date().toISOString()
         })
         .eq('id', set.id)
@@ -166,21 +169,33 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
-            <label className="inline-flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isAnonymous}
-                onChange={(e) => setIsAnonymous(e.target.checked)}
-                className="rounded w-4 h-4"
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">Publicatie-instellingen</label>
+            <div className="space-y-3 px-4 py-4 rounded-xl border-2 border-blue-200 bg-blue-50">
+              <ToggleSwitch
+                id="public-toggle"
+                checked={isPublic}
+                onChange={setIsPublic}
+                label="Openbaar"
+                description={isPublic 
+                  ? '🌍 Set verschijnt in openbare lijst' 
+                  : '🔒 Alleen toegankelijk via link'
+                }
               />
-              <span className="text-sm font-semibold text-gray-700">
-                Anoniem publiceren
-              </span>
-            </label>
-            <span className="text-xs text-gray-600 ml-auto">
-              {isAnonymous ? '🔒 Je naam wordt verborgen' : `✏️ Gepubliceerd als: ${set.creator_name || 'Onbekend'}`}
-            </span>
+              
+              <div className="border-t border-blue-200 pt-3">
+                <ToggleSwitch
+                  id="anonymous-toggle"
+                  checked={isAnonymous}
+                  onChange={setIsAnonymous}
+                  label="Anoniem publiceren"
+                  description={isAnonymous 
+                    ? '🔒 Je naam wordt verborgen' 
+                    : `✏️ Gepubliceerd als: ${set.creator_name || 'Onbekend'}`
+                  }
+                />
+              </div>
+            </div>
           </div>
 
           <div className="bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-xl text-sm">

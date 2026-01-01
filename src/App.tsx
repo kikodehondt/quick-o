@@ -82,7 +82,7 @@ function App() {
 
   useEffect(() => {
     loadSets()
-  }, [])
+  }, [user])
 
   // Handle auth callback from email confirmation link
   useEffect(() => {
@@ -149,7 +149,9 @@ function App() {
   async function loadSets() {
     try {
       setLoading(true)
-      const { data, error } = await supabase
+      
+      // Load public sets OR sets created by the current user (including private ones)
+      let query = supabase
         .from('vocab_sets')
         .select(`
           id,
@@ -165,9 +167,19 @@ function App() {
           year,
           creator_name,
           is_anonymous,
+          is_public,
           word_pairs(count)
         `)
         .order('created_at', { ascending: false })
+
+      // Filter: show public sets or sets created by the current user
+      if (user) {
+        query = query.or(`is_public.eq.true,created_by.eq.${user.id}`)
+      } else {
+        query = query.eq('is_public', true)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
 

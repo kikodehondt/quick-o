@@ -26,6 +26,7 @@ export interface VocabSet {
   year?: string
   creator_name?: string | null
   is_anonymous?: boolean
+  is_public?: boolean
   created_at?: string
   created_by?: string
   word_count?: number

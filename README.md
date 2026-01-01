@@ -10,6 +10,8 @@ Een moderne, motiverende web applicatie voor het oefenen van woordjes. Perfect v
 - **Progress Tracking**: Houd je scores bij met lokale en cloud opslag
 - **Motiverende UI**: Mooie, kleurrijke interface met animaties
 - **Database Opslag**: Al je sets worden veilig opgeslagen
+- **Privé & Publiek**: Kies of je set openbaar is of alleen via link toegankelijk
+- **Anoniem Delen**: Publiceer sets met of zonder je naam
 - **Verwijder je Sets**: Verwijder alleen de sets die je zelf hebt aangemaakt
 - **Shuffle Mode**: Woordjes worden random getoond
 
@@ -44,9 +46,11 @@ Voer de migrate scripts uit in de Supabase SQL Editor:
 
 1. Open eerst `database_schema.sql` en voer dit uit (maak tabellen aan)
 2. Open dan `database_migration.sql` en voer dit uit (voeg kolommen toe)
+3. Voor privé sets functionaliteit: voer `add_is_public_column.sql` uit
+4. Voor security: voer `update_rls_for_private_sets.sql` uit
 
 Dit creëert:
-- `vocab_sets` - Voor je woordjes sets (met language1, language2, created_by velden)
+- `vocab_sets` - Voor je woordjes sets (met language1, language2, created_by, is_public velden)
 - `word_pairs` - Voor individuele woordparen
 - `study_progress` - Voor het bijhouden van je voortgang
 

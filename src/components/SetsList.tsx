@@ -82,6 +82,11 @@ export default function SetsList({ sets, onStartStudy, onDeleteSet, onEditSet }:
                   🔒 Anoniem
                 </p>
               )}
+              {set.is_public === false && (
+                <p className="text-xs text-amber-600 mb-2 font-medium">
+                  🔐 Privé (alleen via link)
+                </p>
+              )}
               <div className="flex items-center gap-2 text-sm text-gray-500 transition-colors group-hover:text-gray-700">
                 <BookOpen className="w-4 h-4 md:w-4 md:h-4" />
                 <span>{set.word_count || 0} woordjes</span>

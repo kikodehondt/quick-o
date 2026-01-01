@@ -3,6 +3,7 @@ import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
 import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
+import ToggleSwitch from './ToggleSwitch'
 
 interface CreateSetModalProps {
   onClose: () => void
@@ -21,6 +22,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [direction, setDirection] = useState('')
   const [year, setYear] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
+  const [isPublic, setIsPublic] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copyMessage, setCopyMessage] = useState('')
@@ -222,7 +224,8 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           direction,
           year,
           creator_name: isAnonymous ? null : (userFullName || null),
-          is_anonymous: isAnonymous
+          is_anonymous: isAnonymous,
+          is_public: isPublic
         }])
         .select()
         .single()
@@ -346,22 +349,30 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Publicatie</label>
-              <div className="flex items-center justify-between px-4 py-3 rounded-xl border-2 border-gray-300 bg-white">
-                <div className="flex items-center gap-2">
-                  <input
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Publicatie-instellingen</label>
+              <div className="space-y-3 px-4 py-4 rounded-xl border-2 border-gray-300 bg-white">
+                <ToggleSwitch
+                  id="public-toggle"
+                  checked={isPublic}
+                  onChange={setIsPublic}
+                  label="Openbaar"
+                  description={isPublic 
+                    ? '🌍 Set verschijnt in openbare lijst' 
+                    : '🔒 Alleen toegankelijk via link'
+                  }
+                />
+                
+                <div className="border-t border-gray-200 pt-3">
+                  <ToggleSwitch
                     id="anonymous-toggle"
-                    type="checkbox"
                     checked={isAnonymous}
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="rounded"
+                    onChange={setIsAnonymous}
+                    label="Anoniem publiceren"
+                    description={isAnonymous 
+                      ? '🔒 Je naam wordt verborgen' 
+                      : `✏️ Naam zichtbaar: ${userFullName || 'Onbekend'}`
+                    }
                   />
-                  <label htmlFor="anonymous-toggle" className="text-sm font-medium text-gray-700 cursor-pointer">
-                    Anoniem publiceren
-                  </label>
-                </div>
-                <div className="text-xs text-gray-600">
-                  {isAnonymous ? '🔒 Naam verborgen' : `✏️ Naam zichtbaar: ${userFullName || 'Onbekend'}`}
                 </div>
               </div>
             </div>
