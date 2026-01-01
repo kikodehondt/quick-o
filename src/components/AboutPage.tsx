@@ -2,7 +2,7 @@ import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin,
 
 export default function AboutPage() {
   return (
-    <div id="about-section" className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden">
+    <div id="about-section" className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <style>{`
         html {
           scroll-behavior: smooth;
@@ -224,7 +224,7 @@ export default function AboutPage() {
         </section>
 
         {/* Scroll to Top Button */}
-        <div className="text-center pb-8" style={{animation: 'slideInUp 0.6s ease-out 0.4s backwards'}}>
+        <div className="text-center pb-2" style={{animation: 'slideInUp 0.6s ease-out 0.4s backwards'}}>
           <button
             onClick={() => {
               window.scrollTo({
@@ -236,13 +236,6 @@ export default function AboutPage() {
           >
             Terug naar Home
           </button>
-        </div>
-
-        {/* Copyright */}
-        <div className="text-center py-6 border-t border-white/10 mt-8">
-          <p className="text-white/60 text-sm">
-            © {new Date().getFullYear()} Kiko Dehondt. Alle rechten voorbehouden.
-          </p>
         </div>
       </div>
     </div>

@@ -58,15 +58,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const refresh_token = params.get('refresh_token')
         const type = params.get('type')
         
-        console.log('[AuthContext] Auth callback detected:', { type, hasToken: !!access_token, pathname })
+        if (import.meta.env.DEV) {
+          console.log('[AuthContext] Auth callback detected:', { type, hasToken: !!access_token, pathname })
+        }
         
         if (access_token && refresh_token) {
           const { data, error } = await supabase.auth.setSession({ access_token, refresh_token })
-          console.log('[AuthContext] setSession result:', { 
-            hasSession: !!data.session, 
-            error,
-            user: data.session?.user?.email 
-          })
+          if (import.meta.env.DEV) {
+            console.log('[AuthContext] setSession result:', { 
+              hasSession: !!data.session, 
+              error,
+              user: data.session?.user?.email 
+            })
+          }
           
           if (!isMounted) return
           
@@ -75,12 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setSession(data.session)
             setUser(data.session.user)
             setUserFullName(data.session.user.user_metadata?.full_name ?? null)
-            console.log('[AuthContext] User logged in after email verification:', data.session.user.email)
+            if (import.meta.env.DEV) {
+              console.log('[AuthContext] User logged in after email verification:', data.session.user.email)
+            }
           }
           
           // Check if this is a password recovery - show reset modal
           if (type === 'recovery' && isMounted) {
-            console.log('[AuthContext] Password recovery detected - showing reset modal')
+            if (import.meta.env.DEV) {
+              console.log('[AuthContext] Password recovery detected - showing reset modal')
+            }
             setIsPasswordRecovery(true)
           }
           

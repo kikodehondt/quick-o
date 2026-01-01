@@ -6,10 +6,22 @@
 -- Run this AFTER enabling Supabase Auth in your project
 -- ============================================================================
 
--- Step 1: Drop all existing permissive policies
+-- Step 1: Drop all existing policies (both old permissive AND new secure ones)
 DROP POLICY IF EXISTS "Allow all operations on vocab_sets" ON vocab_sets CASCADE;
 DROP POLICY IF EXISTS "Allow all operations on word_pairs" ON word_pairs CASCADE;
 DROP POLICY IF EXISTS "Allow all operations on study_progress" ON study_progress CASCADE;
+DROP POLICY IF EXISTS "Anyone can read vocab sets" ON vocab_sets CASCADE;
+DROP POLICY IF EXISTS "Authenticated users can create vocab sets" ON vocab_sets CASCADE;
+DROP POLICY IF EXISTS "Users can update own vocab sets" ON vocab_sets CASCADE;
+DROP POLICY IF EXISTS "Users can delete own vocab sets" ON vocab_sets CASCADE;
+DROP POLICY IF EXISTS "Anyone can read word pairs" ON word_pairs CASCADE;
+DROP POLICY IF EXISTS "Users can create word pairs for own sets" ON word_pairs CASCADE;
+DROP POLICY IF EXISTS "Users can update word pairs for own sets" ON word_pairs CASCADE;
+DROP POLICY IF EXISTS "Users can delete word pairs for own sets" ON word_pairs CASCADE;
+DROP POLICY IF EXISTS "Users can read own study progress" ON study_progress CASCADE;
+DROP POLICY IF EXISTS "Users can create own study progress" ON study_progress CASCADE;
+DROP POLICY IF EXISTS "Users can update own study progress" ON study_progress CASCADE;
+DROP POLICY IF EXISTS "Users can delete own study progress" ON study_progress CASCADE;
 
 -- ============================================================================
 -- VOCAB SETS POLICIES

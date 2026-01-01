@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, FileText, Save, ClipboardCopy, Plus, Trash2 } from 'lucide-react'
+import { X, FileText, Save, ClipboardCopy, Plus, Trash2, Upload, Info } from 'lucide-react'
 import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
@@ -444,6 +444,34 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           {/* Text input mode */}
           {inputMode === 'text' && (
             <div>
+            {/* Instructional info box */}
+            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-bold text-green-900 mb-2">Hoe gebruik je Tekst Invoer?</h4>
+                  <ol className="text-sm text-green-800 space-y-2 list-decimal list-inside">
+                    <li>
+                      <strong>Upload je bestand met woordjes</strong> naar een AI (ChatGPT, Claude, etc.)
+                      <span className="block ml-6 text-xs text-green-700 mt-1">
+                        <Upload className="w-3 h-3 inline mr-1" />
+                        Ondersteunt: PDF, Word, Excel, afbeeldingen, tekstbestanden...
+                      </span>
+                    </li>
+                    <li>
+                      <strong>Kopieer de prompt</strong> met de knop hieronder en plak in de AI
+                    </li>
+                    <li>
+                      <strong>Plak de output</strong> van de AI in het tekstveld hieronder
+                    </li>
+                  </ol>
+                  <p className="text-xs text-green-700 mt-3 italic">
+                    💡 De AI zet automatisch je document om naar het correcte formaat
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between mb-2 gap-2">
               <label className="block text-sm font-semibold text-gray-700">
                 <FileText className="w-4 h-4 inline mr-2" />

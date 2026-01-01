@@ -10,6 +10,9 @@ import MultipleChoiceMode from './components/MultipleChoiceMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 import AboutPage from './components/AboutPage'
+import CookieConsent from './components/CookieConsent'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 // Lazy load modals voor minder initial load
 const CreateSetModal = lazy(() => import('./components/CreateSetModal'))
@@ -56,6 +59,7 @@ function App() {
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms'>('home')
 
   const displayName = (userFullName && userFullName.trim()) || user?.email || ''
   const avatarInitial = displayName ? displayName[0].toUpperCase() : 'U'
@@ -95,6 +99,13 @@ function App() {
       // Don't immediately clear the URL - let AuthContext handle the tokens first
       // It will clean up the URL after processing
       return
+    }
+    
+    // Handle privacy/terms routing
+    if (path === '/privacy' || path.includes('privacy')) {
+      setCurrentPage('privacy')
+    } else if (path === '/terms' || path.includes('terms')) {
+      setCurrentPage('terms')
     }
   }, [])
 
@@ -269,6 +280,44 @@ function App() {
     setStudySettings(null)
     loadSets()
   }, [])
+
+  const handleNavigateToPrivacy = useCallback(() => {
+    setCurrentPage('privacy')
+    window.history.pushState({}, '', '/privacy')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const handleNavigateToTerms = useCallback(() => {
+    setCurrentPage('terms')
+    window.history.pushState({}, '', '/terms')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const handleNavigateHome = useCallback(() => {
+    setCurrentPage('home')
+    window.history.pushState({}, '', '/')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  // Show Privacy Policy page
+  if (currentPage === 'privacy') {
+    return (
+      <>
+        <PrivacyPolicy onBack={handleNavigateHome} />
+        <Analytics />
+      </>
+    )
+  }
+
+  // Show Terms of Service page
+  if (currentPage === 'terms') {
+    return (
+      <>
+        <TermsOfService onBack={handleNavigateHome} />
+        <Analytics />
+      </>
+    )
+  }
 
   if (isStudying && selectedSet && studySettings) {
     if (studySettings.mode === 'learn') {
@@ -545,7 +594,40 @@ function App() {
 
         {/* About Page - Always visible, scroll to navigate */}
         <AboutPage />
+
+        {/* Footer with Legal Links */}
+        <footer className="mt-16 pt-8 border-t border-white/10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-white/70 text-sm">
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <button
+                onClick={handleNavigateToPrivacy}
+                className="hover:text-white transition-colors underline"
+              >
+                Privacybeleid
+              </button>
+              <button
+                onClick={handleNavigateToTerms}
+                className="hover:text-white transition-colors underline"
+              >
+                Algemene Voorwaarden
+              </button>
+              <a
+                href="mailto:contact@quick-o.be"
+                className="hover:text-white transition-colors underline"
+              >
+                Contact
+              </a>
+            </div>
+            <div className="text-center md:text-right">
+              © {new Date().getFullYear()} Kiko Dehondt. Alle rechten voorbehouden.
+            </div>
+          </div>
+        </footer>
       </div>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent onPrivacyClick={handleNavigateToPrivacy} />
+      
       <Analytics />
     </div>
   )
