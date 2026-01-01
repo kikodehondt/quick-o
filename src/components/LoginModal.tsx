@@ -20,7 +20,8 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [captchaToken, setCaptchaToken] = useState('')
   const captchaRef = useRef<HCaptcha | null>(null)
   const hcaptchaSiteKey = (import.meta as any).env?.VITE_HCAPTCHA_SITEKEY as string | undefined
-  const captchaRequired = Boolean(hcaptchaSiteKey)
+  const isLocal = Boolean((import.meta as any).env?.DEV) || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+  const captchaRequired = Boolean(hcaptchaSiteKey) && !isLocal
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,7 +40,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           return
         }
         const fullName = `${firstName.trim()} ${lastName.trim()}`
-        const { error } = await signUp(email, password, fullName, captchaRequired ? captchaToken : undefined)
+        const { error } = await signUp(email, password, fullName, (captchaRequired && captchaToken) ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
@@ -56,7 +57,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           setError('Los de captcha op om verder te gaan.')
           return
         }
-        const { error } = await signIn(email, password, captchaRequired ? captchaToken : undefined)
+        const { error } = await signIn(email, password, (captchaRequired && captchaToken) ? captchaToken : undefined)
         if (error) {
           setError(error.message)
         } else {
@@ -225,7 +226,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               </button>
             </div>
           )}
-          {hcaptchaSiteKey && (
+          {hcaptchaSiteKey && !isLocal && (
             <div className="mt-4 flex justify-center">
               <HCaptcha
                 ref={captchaRef as any}
@@ -235,7 +236,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               />
             </div>
           )}
-          {!hcaptchaSiteKey && (
+          {!hcaptchaSiteKey && !isLocal && (
             <p className="mt-2 text-xs text-gray-500 text-center">Captcha staat aan in Supabase. Zet <strong>VITE_HCAPTCHA_SITEKEY</strong> in je env om de captcha zichtbaar te maken.</p>
           )}
           {captchaRequired && !captchaToken && (

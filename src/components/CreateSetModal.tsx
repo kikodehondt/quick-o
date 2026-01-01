@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, FileText, Save, ClipboardCopy } from 'lucide-react'
+import { X, FileText, Save, ClipboardCopy, Plus, Trash2 } from 'lucide-react'
 import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
@@ -26,6 +26,8 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copyMessage, setCopyMessage] = useState('')
+  const [inputMode, setInputMode] = useState<'text' | 'manual'>('text')
+  const [manualPairs, setManualPairs] = useState<Array<{ word1: string; word2: string }>>([{ word1: '', word2: '' }])
 
   const promptText = `Je bent een expert assistent die vocabulaire-lijsten omzet naar het EXACTE formaat van deze flashcard trainer app. Je taak is om woordparen of zinnenparen te identificeren en te formatteren volgens strikte regels.
 
@@ -175,22 +177,34 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
       return
     }
 
-    if (!vocabText.trim()) {
-      setError('Plak de woordjes tekst')
-      return
+    // Get word pairs based on input mode
+    let wordPairs: Array<{ word1: string; word2: string }> = []
+    
+    if (inputMode === 'text') {
+      if (!vocabText.trim()) {
+        setError('Plak de woordjes tekst')
+        return
+      }
+      // Parse the text
+      wordPairs = parseVocabText(vocabText)
+      
+      if (wordPairs.length === 0) {
+        setError('Geen geldige woordparen gevonden. Gebruik het formaat: woord1 || woord2 ||| woord3 || woord4')
+        return
+      }
+    } else {
+      // Manual mode - filter out empty pairs
+      wordPairs = manualPairs.filter(pair => pair.word1.trim() && pair.word2.trim())
+      
+      if (wordPairs.length === 0) {
+        setError('Voeg minstens één woordpaar toe')
+        return
+      }
     }
 
     try {
       setLoading(true)
       setError('')
-
-      // Parse the text
-      const wordPairs = parseVocabText(vocabText)
-      
-      if (wordPairs.length === 0) {
-        setError('Geen geldige woordparen gevonden. Gebruik het formaat: woord1, woord2; woord3, woord4')
-        return
-      }
 
       // Prepare metadata
       const tags = tagsInput
@@ -279,8 +293,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-              placeholder="Bijv. Frans Hoofdstuk 1"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
             />
           </div>
 
@@ -292,7 +305,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
               placeholder="Korte omschrijving"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -302,8 +315,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={school}
                   onChange={(e) => setSchool(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                  placeholder="Bijv. KU Leuven"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
                 />
               </div>
               <div>
@@ -312,7 +324,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={direction}
                   onChange={(e) => setDirection(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
                   placeholder="Bijv. Toegepaste Informatica"
                 />
               </div>
@@ -321,9 +333,8 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 <select
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
                 >
-                  <option value="">Selecteer een jaar</option>
                   <option value="Eerste Middelbaar">Eerste Middelbaar</option>
                   <option value="Tweede Middelbaar">Tweede Middelbaar</option>
                   <option value="Derde Middelbaar">Derde Middelbaar</option>
@@ -342,8 +353,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   type="text"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                  placeholder="Bijv. Frans, hoofdstuk 1, examen"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
                 />
               </div>
             </div>
@@ -387,8 +397,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 type="text"
                 value={language1}
                 onChange={(e) => setLanguage1(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                placeholder="Bijv. Nederlands"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
               />
             </div>
             <div>
@@ -399,13 +408,42 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 type="text"
                 value={language2}
                 onChange={(e) => setLanguage2(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
-                placeholder="Bijv. Frans"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
               />
             </div>
           </div>
 
-          <div>
+          {/* Tab switcher */}
+          <div className="flex gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => setInputMode('text')}
+              className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${
+                inputMode === 'text'
+                  ? 'btn-gradient text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FileText className="w-4 h-4 inline mr-2" />
+              Tekst Invoer
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputMode('manual')}
+              className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${
+                inputMode === 'manual'
+                  ? 'btn-gradient text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Handmatig Invoeren
+            </button>
+          </div>
+
+          {/* Text input mode */}
+          {inputMode === 'text' && (
+            <div>
             <div className="flex items-center justify-between mb-2 gap-2">
               <label className="block text-sm font-semibold text-gray-700">
                 <FileText className="w-4 h-4 inline mr-2" />
@@ -434,7 +472,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             <textarea
               value={vocabText}
               onChange={(e) => setVocabText(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all font-mono text-sm"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all font-mono text-sm"
               rows={10}
               placeholder={`${language1} || ${language2} ||| ${language1}2 || ${language2}2`}
             />
@@ -446,7 +484,73 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
             {copyMessage && (
               <p className="text-sm text-green-600 mt-2">{copyMessage}</p>
             )}
-          </div>
+            </div>
+          )}
+
+          {/* Manual input mode */}
+          {inputMode === 'manual' && (
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Woordparen
+              </label>
+              
+              {manualPairs.map((pair, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={pair.word1}
+                    onChange={(e) => {
+                      const newPairs = [...manualPairs]
+                      newPairs[index].word1 = e.target.value
+                      setManualPairs(newPairs)
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                    placeholder={language1}
+                  />
+                  <span className="text-gray-400 font-bold">→</span>
+                  <input
+                    type="text"
+                    value={pair.word2}
+                    onChange={(e) => {
+                      const newPairs = [...manualPairs]
+                      newPairs[index].word2 = e.target.value
+                      setManualPairs(newPairs)
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                    placeholder={language2}
+                  />
+                  {manualPairs.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newPairs = manualPairs.filter((_, i) => i !== index)
+                        setManualPairs(newPairs)
+                      }}
+                      className="p-3 rounded-xl bg-red-100 hover:bg-red-200 text-red-600 transition-colors"
+                      title="Verwijder dit paar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setManualPairs([...manualPairs, { word1: '', word2: '' }])
+                }}
+                className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 text-gray-600 hover:text-green-600 font-semibold transition-all flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Voeg woordpaar toe
+              </button>
+              
+              <p className="text-sm text-gray-500 mt-2">
+                💡 Tip: Voor meerdere vertalingen, gebruik | om ze te scheiden (bijv: perro|can)
+              </p>
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl">

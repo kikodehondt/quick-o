@@ -105,7 +105,7 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         }
       }
 
-      const { error: reauthError } = await signIn(email, currentPassword, captchaRequired ? captchaToken : undefined)
+      const { error: reauthError } = await signIn(email, currentPassword, (captchaRequired && captchaToken) ? captchaToken : undefined)
       if (reauthError) {
         const msg = reauthError.message?.toLowerCase() || ''
         if (msg.includes('captcha')) {
@@ -321,7 +321,7 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
               </div>
             </div>
 
-            {captchaRequired && (
+            {captchaRequired && !isLocal && (
               <div className="mt-3 flex justify-center">
                 <HCaptcha
                   ref={captchaRef as any}
