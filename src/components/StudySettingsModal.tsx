@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle } from 'lucide-react'
+import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw } from 'lucide-react'
 import { VocabSet, StudyMode, StudyDirection, StudySettings } from '../lib/supabase'
 
 interface StudySettingsModalProps {
@@ -14,9 +14,10 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [accentSensitive, setAccentSensitive] = useState(false)
   const [shuffle, setShuffle] = useState(true)
+  const [retryMistakes, setRetryMistakes] = useState(true)
 
   function handleStart() {
-    onStart({ mode, direction, caseSensitive, accentSensitive, shuffle })
+    onStart({ mode, direction, caseSensitive, accentSensitive, shuffle, retryMistakes })
   }
 
   return (
@@ -52,17 +53,17 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
               <Settings className="w-4 h-4 inline mr-2" />
               Oefenmodus
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setMode('learn')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'learn'
-                    ? 'border-green-500 bg-green-50 shadow-md'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-green-600' : 'text-gray-400'}`} />
+                <GraduationCap className={`w-8 h-8 mx-auto mb-2 ${mode === 'learn' ? 'text-emerald-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Leren</div>
                 <div className="text-xs text-gray-500 mt-1">Herhaal foute antwoorden</div>
               </button>
@@ -71,24 +72,37 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 onClick={() => setMode('flashcard')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'flashcard'
-                    ? 'border-green-500 bg-green-50 shadow-md'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-green-600' : 'text-gray-400'}`} />
+                <CreditCard className={`w-8 h-8 mx-auto mb-2 ${mode === 'flashcard' ? 'text-emerald-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Flashcards</div>
                 <div className="text-xs text-gray-500 mt-1">Klik om te zien</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('multiple-choice')}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  mode === 'multiple-choice'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
+                }`}
+              >
+                <CheckSquare className={`w-8 h-8 mx-auto mb-2 ${mode === 'multiple-choice' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                <div className="font-semibold text-gray-800">Meerkeuze</div>
+                <div className="text-xs text-gray-500 mt-1">Kies uit 4 opties</div>
               </button>
               <button
                 type="button"
                 onClick={() => setMode('typing')}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   mode === 'typing'
-                    ? 'border-green-500 bg-green-50 shadow-md'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
                     : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
                 }`}
               >
-                <Keyboard className={`w-8 h-8 mx-auto mb-2 ${mode === 'typing' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <Keyboard className={`w-8 h-8 mx-auto mb-2 ${mode === 'typing' ? 'text-emerald-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Typen</div>
                 <div className="text-xs text-gray-500 mt-1">Type antwoord</div>
               </button>
@@ -175,7 +189,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
 
           {/* Shuffle Option */}
           {mode !== 'learn' && (
-            <div className="bg-purple-50 rounded-xl p-4">
+              <div className="bg-purple-50 rounded-xl p-4 space-y-3">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -191,6 +205,23 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                   </div>
                 </div>
               </label>
+                {mode === 'multiple-choice' && (
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={retryMistakes}
+                      onChange={(e) => setRetryMistakes(e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                    />
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="w-5 h-5 text-orange-600" />
+                      <div>
+                        <div className="font-medium text-gray-800">Fouten automatisch herhalen</div>
+                        <div className="text-xs text-gray-600">Krijg foute antwoorden automatisch terug</div>
+                      </div>
+                    </div>
+                  </label>
+                )}
             </div>
           )}
 

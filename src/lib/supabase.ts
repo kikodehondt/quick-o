@@ -51,7 +51,7 @@ export interface StudyProgress {
   progress_state?: any
 }
 
-export type StudyMode = 'flashcard' | 'typing' | 'learn'
+export type StudyMode = 'flashcard' | 'typing' | 'learn' | 'multiple-choice'
 export type StudyDirection = 'forward' | 'reverse' | 'both'
 
 export interface StudySettings {
@@ -60,4 +60,5 @@ export interface StudySettings {
   caseSensitive: boolean
   accentSensitive: boolean
   shuffle: boolean
+    retryMistakes?: boolean
 }

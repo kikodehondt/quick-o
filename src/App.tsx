@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { BookOpen, Plus, Trophy, Users } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
+import { Analytics } from '@vercel/analytics/react'
 import StudyMode from './components/StudyMode'
 import TypingMode from './components/TypingMode'
 import LearnMode from './components/LearnMode'
+import MultipleChoiceMode from './components/MultipleChoiceMode'
 import StudySettingsModal from './components/StudySettingsModal'
 import SetsList from './components/SetsList'
 import AboutPage from './components/AboutPage'
@@ -273,6 +275,8 @@ function App() {
       return <LearnMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
     } else if (studySettings.mode === 'typing') {
       return <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+    } else if (studySettings.mode === 'multiple-choice') {
+      return <MultipleChoiceMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} onExit={() => { setIsStudying(false); setSelectedSet(null) }} />
     } else {
       return <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
     }
@@ -542,6 +546,7 @@ function App() {
         {/* About Page - Always visible, scroll to navigate */}
         <AboutPage />
       </div>
+      <Analytics />
     </div>
   )
 }
