@@ -176,6 +176,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options,
     })
     
+    // Ignore "already seen response" captcha errors
+    if (error && error.message?.includes('already seen response')) {
+      return { error: null }
+    }
+    
     return { error }
   }
 
@@ -236,6 +241,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options,
     })
+    
+    // Ignore "already seen response" captcha errors
+    if (error && error.message?.includes('already seen response')) {
+      return { error: null }
+    }
     
     return { error }
   }
@@ -305,6 +315,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, options as any)
+      
+      // Ignore "already seen response" captcha errors
+      if (error && error.message?.includes('already seen response')) {
+        return { error: null }
+      }
       
       // If captcha verification failed locally, retry without captcha
       if (error && isLocal() && error.message?.includes('captcha')) {
