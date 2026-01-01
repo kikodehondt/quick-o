@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { BookOpen, Plus, Trophy, Users } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
 import StudyMode from './components/StudyMode'
@@ -280,6 +281,7 @@ function App() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+      <Analytics />
       <div className="max-w-6xl mx-auto">
         {/* Auth Header Controls (mobile-friendly) */}
         <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0 transition-all duration-300">
