@@ -19,6 +19,79 @@ body {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
+/* ========================================
+   CUSTOM SCROLLBAR STYLING - GLOBAAL
+   ======================================== */
+
+/* Firefox: dunne scrollbar met emerald groene kleur */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.3) transparent;
+}
+
+/* Chrome, Safari, Edge: custom scrollbar styling */
+*::-webkit-scrollbar {
+  width: 8px;  /* Dunne scrollbar (8px i.p.v. standaard 15px) */
+  height: 8px; /* Voor horizontale scrollbars */
+}
+
+/* Scrollbar track (achtergrond waar scrollbar overheen beweegt) */
+*::-webkit-scrollbar-track {
+  background: transparent; /* Onzichtbare achtergrond voor clean look */
+  border-radius: 10px;
+}
+
+/* Hoofdpagina scrollbar track - witte achtergrond */
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Groene gradient zoals de pagina */
+  border-radius: 10px;
+}
+
+/* Hoofdpagina scrollbar thumb - WIT */
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.8); /* Witte scrollbar */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 1); /* Volle witte bij hover */
+}
+
+body::-webkit-scrollbar-thumb:active,
+html::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.9); /* Licht transparanter bij klik */
+}
+
+/* Firefox: witte scrollbar track voor body/html */
+body,
+html {
+  scrollbar-color: rgba(255, 255, 255, 0.8) #10b981; /* Wit op groen */
+}
+
+/* Scrollbar thumb (de draggable scrollbar zelf) */
+*::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2); /* Subtiel emerald groen met 20% opacity */
+  border-radius: 10px; /* Afgeronde hoeken */
+  transition: background 0.2s ease; /* Smooth hover animatie */
+}
+
+/* Scrollbar thumb bij hover - wordt donkerder/zichtbaarder */
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5); /* 50% opacity bij hover */
+}
+
+/* Scrollbar thumb wanneer actief geklikt/gesleept */
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(16, 185, 129, 0.7); /* Nog donkerder bij klikken */
+}
+
+/* ======================================== */
+
+
 @layer utilities {
   .card-shadow {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);

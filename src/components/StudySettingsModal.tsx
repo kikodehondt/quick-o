@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw } from 'lucide-react'
 import { VocabSet, StudyMode, StudyDirection, StudySettings } from '../lib/supabase'
 
@@ -9,6 +9,13 @@ interface StudySettingsModalProps {
 }
 
 export default function StudySettingsModal({ set, onClose, onStart }: StudySettingsModalProps) {
+  // Disable body scroll wanneer modal open is
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
   const [mode, setMode] = useState<StudyMode>('learn')
   const [direction, setDirection] = useState<StudyDirection>('forward')
   const [caseSensitive, setCaseSensitive] = useState(false)
@@ -29,7 +36,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
         }
       `}</style>
       <div 
-        className="bg-white rounded-3xl p-8 max-w-lg w-full card-shadow"
+        className="bg-white rounded-3xl p-8 max-w-lg w-full card-shadow my-8 max-h-[90vh] overflow-y-auto"
         style={{animation: 'modalEnter 0.3s ease-out'}}
         onClick={(e) => e.stopPropagation()}
       >
