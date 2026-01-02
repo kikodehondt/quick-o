@@ -443,7 +443,7 @@ function App() {
                   className="flex-1 sm:flex-none text-white/80 hover:text-white text-sm hover:scale-110 transition-transform duration-300 px-2 py-1 border border-white/10 rounded-lg"
                   onClick={async ()=>{
                     setLoading(true)
-                    let query = supabase.from('vocab_sets').select('*')
+                    let query = supabase.from('vocab_sets').select('*').eq('is_public', true)
                     if (search) {
                       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
                     }
@@ -479,7 +479,7 @@ function App() {
                   onClick={async ()=>{
                     setLoading(true)
                     const tagArray = filterTags.split(',').map(t=>t.trim()).filter(Boolean)
-                    let query = supabase.from('vocab_sets').select('*')
+                    let query = supabase.from('vocab_sets').select('*').eq('is_public', true)
                     if (search) {
                       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
                     }
