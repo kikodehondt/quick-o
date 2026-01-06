@@ -44,18 +44,34 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
     let isMounted = true
     async function fetchWords() {
       try {
-        const { data, error } = await supabase
-          .from('word_pairs')
-          .select('id, word1, word2, set_id')
-          .eq('set_id', set.id!)
-          .order('created_at', { ascending: true })
+        // Fetch all words using pagination to bypass 1000 row limit
+        let allWords: WordPair[] = []
+        let from = 0
+        const pageSize = 1000
+        
+        while (true) {
+          const { data, error } = await supabase
+            .from('word_pairs')
+            .select('id, word1, word2, set_id', { count: 'exact' })
+            .eq('set_id', set.id!)
+            .order('created_at', { ascending: true })
+            .range(from, from + pageSize - 1)
 
-        if (!isMounted) return
-        if (error) throw error
-        const list = (data || []) as WordPair[]
-        setWords(list)
-        if (list.length > 0) {
-          setRanges([{ id: '0', start: 1, end: list.length }])
+          if (!isMounted) return
+          if (error) throw error
+          
+          const batch = (data || []) as WordPair[]
+          allWords = [...allWords, ...batch]
+          
+          // If we got less than pageSize, we've reached the end
+          if (batch.length < pageSize) break
+          
+          from += pageSize
+        }
+        
+        setWords(allWords)
+        if (allWords.length > 0) {
+          setRanges([{ id: '0', start: 1, end: allWords.length }])
         }
       } catch (err) {
         console.error('Error fetching words for selection', err)
@@ -320,7 +336,6 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                           <input
                             type="number"
                             min={1}
-                            max={Math.max(1, words.length || 1)}
                             value={range.start}
                             onChange={(e) => updateRange(range.id, 'start', e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-emerald-200 bg-white text-gray-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
@@ -331,7 +346,6 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                           <input
                             type="number"
                             min={1}
-                            max={Math.max(1, words.length || 1)}
                             value={range.end}
                             onChange={(e) => updateRange(range.id, 'end', e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-emerald-200 bg-white text-gray-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"

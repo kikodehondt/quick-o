@@ -64,14 +64,27 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   async function loadWords() {
     try {
-      const { data, error } = await supabase
-        .from('word_pairs')
-        .select('*')
-        .eq('set_id', set.id!)
+      // Fetch all words using pagination
+      let allWords: WordPair[] = []
+      let from = 0
+      const pageSize = 1000
+      
+      while (true) {
+        const { data, error } = await supabase
+          .from('word_pairs')
+          .select('*')
+          .eq('set_id', set.id!)
+          .range(from, from + pageSize - 1)
 
-      if (error) throw error
+        if (error) throw error
+        const batch = data || []
+        allWords = [...allWords, ...batch]
+        
+        if (batch.length < pageSize) break
+        from += pageSize
+      }
 
-      let processedWords = data || []
+      let processedWords = allWords
 
       // Filter op geselecteerde woorden (bereik/handmatig)
       if (settings.selectedWordIds && settings.selectedWordIds.length > 0) {

@@ -109,12 +109,27 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
 
   async function fetchWordsWithSettings(currentSettings: StudySettings) {
     try {
-      const { data, error } = await supabase
-        .from('word_pairs')
-        .select('*')
-        .eq('set_id', set.id!)
-      if (error) throw error
-      let processed = data || []
+      // Fetch all words using pagination
+      let allWords: WordPair[] = []
+      let from = 0
+      const pageSize = 1000
+      
+      while (true) {
+        const { data, error } = await supabase
+          .from('word_pairs')
+          .select('*')
+          .eq('set_id', set.id!)
+          .range(from, from + pageSize - 1)
+        
+        if (error) throw error
+        const batch = data || []
+        allWords = [...allWords, ...batch]
+        
+        if (batch.length < pageSize) break
+        from += pageSize
+      }
+      
+      let processed = allWords
       if (currentSettings.selectedWordIds && currentSettings.selectedWordIds.length > 0) {
         const allow = new Set(currentSettings.selectedWordIds)
         processed = processed.filter(w => w.id && allow.has(w.id))

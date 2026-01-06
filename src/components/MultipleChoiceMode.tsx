@@ -33,17 +33,31 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
   // Fetch words and prepare questions
   useEffect(() => {
     async function fetchWords() {
-      const { data, error } = await supabase
-        .from('word_pairs')
-        .select('*')
-        .eq('set_id', set.id!)
+      // Fetch all words using pagination
+      let allWords: WordPair[] = []
+      let from = 0
+      const pageSize = 1000
+      
+      while (true) {
+        const { data, error } = await supabase
+          .from('word_pairs')
+          .select('*')
+          .eq('set_id', set.id!)
+          .range(from, from + pageSize - 1)
 
-      if (error) {
-        console.error('Error fetching words:', error)
-        return
+        if (error) {
+          console.error('Error fetching words:', error)
+          return
+        }
+        
+        const batch = data || []
+        allWords = [...allWords, ...batch]
+        
+        if (batch.length < pageSize) break
+        from += pageSize
       }
 
-      const fullWords = data || []
+      const fullWords = allWords
 
       // Pool voor opties: altijd alle woorden uit de set, in de juiste richting(en)
       const optionCandidates = (() => {

@@ -205,8 +205,7 @@ function App() {
           year,
           creator_name,
           is_anonymous,
-          is_public,
-          word_pairs(count)
+          is_public
         `)
         .order('created_at', { ascending: false })
 
@@ -221,10 +220,22 @@ function App() {
 
       if (error) throw error
 
-      const setsWithCount = data?.map(set => ({
-        ...set,
-        word_count: set.word_pairs?.[0]?.count || 0
-      })) || []
+      // Fetch word counts separately for each set to avoid 1000 limit
+      const setsWithCount = await Promise.all(
+        (data || []).map(async (set) => {
+          const { count, error: countError } = await supabase
+            .from('word_pairs')
+            .select('*', { count: 'exact', head: true })
+            .eq('set_id', set.id!)
+          
+          if (countError) {
+            console.error('Error counting words:', countError)
+            return { ...set, word_count: 0 }
+          }
+          
+          return { ...set, word_count: count || 0 }
+        })
+      )
 
       setSets(setsWithCount)
     } catch (error) {
@@ -364,9 +375,9 @@ function App() {
           <button
             onClick={() => {
               setShowChangelog(true)
+              setUnreadUpdates(0)
               if (user) {
                 localStorage.setItem(`changelog-viewed-${user.id}`, new Date().toISOString())
-                setUnreadUpdates(0)
               }
             }}
             className="relative px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur inline-flex items-center gap-2"
