@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react'
-import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw } from 'lucide-react'
-import { VocabSet, StudyMode, StudyDirection, StudySettings } from '../lib/supabase'
+import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw, ListChecks, Plus, Trash2 } from 'lucide-react'
+import { VocabSet, StudyMode, StudyDirection, StudySettings, WordPair, supabase } from '../lib/supabase'
 
 interface StudySettingsModalProps {
   set: VocabSet
   onClose: () => void
   onStart: (settings: StudySettings) => void
+}
+
+interface RangeItem {
+  id: string
+  start: number | ''
+  end: number | ''
 }
 
 export default function StudySettingsModal({ set, onClose, onStart }: StudySettingsModalProps) {
@@ -23,8 +29,101 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
   const [shuffle, setShuffle] = useState(true)
   const [retryMistakes, setRetryMistakes] = useState(true)
 
+  // Woord-selectie state
+  const [words, setWords] = useState<WordPair[]>([])
+  const [wordsLoading, setWordsLoading] = useState(true)
+  const [selectionMode, setSelectionMode] = useState<'all' | 'range' | 'custom'>('all')
+  const [ranges, setRanges] = useState<RangeItem[]>([{ id: '0', start: 1, end: 1 }])
+  const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
+
+  const allSelected = words.length > 0 && selectedWordIds.length === words.length
+  const noneSelected = selectedWordIds.length === 0
+
+  // Haal woorden op zodat we range of handmatige selectie kunnen tonen
+  useEffect(() => {
+    let isMounted = true
+    async function fetchWords() {
+      try {
+        const { data, error } = await supabase
+          .from('word_pairs')
+          .select('id, word1, word2')
+          .eq('set_id', set.id!)
+          .order('created_at', { ascending: true })
+
+        if (!isMounted) return
+        if (error) throw error
+        const list = data || []
+        setWords(list)
+        if (list.length > 0) {
+          setRanges([{ id: '0', start: 1, end: list.length }])
+        }
+      } catch (err) {
+        console.error('Error fetching words for selection', err)
+      } finally {
+        if (isMounted) setWordsLoading(false)
+      }
+    }
+
+    fetchWords()
+    return () => {
+      isMounted = false
+    }
+  }, [set.id])
+
+  function buildSelectedIds(): number[] | undefined {
+    if (selectionMode === 'range') {
+      if (!words.length) return undefined
+      const selectedSet = new Set<number>()
+      for (const range of ranges) {
+        const total = words.length
+        const start = Math.max(1, typeof range.start === 'number' ? range.start : 1)
+        const endInput = typeof range.end === 'number' ? range.end : total
+        const end = Math.max(start, Math.min(total, endInput))
+        const rangeIds = words.slice(start - 1, end).map(w => w.id!).filter(Boolean)
+        rangeIds.forEach(id => selectedSet.add(id))
+      }
+      return selectedSet.size > 0 ? Array.from(selectedSet) : undefined
+    }
+    if (selectionMode === 'custom') {
+      return selectedWordIds.length > 0 ? selectedWordIds : undefined
+    }
+    return undefined
+  }
+
+  function addRange() {
+    const newId = String(Math.max(0, ...ranges.map(r => Number(r.id) || 0)) + 1)
+    const total = words.length || 1
+    setRanges([...ranges, { id: newId, start: 1, end: total }])
+  }
+
+  function removeRange(id: string) {
+    if (ranges.length > 1) {
+      setRanges(ranges.filter(r => r.id !== id))
+    }
+  }
+
+  function updateRange(id: string, field: 'start' | 'end', value: string) {
+    setRanges(ranges.map(r => 
+      r.id === id 
+        ? { ...r, [field]: value === '' ? '' : Number(value) }
+        : r
+    ))
+  }
+
   function handleStart() {
-    onStart({ mode, direction, caseSensitive, accentSensitive, shuffle, retryMistakes })
+    const selectedIds = buildSelectedIds()
+    onStart({
+      mode,
+      direction,
+      caseSensitive,
+      accentSensitive,
+      shuffle,
+      retryMistakes,
+      selectedWordIds: selectedIds,
+      selectionMode,
+      rangeStart: undefined,
+      rangeEnd: undefined,
+    })
   }
 
   return (
@@ -159,6 +258,173 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 <ArrowLeftRight className={direction === 'both' ? 'text-green-600' : 'text-gray-400'} />
               </button>
             </div>
+          </div>
+
+          {/* Word selection */}
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-700">
+              <ListChecks className="w-4 h-4 inline mr-2" />
+              Kies welke woorden je wilt oefenen
+            </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectionMode('all')}
+                className={`p-3 rounded-xl border-2 transition-all text-left ${
+                  selectionMode === 'all'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
+                }`}
+              >
+                <div className="font-semibold text-gray-800">Alle woorden</div>
+                <div className="text-xs text-gray-600">Volledige set ({words.length || 0})</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectionMode('range')}
+                className={`p-3 rounded-xl border-2 transition-all text-left ${
+                  selectionMode === 'range'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
+                }`}
+              >
+                <div className="font-semibold text-gray-800">Bereik</div>
+                <div className="text-xs text-gray-600">Bijv. 1–100, 20–50</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectionMode('custom')}
+                className={`p-3 rounded-xl border-2 transition-all text-left ${
+                  selectionMode === 'custom'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                    : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
+                }`}
+              >
+                <div className="font-semibold text-gray-800">Handmatig</div>
+                <div className="text-xs text-gray-600">Kies individuele woorden</div>
+              </button>
+            </div>
+
+            {selectionMode === 'range' && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-3">
+                <div className="space-y-3">
+                  {ranges.map((range, idx) => (
+                    <div key={range.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center pb-3 border-b border-emerald-100 last:border-b-0">
+                      <div className="text-xs font-semibold text-emerald-700 sm:min-w-fit">Bereik {ranges.length > 1 ? idx + 1 : ''}</div>
+                      <div className="flex-1 flex gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs font-semibold text-emerald-700">Van</label>
+                          <input
+                            type="number"
+                            min={1}
+                            max={Math.max(1, words.length || 1)}
+                            value={range.start}
+                            onChange={(e) => updateRange(range.id, 'start', e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-emerald-200 bg-white text-gray-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-xs font-semibold text-emerald-700">Tot en met</label>
+                          <input
+                            type="number"
+                            min={1}
+                            max={Math.max(1, words.length || 1)}
+                            value={range.end}
+                            onChange={(e) => updateRange(range.id, 'end', e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-emerald-200 bg-white text-gray-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+                          />
+                        </div>
+                      </div>
+                      {ranges.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeRange(range.id)}
+                          className="text-red-500 hover:text-red-700 transition-colors p-2"
+                          title="Verwijder dit bereik"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={addRange}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 transition-colors font-semibold text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Nog een bereik toevoegen
+                </button>
+                <p className="text-xs text-emerald-700">
+                  {words.length === 0 && wordsLoading && 'Woordjes laden...'}
+                  {words.length === 0 && !wordsLoading && 'Geen woordjes gevonden in deze set.'}
+                  {words.length > 0 && 'Indexen zijn 1-based: eerste woord = 1. Je kan meerdere bereiken combineren.'}
+                </p>
+              </div>
+            )}
+
+            {selectionMode === 'custom' && (
+              <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm text-gray-700 font-semibold">Selecteer woorden ({selectedWordIds.length}/{words.length})</div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className={`text-xs px-3 py-1 rounded-lg border transition-colors ${
+                        allSelected
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                          : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                      onClick={() => setSelectedWordIds(words.map(w => w.id!).filter(Boolean))}
+                    >
+                      Alles
+                    </button>
+                    <button
+                      type="button"
+                      className={`text-xs px-3 py-1 rounded-lg border transition-colors ${
+                        noneSelected
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                          : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                      onClick={() => setSelectedWordIds([])}
+                    >
+                      Niets
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-52 overflow-y-auto divide-y divide-gray-100 rounded-lg border border-gray-100">
+                  {wordsLoading && <div className="p-3 text-sm text-gray-500">Laden...</div>}
+                  {!wordsLoading && words.length === 0 && <div className="p-3 text-sm text-gray-500">Geen woordjes gevonden.</div>}
+                  {words.map((w, index) => {
+                    const checked = selectedWordIds.includes(w.id!)
+                    return (
+                      <label key={w.id || index} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            if (!w.id) return
+                            setSelectedWordIds(prev => {
+                              if (e.target.checked) return [...prev, w.id!]
+                              return prev.filter(id => id !== w.id)
+                            })
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <div className="text-sm font-medium text-gray-800">{index + 1}. {w.word1}</div>
+                          <div className="text-xs text-gray-600">{w.word2}</div>
+                        </div>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Learn/Typing Mode Options */}

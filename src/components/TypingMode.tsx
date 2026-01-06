@@ -57,6 +57,11 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
       if (error) throw error
 
       let processedWords = data || []
+      // Filter op geselecteerde woorden (bereik/handmatig)
+      if (settings.selectedWordIds && settings.selectedWordIds.length > 0) {
+        const allow = new Set(settings.selectedWordIds)
+        processedWords = processedWords.filter(w => w.id && allow.has(w.id))
+      }
       
       // Handle direction
       if (settings.direction === 'both') {

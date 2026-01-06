@@ -28,6 +28,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   const { user } = useAuth()
   const [settings, setSettings] = useState<StudySettings>(initialSettings)
   const [allWords, setAllWords] = useState<WordPair[]>([])
+  const [totalUniqueWords, setTotalUniqueWords] = useState(0)
   const [activeWords, setActiveWords] = useState<WordPair[]>([])
   const [masteredWords, setMasteredWords] = useState<WordPair[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -41,6 +42,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   const [showHint, setShowHint] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const prevSettingsRef = useRef<StudySettings>(initialSettings)
 
   useEffect(() => { initSession() }, [])
 
@@ -49,10 +51,26 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   }, [currentIndex, showFeedback])
 
   useEffect(() => {
-    if (initialized) rebuildWithSettings()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.direction, settings.shuffle])
-
+    if (!initialized) return
+    const prev = prevSettingsRef.current
+    const curr = settings
+    const selectionChanged = JSON.stringify({
+      selectionMode: prev.selectionMode,
+      rangeStart: prev.rangeStart,
+      rangeEnd: prev.rangeEnd,
+      selectedWordIds: (prev.selectedWordIds || []).slice().sort(),
+    }) !== JSON.stringify({
+      selectionMode: curr.selectionMode,
+      rangeStart: curr.rangeStart,
+      rangeEnd: curr.rangeEnd,
+      selectedWordIds: (curr.selectedWordIds || []).slice().sort(),
+    })
+    const directionOrShuffleChanged = prev.direction !== curr.direction || prev.shuffle !== curr.shuffle
+    if (selectionChanged || directionOrShuffleChanged) {
+      prevSettingsRef.current = curr
+      rebuildWithSettings()
+    }
+  }, [settings, initialized])
   useEffect(() => {
     if (!loading && initialized) {
       saveProgressLocal()
@@ -97,6 +115,16 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
         .eq('set_id', set.id!)
       if (error) throw error
       let processed = data || []
+      if (currentSettings.selectedWordIds && currentSettings.selectedWordIds.length > 0) {
+        const allow = new Set(currentSettings.selectedWordIds)
+        processed = processed.filter(w => w.id && allow.has(w.id))
+      }
+      const uniqueBaseCount = (() => {
+        const ids = processed.map(w => w.id).filter(Boolean)
+        const unique = new Set(ids as (string | number)[]).size
+        return unique || processed.length
+      })()
+      setTotalUniqueWords(uniqueBaseCount)
       if (currentSettings.direction === 'both') {
         const forward = processed
         const reverse = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
@@ -126,13 +154,31 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     setFinished(false)
   }
 
+  function settingsKey(s: StudySettings) {
+    return JSON.stringify({
+      direction: s.direction,
+      shuffle: s.shuffle,
+      caseSensitive: s.caseSensitive,
+      accentSensitive: s.accentSensitive,
+      selectionMode: s.selectionMode,
+      rangeStart: s.rangeStart,
+      rangeEnd: s.rangeEnd,
+      selectedWordIds: (s.selectedWordIds || []).slice().sort(),
+    })
+  }
+
   async function restoreProgress(): Promise<LearnProgressState | null> {
     const local = loadProgressLocal()
     const cloud = await loadProgressCloud()
     const latest = [local, cloud]
       .filter(Boolean)
       .sort((a, b) => (b!.timestamp || 0) - (a!.timestamp || 0))[0] as LearnProgressState | undefined
-    if (latest && latest.activeWords && latest.activeWords.length > 0) return latest
+    if (latest && latest.activeWords && latest.activeWords.length > 0) {
+      if (latest.settings && settingsKey(latest.settings) !== settingsKey(settings)) {
+        return null
+      }
+      return latest
+    }
     return null
   }
 
@@ -317,6 +363,13 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   }
 
   if (finished) {
+    const masteredUnique = (() => {
+      const ids = masteredWords.map(w => w.id).filter(Boolean)
+      const unique = new Set(ids as (string | number)[]).size
+      if (unique > 0) return unique
+      return masteredWords.length
+    })()
+    const totalUnique = totalUniqueWords || masteredUnique
     const total = correctCount + incorrectCount
     const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
     return (
@@ -324,7 +377,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
         <div className="bg-white rounded-3xl p-12 card-shadow text-center max-w-lg">
           <div className="mb-6"><Star className="w-24 h-24 mx-auto text-yellow-400 animate-bounce-slow" /></div>
           <h2 className="text-4xl font-bold gradient-text mb-4">Alle woorden beheerst! 🎉</h2>
-          <p className="text-gray-600 mb-6">Je hebt alle {masteredWords.length} woordjes correct beantwoord!</p>
+          <p className="text-gray-600 mb-6">Je hebt alle {totalUnique} woordjes correct beantwoord!</p>
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-6">
             <div className="text-5xl font-bold gradient-text mb-2">{percentage}%</div>
             <p className="text-gray-600">Accuracy</p>
@@ -349,7 +402,14 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   }
 
   const currentWord = activeWords[currentIndex]
-  const progress = (masteredWords.length / allWords.length) * 100
+  const remainingUnique = (() => {
+    const ids = activeWords.map(w => w.id).filter(Boolean)
+    const unique = new Set(ids as (string | number)[]).size
+    if (unique > 0) return unique
+    return activeWords.length
+  })()
+  const masteredUnique = Math.max(totalUniqueWords - remainingUnique, 0)
+  const progress = totalUniqueWords > 0 ? (masteredUnique / totalUniqueWords) * 100 : 0
   const similarity = userAnswer ? calculateSimilarity(userAnswer, currentWord.word2) : 0
 
   return (
@@ -366,8 +426,8 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
           <button onClick={onEnd} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl font-semibold transition-colors flex items-center gap-2"><ArrowLeft className="w-5 h-5" />Terug</button>
           <SessionSettings settings={settings} onUpdate={setSettings} mode="learn" onResetProgress={restart} />
           <div className="text-white text-center">
-            <div className="flex items-center gap-2 justify-center"><Target className="w-5 h-5" /><span className="text-lg font-semibold">{activeWords.length} te gaan</span></div>
-            <div className="text-sm opacity-80">{masteredWords.length} beheerst</div>
+            <div className="flex items-center gap-2 justify-center"><Target className="w-5 h-5" /><span className="text-lg font-semibold">{remainingUnique} te gaan</span></div>
+            <div className="text-sm opacity-80">{masteredUnique} beheerst</div>
           </div>
         </div>
         <div className="w-full bg-white/20 rounded-full h-4 mb-6">

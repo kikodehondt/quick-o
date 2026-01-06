@@ -28,6 +28,7 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
   const [showResult, setShowResult] = useState(false)
   const [layoutMode, setLayoutMode] = useState<'vertical' | 'grid'>('vertical')
   const [showingFeedback, setShowingFeedback] = useState(false)
+  const [optionPool, setOptionPool] = useState<string[]>([])
 
   // Fetch words and prepare questions
   useEffect(() => {
@@ -42,9 +43,30 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
         return
       }
 
-      let processed = data || []
+      const fullWords = data || []
 
-      // Apply direction
+      // Pool voor opties: altijd alle woorden uit de set, in de juiste richting(en)
+      const optionCandidates = (() => {
+        let pool = fullWords
+        if (settings.direction === 'reverse') {
+          pool = fullWords.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
+        } else if (settings.direction === 'both') {
+          const forward = fullWords
+          const reverse = fullWords.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
+          pool = [...forward, ...reverse]
+        }
+        const opts = pool.map(w => w.word2).filter(Boolean)
+        return Array.from(new Set(opts))
+      })()
+
+      // Vragenbron: gefilterd op selectie
+      let processed = fullWords
+
+      if (settings.selectedWordIds && settings.selectedWordIds.length > 0) {
+        const allow = new Set(settings.selectedWordIds)
+        processed = processed.filter(w => w.id && allow.has(w.id))
+      }
+
       if (settings.direction === 'reverse') {
         processed = processed.map(w => ({ ...w, word1: w.word2, word2: w.word1 }))
       } else if (settings.direction === 'both') {
@@ -53,12 +75,12 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
         processed = [...forward, ...reverse]
       }
 
-      // Shuffle if enabled
       if (settings.shuffle) {
         processed = shuffleArray(processed)
       }
 
       setWords(processed)
+      setOptionPool(optionCandidates)
     }
 
     fetchWords()
@@ -85,10 +107,8 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
 
     const commonMistakes = mistakes?.map(m => m.wrong_answer) || []
 
-    // Get other words from the set for distractors
-    const otherWords = words
-      .filter(w => w.id !== currentWord.id && w.word2 !== correctAnswer)
-      .map(w => w.word2)
+    // Get other words from de volledige set voor opties
+    const otherWords = optionPool.filter(opt => opt !== correctAnswer)
 
     // Build options: correct + smart mix
     const distractors: string[] = []

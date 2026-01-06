@@ -60,5 +60,15 @@ export interface StudySettings {
   caseSensitive: boolean
   accentSensitive: boolean
   shuffle: boolean
-    retryMistakes?: boolean
+  retryMistakes?: boolean
+  /**
+   * Optional lijst van woord IDs om te oefenen. Wanneer gezet worden alleen deze
+   * woorden geladen in alle oefenmodi. Handig voor bereik- of handmatige selectie.
+   */
+  selectedWordIds?: number[]
+  /** Onthoudt welke selectie-mode werd gekozen (all | range | custom). */
+  selectionMode?: 'all' | 'range' | 'custom'
+  /** Originele range (1-based) zodat we later dezelfde selectie opnieuw kunnen toepassen. */
+  rangeStart?: number
+  rangeEnd?: number
 }
