@@ -1,5 +1,5 @@
--- Create changelog_entries table for version management
-CREATE TABLE changelog_entries (
+-- Create changelog_entries table for version management (if it doesn't exist)
+CREATE TABLE IF NOT EXISTS changelog_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   version TEXT NOT NULL UNIQUE,
   release_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -11,12 +11,18 @@ CREATE TABLE changelog_entries (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create index on release_date for sorting
-CREATE INDEX idx_changelog_release_date ON changelog_entries(release_date DESC);
-CREATE INDEX idx_changelog_version ON changelog_entries(version);
+-- Create indexes (if they don't exist)
+CREATE INDEX IF NOT EXISTS idx_changelog_release_date ON changelog_entries(release_date DESC);
+CREATE INDEX IF NOT EXISTS idx_changelog_version ON changelog_entries(version);
 
--- Enable RLS
+-- Enable RLS (if not already enabled)
 ALTER TABLE changelog_entries ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist to recreate them
+DROP POLICY IF EXISTS "Enable read access for all users" ON changelog_entries;
+DROP POLICY IF EXISTS "Disable insert for all" ON changelog_entries;
+DROP POLICY IF EXISTS "Disable update for all" ON changelog_entries;
+DROP POLICY IF EXISTS "Disable delete for all" ON changelog_entries;
 
 -- Public read access (anyone can view changelog)
 CREATE POLICY "Enable read access for all users" ON changelog_entries
@@ -32,7 +38,7 @@ CREATE POLICY "Disable update for all" ON changelog_entries
 CREATE POLICY "Disable delete for all" ON changelog_entries
   FOR DELETE USING (false);
 
--- Insert initial changelog entries
+-- Insert initial changelog entries (or update if they already exist)
 INSERT INTO changelog_entries (version, release_date, type, title, description, highlights)
 VALUES
   (
@@ -66,5 +72,13 @@ VALUES
     'Quick-O is live! 🎉',
     'Welkom bij Quick-O! Een manier om woordjes op een leuke en effectieve manier te leren. Met flashcards, typing, en multiple choice - kies zelf wat het beste voor jou werkt.',
     ARRAY['Leer woordjes op je eigen tempo', 'Volg je voortgang', 'Deel woordensets met vrienden']
-  );
+  )
+ON CONFLICT (version) DO UPDATE SET
+  release_date = EXCLUDED.release_date,
+  type = EXCLUDED.type,
+  title = EXCLUDED.title,
+  description = EXCLUDED.description,
+  highlights = EXCLUDED.highlights,
+  updated_at = NOW();
+
 
