@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
-import { BookOpen, Plus, Trophy, Users } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Users, History } from 'lucide-react'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
 import { Analytics } from '@vercel/analytics/react'
@@ -13,6 +13,7 @@ import AboutPage from './components/AboutPage'
 import CookieConsent from './components/CookieConsent'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import ChangelogModal from './components/ChangelogModal'
 
 // Lazy load modals voor minder initial load
 const CreateSetModal = lazy(() => import('./components/CreateSetModal'))
@@ -46,6 +47,8 @@ function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
     const [showEditProfile, setShowEditProfile] = useState(false)
+  const [showChangelog, setShowChangelog] = useState(false)
+  const [unreadUpdates, setUnreadUpdates] = useState(0)
   const [editingSet, setEditingSet] = useState<VocabSet | null>(null)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null)
@@ -129,6 +132,28 @@ function App() {
       })()
     }
   }, [])
+
+  // Track unread changelog updates
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      try {
+        const lastViewed = localStorage.getItem(`changelog-viewed-${user.id}`)
+        const lastViewedTime = lastViewed ? new Date(lastViewed) : new Date(0)
+        
+        const { data, error } = await supabase
+          .from('changelog_entries')
+          .select('id')
+          .gt('release_date', lastViewedTime.toISOString())
+
+        if (!error && data) {
+          setUnreadUpdates(data.length)
+        }
+      } catch (err) {
+        console.error('Error checking updates:', err)
+      }
+    })()
+  }, [user])
 
   // Presence: track how many users have the app open
   useEffect(() => {
@@ -334,6 +359,28 @@ function App() {
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
+        {/* Auth Header Controls (mobile-friendly) */}
+        <div className="md:absolute md:top-4 md:left-4 md:z-20 flex gap-2 mb-4 md:mb-0 transition-all duration-300">
+          <button
+            onClick={() => {
+              setShowChangelog(true)
+              if (user) {
+                localStorage.setItem(`changelog-viewed-${user.id}`, new Date().toISOString())
+                setUnreadUpdates(0)
+              }
+            }}
+            className="relative px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur inline-flex items-center gap-2"
+            title="Bekijk changelog en updates"
+          >
+            <History className="w-5 h-5" />
+            <span className="hidden md:inline text-sm">Updates</span>
+            {unreadUpdates > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {unreadUpdates > 9 ? '9+' : unreadUpdates}
+              </span>
+            )}
+          </button>
+        </div>
         {/* Auth Header Controls (mobile-friendly) */}
         <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0 transition-all duration-300">
           <div className="flex w-full md:w-auto justify-end">
@@ -624,6 +671,11 @@ function App() {
           </div>
         </footer>
       </div>
+
+      {/* Changelog Modal */}
+      {showChangelog && (
+        <ChangelogModal onClose={() => setShowChangelog(false)} />
+      )}
 
       {/* Cookie Consent Banner */}
       <CookieConsent onPrivacyClick={handleNavigateToPrivacy} />

@@ -72,3 +72,14 @@ export interface StudySettings {
   rangeStart?: number
   rangeEnd?: number
 }
+
+export interface ChangelogEntry {
+  id: string
+  version: string
+  release_date: string
+  type: 'feature' | 'bugfix' | 'breaking' | 'performance' | 'docs'
+  title: string
+  description: string
+  highlights?: string[]
+  created_at?: string
+}
