@@ -36,26 +36,35 @@ CREATE POLICY "Disable delete for all" ON changelog_entries
 INSERT INTO changelog_entries (version, release_date, type, title, description, highlights)
 VALUES
   (
+    '1.2.0',
+    NOW(),
+    'feature',
+    'Volg je updates',
+    'Je ziet nu direct welke nieuwe dingen er in Quick-O zijn! Een mooie overzicht van alle versies met alles wat er veranderd is.',
+    ARRAY['Updates knop linksboven in de app', 'Rode indicator als je iets gemist hebt', 'Overzicht van alles wat voorbij is geweest']
+  ),
+  (
     '1.1.1',
-    NOW() - INTERVAL '1 hour',
+    NOW() - INTERVAL '1 day',
     'bugfix',
-    'TypeScript Build Error Fix',
-    'Fixed missing set_id field in Learn mode query that was causing TypeScript compilation errors. This ensures the learn mode properly fetches all required word data.',
-    ARRAY['Fixed set_id in Learn mode Supabase query', 'Build now passes TypeScript checks']
+    'Kleine fout opgelost',
+    'We hebben een klein probleempje uit de weg geruimd dat soms voor problemen zorgde. Alles werkt nu nog beter.',
+    ARRAY['App werkt nu soepeler', 'Alles is netjes opgelost']
   ),
   (
     '1.1.0',
-    NOW() - INTERVAL '1 day',
+    NOW() - INTERVAL '3 days',
     'feature',
-    'Multi-Range Selection & Learn Mode Improvements',
-    'Added advanced study selection with multiple range support. Users can now select words from multiple ranges (e.g., 100-200, 250-300). Learn mode now properly detects selection changes and rebuilds word lists accordingly.',
-    ARRAY['Multi-range word selection (addRange/removeRange)', 'Learn mode change detection with prevSettingsRef', 'Multiple choice options from full word pool', 'Improved selection UX with clear visual feedback', 'Fixed Learn mode dependency tracking']
+    'Selecteer meerdere bereiken tegelijk',
+    'Je kunt nu heel flexibel kiezen welke woorden je wilt oefenen. Wil je woord 100-200 EN 250-300? Geen probleem!',
+    ARRAY['Kies meerdere bereiken tegelijk', 'Je selectie wordt meteen opgeslagen', 'Learn mode werkt nu beter met je keuzes']
   ),
   (
     '1.0.0',
-    NOW() - INTERVAL '5 days',
+    NOW() - INTERVAL '1 week',
     'feature',
-    'Initial Release',
-    'Quick-O official launch! A comprehensive vocabulary learning platform with multiple study modes, progress tracking, and collaborative learning features.',
-    ARRAY['Flashcard mode with adaptive spacing', 'Typing mode for practical writing', 'Multiple choice with instant feedback', 'Shared word sets with link codes', 'Study progress tracking', 'Responsive design for all devices']
+    'Quick-O is live! 🎉',
+    'Welkom bij Quick-O! Een manier om woordjes op een leuke en effectieve manier te leren. Met flashcards, typing, en multiple choice - kies zelf wat het beste voor jou werkt.',
+    ARRAY['Leer woordjes op je eigen tempo', 'Volg je voortgang', 'Deel woordensets met vrienden']
   );
+

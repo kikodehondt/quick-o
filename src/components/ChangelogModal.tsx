@@ -171,30 +171,9 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-                <h4 className="font-bold text-blue-900 mb-4">🎯 In Ontwikkeling</h4>
-                <ul className="space-y-3 text-blue-800">
-                  <li className="flex items-start gap-2">
-                    <span className="text-lg">→</span>
-                    <span><strong>Advanced Analytics:</strong> Gedetailleerde statistieken over je leervoortgang</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-lg">→</span>
-                    <span><strong>Spaced Repetition:</strong> Intelligente algoritmische herhaling van moeilijke woorden</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-lg">→</span>
-                    <span><strong>Audio Pronunciation:</strong> Luister naar correcte uitspraak van woorden</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-lg">→</span>
-                    <span><strong>Collaborative Sets:</strong> Werk samen aan woordensets met vrienden</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-lg">→</span>
-                    <span><strong>Leaderboards:</strong> Competitie met andere gebruikers</span>
-                  </li>
-                </ul>
+              <div className="bg-blue-50 rounded-xl p-6 border border-blue-100 text-center">
+                <h4 className="font-bold text-blue-900 mb-2">🚀 Roadmap</h4>
+                <p className="text-blue-800">Nog niets ingevuld - we werken eraan!</p>
               </div>
             </div>
           )}
