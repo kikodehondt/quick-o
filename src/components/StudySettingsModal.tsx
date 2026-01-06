@@ -46,13 +46,13 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
       try {
         const { data, error } = await supabase
           .from('word_pairs')
-          .select('id, word1, word2')
+          .select('id, word1, word2, set_id')
           .eq('set_id', set.id!)
           .order('created_at', { ascending: true })
 
         if (!isMounted) return
         if (error) throw error
-        const list = data || []
+        const list = (data || []) as WordPair[]
         setWords(list)
         if (list.length > 0) {
           setRanges([{ id: '0', start: 1, end: list.length }])
