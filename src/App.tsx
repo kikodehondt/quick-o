@@ -370,8 +370,8 @@ function App() {
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
       <div className="max-w-6xl mx-auto">
-        {/* Auth Header Controls (mobile-friendly) */}
-        <div className="md:absolute md:top-4 md:left-4 md:z-20 flex gap-2 mb-4 md:mb-0 transition-all duration-300">
+        {/* Updates button - desktop only (left side) */}
+        <div className="hidden md:flex md:absolute md:top-4 md:left-4 md:z-20 gap-2 transition-all duration-300">
           <button
             onClick={() => {
               setShowChangelog(true)
@@ -384,7 +384,7 @@ function App() {
             title="Bekijk changelog en updates"
           >
             <History className="w-5 h-5" />
-            <span className="hidden md:inline text-sm">Updates</span>
+            <span className="text-sm">Updates</span>
             {unreadUpdates > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {unreadUpdates > 9 ? '9+' : unreadUpdates}
@@ -394,7 +394,26 @@ function App() {
         </div>
         {/* Auth Header Controls (mobile-friendly) */}
         <div className="md:absolute md:top-4 md:right-4 md:z-20 w-full md:w-auto flex flex-col md:block mb-4 md:mb-0 transition-all duration-300">
-          <div className="flex w-full md:w-auto justify-end">
+          <div className="flex w-full md:w-auto justify-end gap-2">
+            {/* Updates button - mobile only (next to profile) */}
+            <button
+              onClick={() => {
+                setShowChangelog(true)
+                setUnreadUpdates(0)
+                if (user) {
+                  localStorage.setItem(`changelog-viewed-${user.id}`, new Date().toISOString())
+                }
+              }}
+              className="md:hidden relative p-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all backdrop-blur inline-flex items-center justify-center"
+              title="Bekijk changelog en updates"
+            >
+              <History className="w-5 h-5" />
+              {unreadUpdates > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {unreadUpdates > 9 ? '9+' : unreadUpdates}
+                </span>
+              )}
+            </button>
             {!user ? (
               <button
                 onClick={() => setShowLogin(true)}
