@@ -2,7 +2,7 @@ import { BookOpen, Share2, Zap, Lock, BarChart3, Users, Code2, Github, Linkedin,
 
 export default function AboutPage() {
   return (
-    <div id="about-section" className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+    <div id="about-section" className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden">
       <style>{`
         html {
           scroll-behavior: smooth;

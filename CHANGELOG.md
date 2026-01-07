@@ -5,6 +5,18 @@ All notable changes to Quick-O will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-07
+
+### Added
+- Changelog als mooie Timeline (framer-motion) onder "Alle versies".
+
+### Improved
+- Grotere Changelog modal met vloeiende animaties en consistente emerald/teal-styling.
+- Overlays geharmoniseerd voor een consistent gevoel door de app.
+
+### Fixed
+- "Over Quick-O"-sectie heeft geen eigen (donkere) achtergrond meer; gebruikt nu de pagina-achtergrond.
+
 ## [1.2.1] - 2026-01-07
 
 ### Fixed
