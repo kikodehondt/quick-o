@@ -5,6 +5,11 @@ All notable changes to Quick-O will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-01-07
+
+### Fixed
+- Voortgangsbalk (similarity) in Leren en Typen houdt nu rekening met je instellingen voor hoofdletters en accenten. Als je hebt ingesteld dat die genegeerd mogen worden, wordt de balk ook 100% bij correcte antwoorden.
+
 ## [1.2.0] - 2026-01-07
 
 ### Added
