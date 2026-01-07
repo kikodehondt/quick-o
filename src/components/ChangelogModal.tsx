@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, ExternalLink, Check, AlertCircle, Zap, Bug } from 'lucide-react'
 import { supabase, ChangelogEntry } from '../lib/supabase'
+import { Timeline } from './ui/timeline'
 
 interface ChangelogModalProps {
   onClose: () => void
@@ -147,27 +148,39 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
               </div>
             ) : null
           ) : activeTab === 'all' ? (
-            <div className="space-y-4">
-              {allVersions.map((entry) => {
-                const config = typeConfig[entry.type as keyof typeof typeConfig]
-                return (
-                  <div key={entry.id} className={`${config.bg} rounded-xl p-4 border border-gray-100`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="font-bold text-gray-800">v{entry.version}</h4>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {new Date(entry.release_date).toLocaleDateString('nl-NL')}
-                        </p>
+            <div className="-mx-8">
+              <Timeline
+                data={allVersions.map((entry) => ({
+                  title: `v${entry.version}`,
+                  content: (
+                    <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="text-xs text-gray-600">
+                            {new Date(entry.release_date).toLocaleDateString('nl-NL', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${typeConfig[entry.type as keyof typeof typeConfig].color}`}>
+                          {typeConfig[entry.type as keyof typeof typeConfig].label}
+                        </span>
                       </div>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${config.color}`}>
-                        {config.label}
-                      </span>
+                      <h5 className="font-semibold text-gray-800 mb-1">{entry.title}</h5>
+                      <p className="text-sm text-gray-700 mb-2">{entry.description}</p>
+                      {entry.highlights && entry.highlights.length > 0 && (
+                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                          {entry.highlights.map((h, i) => (
+                            <li key={i}>{h}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    <h5 className="font-semibold text-gray-800 mb-1">{entry.title}</h5>
-                    <p className="text-sm text-gray-700">{entry.description}</p>
-                  </div>
-                )
-              })}
+                  ),
+                }))}
+              />
             </div>
           ) : (
             <div className="space-y-4">
