@@ -425,7 +425,12 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   })()
   const masteredUnique = Math.max(totalUniqueWords - remainingUnique, 0)
   const progress = totalUniqueWords > 0 ? (masteredUnique / totalUniqueWords) * 100 : 0
-  const similarity = userAnswer ? calculateSimilarity(userAnswer, currentWord.word2) : 0
+  const similarity = userAnswer
+    ? calculateSimilarity(userAnswer, currentWord.word2, {
+        caseSensitive: settings.caseSensitive,
+        accentSensitive: settings.accentSensitive,
+      })
+    : 0
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>

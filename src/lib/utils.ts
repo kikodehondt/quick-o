@@ -68,9 +68,24 @@ export function checkAnswer(
 }
 
 // Calculate similarity percentage (for partial credit or hints)
-export function calculateSimilarity(str1: string, str2: string): number {
-  const longer = str1.length > str2.length ? str1 : str2;
-  const shorter = str1.length > str2.length ? str2 : str1;
+export function calculateSimilarity(
+  str1: string,
+  str2: string,
+  options?: { caseSensitive?: boolean; accentSensitive?: boolean }
+): number {
+  // If options provided, normalize inputs to match configured sensitivity
+  const useCaseSensitive = options?.caseSensitive ?? true;
+  const useAccentSensitive = options?.accentSensitive ?? true;
+
+  const a = options
+    ? normalizeString(str1, !useAccentSensitive, !useCaseSensitive)
+    : str1;
+  const b = options
+    ? normalizeString(str2, !useAccentSensitive, !useCaseSensitive)
+    : str2;
+
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
   
   if (longer.length === 0) return 100;
   
