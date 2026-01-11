@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { X, FileText, Save, ClipboardCopy, Plus, Trash2, Upload, Info } from 'lucide-react'
 import { supabase, generateLinkCode } from '../lib/supabase'
 import { parseVocabText } from '../lib/utils'
@@ -35,7 +35,21 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   const [existingSchools, setExistingSchools] = useState<string[]>([])
   const [existingDirections, setExistingDirections] = useState<string[]>([])
   const [existingTags, setExistingTags] = useState<string[]>([])
-  const [tags, setTags] = useState<string[]>([]) // New state array for tags
+  const [tags, setTags] = useState<string[]>([]) // New state array for tags 
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [isProcessingFile, setIsProcessingFile] = useState(false)
+
+  const [progressStats, setProgressStats] = useState({ words: 0, chars: 0 })
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  // Cleanup on unmount to cancel any ongoing AI request
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   // Fetch metadata on mount
   useState(() => {
@@ -291,6 +305,152 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
     }
   }
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+
+    if (!file.type.includes('pdf') && !file.type.includes('image') && !file.type.includes('text')) {
+      setError('Alleen PDF, afbeeldingen of tekstbestanden worden ondersteund.')
+      return
+    }
+
+    if (file.size > 4 * 1024 * 1024) { // 4MB limit
+      setError('Bestand is te groot (max 4MB).')
+      return
+    }
+
+    setIsProcessingFile(true)
+    setProgressStats({ words: 0, chars: 0 })
+    setError('')
+    setCopyMessage('Verbinden met AI...')
+    setVocabText('') // Clear previous text
+
+    // Cancel previous request if any
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Create new controller for this request
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    try {
+      const dynamicPrompt = promptText
+
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const base64 = reader.result as string
+
+        try {
+          const response = await fetch('/api/generate-words', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileBase64: base64,
+              mimeType: file.type,
+              prompt: dynamicPrompt,
+              language1,
+              language1,
+              language2
+            }),
+            signal: controller.signal
+          })
+
+          if (!response.ok) {
+            const contentType = response.headers.get('content-type')
+            if (contentType && contentType.includes('application/json')) {
+              const data = await response.json()
+              throw new Error(data.error || 'Fout bij verwerken bestand')
+            } else {
+              const text = await response.text()
+              const errText = text.slice(0, 100)
+              throw new Error(`Server Error (${response.status}): ${errText}`)
+            }
+          }
+
+          if (!response.body) throw new Error('Geen response body')
+
+          // Streaming Logic
+          const streamReader = response.body.getReader()
+          const decoder = new TextDecoder()
+
+          setCopyMessage('AI is aan het schrijfen...')
+
+          let fullTextBuffer = ''
+
+          while (true) {
+            const { done, value } = await streamReader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            fullTextBuffer += chunk
+
+            // Update stats for "Real Progress"
+            const wordCount = (fullTextBuffer.match(/\|\|/g) || []).length // Count pairs as proxy for progress
+            setProgressStats({
+              chars: fullTextBuffer.length,
+              words: wordCount // Actually counts separators, good proxy for "items found"
+            })
+          }
+
+          // Final Cleanup
+          let cleanText = fullTextBuffer
+            .replace('⚠️ OUTPUT IS TE GROOT - SAVE AS TXT FILE ⚠️', '')
+            .replace('OUTPUT IS TE GROOT - SAVE AS TXT FILE', '')
+            .replace('Kopieer de volledige output hieronder en save als vocab.txt', '')
+            // Regex to remove any lines starting with warnings if they vary slightly
+            .replace(/^⚠️? ?OUTPUT IS TE GROOT.*$/gm, '')
+            .replace(/^Kopieer de volledige output.*$/gm, '')
+            .trim()
+
+          if (cleanText.includes('[TRUNCATED_WARNING]')) {
+            cleanText = cleanText.replace('[TRUNCATED_WARNING]', '')
+            setError('⚠️ Let op: De AI output is mogelijk incompleet (Token limiet bereikt). Controleer de laatste regels.')
+          }
+
+          setVocabText(cleanText)
+          if (!error) setCopyMessage('✅ Klaar!')
+
+        } catch (apiError: any) {
+          console.error('API Error:', apiError)
+          const errorMsg = apiError.message || apiError.error || 'Onbekende fout'
+
+          if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('limiet')) {
+            setError('Gratis AI Limiet Bereikt. Probeer het later opnieuw of kopieer de prompt en gebruik ChatGPT handmatig.')
+          } else {
+            setError(`AI Fout: ${errorMsg}. Contacteer contact@quick-o.be als dit blijft gebeuren.`)
+          }
+        } finally {
+          setIsProcessingFile(false)
+          setProgressStats({ words: 0, chars: 0 })
+        }
+      }
+      reader.onerror = () => {
+        setError('Fout bij lezen bestand')
+        setIsProcessingFile(false)
+      }
+      reader.readAsDataURL(file)
+
+    } catch (err: any) {
+      console.error('File Drop Error:', err)
+      setError('Er ging iets mis bij het verwerken.')
+      setIsProcessingFile(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <div
@@ -440,7 +600,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 }`}
             >
               <FileText className="w-4 h-4 inline mr-2" />
-              Tekst Invoer
+              Tekst / PDF Invoer
             </button>
             <button
               type="button"
@@ -486,45 +646,132 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mb-2 gap-2">
+              <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-semibold text-gray-700">
                   <FileText className="w-4 h-4 inline mr-2" />
                   Woordjes Tekst *
                 </label>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(promptText)
-                      setCopyMessage('Prompt gekopieerd naar klembord')
-                      setTimeout(() => setCopyMessage(''), 2500)
-                    } catch (err) {
-                      console.error('Clipboard error', err)
-                      setCopyMessage('Kopiëren mislukt, selecteer en kopieer handmatig')
-                      setTimeout(() => setCopyMessage(''), 4000)
-                    }
-                  }}
-                  className="px-3 py-2 rounded-lg border-2 border-gray-300 bg-white hover:border-gray-400 hover:shadow text-sm font-semibold text-gray-700 transition-colors flex items-center gap-2"
-                  title="Kopieer instructie-prompt voor AI"
-                >
-                  <ClipboardCopy className="w-4 h-4" />
-                  Prompt kopiëren
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    className="px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors flex items-center gap-2"
+                    title="Upload PDF of afbeelding"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Bestand
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(promptText)
+                        setCopyMessage('Prompt gekopieerd naar klembord')
+                        setTimeout(() => setCopyMessage(''), 2500)
+                      } catch (err) {
+                        console.error('Clipboard error', err)
+                        setCopyMessage('Kopiëren mislukt, selecteer en kopieer handmatig')
+                        setTimeout(() => setCopyMessage(''), 4000)
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors flex items-center gap-2"
+                    title="Kopieer instructie-prompt voor AI"
+                  >
+                    <ClipboardCopy className="w-4 h-4" />
+                    Prompt kopiëren
+                  </button>
+                </div>
               </div>
-              <textarea
-                value={vocabText}
-                onChange={(e) => setVocabText(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all font-mono text-sm"
-                rows={10}
-                placeholder={`${language1} || ${language2} ||| ${language1}2 || ${language2}2`}
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="file-upload"
+                className="hidden"
+                accept=".pdf,image/*,.txt"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    // Manually trigger drop handler logic with a fake drop event
+                    // Or reuse logic. Let's create a reusable function for file processing
+                    // actually better to just refactor slightly or create a synthetic event
+                    const file = e.target.files[0]
+                    const dataTransfer = new DataTransfer()
+                    dataTransfer.items.add(file)
+                    handleDrop({
+                      preventDefault: () => { },
+                      dataTransfer
+                    } as unknown as React.DragEvent)
+                  }
+                }}
               />
+
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className="relative"
+              >
+                <textarea
+                  value={vocabText}
+                  onChange={(e) => setVocabText(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl border-2 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none transition-all font-mono text-sm min-h-[250px] ${isDragOver
+                    ? 'border-emerald-500 ring-2 ring-emerald-100 bg-emerald-50'
+                    : 'border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
+                    }`}
+                  rows={10}
+                  placeholder={
+                    isDragOver
+                      ? "Laat los om bestand te uploaden..."
+                      : `Sleep je PDF hierin OF plak tekst:\n\n${language1} || ${language2} ||| ${language1}2 || ${language2}2`
+                  }
+                />
+
+                {/* Overlay while processing, showing REAL progress stats */
+                  isProcessingFile && (
+                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center border-2 border-emerald-500 z-10 px-8 transition-all duration-500">
+                      {progressStats.words === 0 ? (
+                        <>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-3"></div>
+                          <h3 className="font-bold text-lg text-emerald-900 mb-1">Verbinden met AI...</h3>
+                          <p className="text-sm text-emerald-600">Document wordt geanalyseerd</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="animate-pulse bg-emerald-100 p-4 rounded-full mb-3">
+                            <FileText className="w-8 h-8 text-emerald-600" />
+                          </div>
+                          <h3 className="font-bold text-lg text-emerald-900 mb-1">AI schrijft woordjes...</h3>
+                          <div className="flex gap-4 text-sm text-emerald-700 mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
+                              <span className="font-bold text-emerald-600">{progressStats.words}</span> woorden
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      <p className="text-xs text-center text-gray-500 mt-8 absolute bottom-4 px-4">
+                        ⚠️ Sluit dit venster <strong>NIET</strong>.<br />
+                        Dit kan enkele minuten duren voor grote bestanden.
+                      </p>
+                    </div>
+                  )}
+
+                {!isProcessingFile && isDragOver && (
+                  <div className="absolute inset-0 bg-emerald-50/50 backdrop-blur-sm rounded-xl flex items-center justify-center border-2 border-emerald-500 pointer-events-none z-10">
+                    <div className="bg-white p-4 rounded-full shadow-lg">
+                      <Upload className="w-8 h-8 text-emerald-600" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <p className="text-sm text-gray-500 mt-2">
                 Formaat: <code className="bg-gray-100 px-2 py-1 rounded">{language1} || {language2} ||| {language1}2 || {language2}2</code>
                 <br />
                 <span className="text-xs">Gebruik <strong>||</strong> om talen te scheiden, <strong>|||</strong> om paren te scheiden en <strong>|</strong> voor meerdere vertalingen (bijv: hond || perro|can)</span>
               </p>
-              {copyMessage && (
-                <p className="text-sm text-green-600 mt-2">{copyMessage}</p>
+              {copyMessage && !copyMessage.includes('Verbinden') && !copyMessage.includes('schrijven') && (
+                <p className={`text-sm mt-2 ${copyMessage.includes('Fout') || copyMessage.includes('mislukt') ? 'text-red-600' : 'text-green-600'}`}>{copyMessage}</p>
               )}
             </div>
           )}
