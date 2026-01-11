@@ -41,20 +41,20 @@ export default async function handler(req: any, res: any) {
         ];
 
         let streamResult;
-        // Model strategy based on available models:
-        // 1. gemini-3-flash-preview (User request)
-        // 2. gemini-2.5-flash (Latest stable/preview)
-        // 3. gemini-2.0-flash (Reliable fallback)
+        // Model strategy based on speed/stability:
+        // 1. gemini-2.0-flash (Fastest & Stable) - Best for preventing Vercel timeouts
+        // 2. gemini-2.5-flash (Newer, slightly better quality?)
+        // 3. gemini-3-flash-preview (Highest quality but likely slowest)
 
         try {
-            console.log("Attempting gemini-3-flash-preview...");
+            console.log("Attempting gemini-2.0-flash (fastest)...");
             streamResult = await ai.models.generateContentStream({
-                model: 'gemini-3-flash-preview',
+                model: 'gemini-2.0-flash',
                 contents,
                 config: { temperature: 0.1 }
             });
         } catch (e: any) {
-            console.warn("gemini-3-flash-preview failed:", e.message);
+            console.warn("gemini-2.0-flash failed:", e.message);
 
             try {
                 console.log("Falling back to gemini-2.5-flash...");
@@ -65,18 +65,18 @@ export default async function handler(req: any, res: any) {
                 });
             } catch (fallbackError: any) {
                 console.warn("gemini-2.5-flash failed:", fallbackError.message);
-                console.log("Falling back to gemini-2.0-flash...");
+                console.log("Falling back to gemini-3-flash-preview...");
                 // Last resort
                 try {
                     streamResult = await ai.models.generateContentStream({
-                        model: 'gemini-2.0-flash',
+                        model: 'gemini-3-flash-preview',
                         contents,
                         config: { temperature: 0.1 }
                     });
                 } catch (finalError: any) {
                     console.error("All models failed:", finalError.message);
                     if (finalError.message.includes('404')) {
-                        throw new Error("Geen enkel AI model (3.0, 2.5, 2.0) is beschikbaar voor jouw API key.");
+                        throw new Error("Geen enkel AI model (2.0, 2.5, 3.0) is beschikbaar voor jouw API key.");
                     }
                     throw finalError;
                 }
@@ -97,6 +97,7 @@ export default async function handler(req: any, res: any) {
             console.log("Is iterable?", typeof streamResult[Symbol.asyncIterator] === 'function');
         }
 
+        // @ts-ignore - Handle SDK version differences where stream might be the object itself
         const streamSource = streamResult.stream || streamResult;
 
         for await (const chunk of streamSource) {
