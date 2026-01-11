@@ -1,29 +1,33 @@
 import { GoogleGenAI } from '@google/genai';
 
 export const config = {
-    maxDuration: 60,
-    api: {
-        bodyParser: {
-            sizeLimit: '4mb',
-        },
-    },
+    runtime: 'edge', // Enable Edge Runtime for longer streaming limits
 };
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+            status: 405,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     try {
-        const { fileBase64, mimeType, prompt, language1, language2 } = req.body;
+        const { fileBase64, mimeType, prompt, language1, language2 } = await req.json();
 
         if (!fileBase64 || !prompt) {
-            return res.status(400).json({ error: 'Missing file or prompt' });
+            return new Response(JSON.stringify({ error: 'Missing file or prompt' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         if (!process.env.GEMINI_KEY) {
             console.error('Missing GEMINI_KEY environment variable');
-            return res.status(500).json({ error: 'Server configuration error' });
+            return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_KEY });
@@ -40,108 +44,100 @@ export default async function handler(req: any, res: any) {
             }
         ];
 
-        let streamResult;
-        // Model strategy based on speed/stability:
-        // 1. gemini-2.0-flash (Fastest & Stable) - Best for preventing Vercel timeouts
-        // 2. gemini-2.5-flash (Newer, slightly better quality?)
-        // 3. gemini-3-flash-preview (Highest quality but likely slowest)
+        // Create a streaming response
+        const stream = new ReadableStream({
+            async start(controller) {
+                const encoder = new TextEncoder();
 
-        try {
-            console.log("Attempting gemini-2.0-flash (fastest)...");
-            streamResult = await ai.models.generateContentStream({
-                model: 'gemini-2.0-flash',
-                contents,
-                config: { temperature: 0.1 }
-            });
-        } catch (e: any) {
-            console.warn("gemini-2.0-flash failed:", e.message);
-
-            try {
-                console.log("Falling back to gemini-2.5-flash...");
-                streamResult = await ai.models.generateContentStream({
-                    model: 'gemini-2.5-flash',
-                    contents,
-                    config: { temperature: 0.1 }
-                });
-            } catch (fallbackError: any) {
-                console.warn("gemini-2.5-flash failed:", fallbackError.message);
-                console.log("Falling back to gemini-3-flash-preview...");
-                // Last resort
                 try {
-                    streamResult = await ai.models.generateContentStream({
-                        model: 'gemini-3-flash-preview',
-                        contents,
-                        config: { temperature: 0.1 }
-                    });
-                } catch (finalError: any) {
-                    console.error("All models failed:", finalError.message);
-                    if (finalError.message.includes('404')) {
-                        throw new Error("Geen enkel AI model (2.0, 2.5, 3.0) is beschikbaar voor jouw API key.");
+                    let streamResult;
+                    // Model strategy based on speed/stability:
+                    // 1. gemini-2.0-flash (Fastest & Stable)
+                    // 2. gemini-2.5-flash
+                    // 3. gemini-3-flash-preview
+
+                    try {
+                        console.log("Attempting gemini-2.0-flash (fastest)...");
+                        streamResult = await ai.models.generateContentStream({
+                            model: 'gemini-2.0-flash',
+                            contents,
+                            config: { temperature: 0.1 }
+                        });
+                    } catch (e: any) {
+                        console.warn("gemini-2.0-flash failed:", e.message);
+
+                        try {
+                            console.log("Falling back to gemini-2.5-flash...");
+                            streamResult = await ai.models.generateContentStream({
+                                model: 'gemini-2.5-flash',
+                                contents,
+                                config: { temperature: 0.1 }
+                            });
+                        } catch (fallbackError: any) {
+                            console.warn("gemini-2.5-flash failed:", fallbackError.message);
+                            console.log("Falling back to gemini-3-flash-preview...");
+                            try {
+                                streamResult = await ai.models.generateContentStream({
+                                    model: 'gemini-3-flash-preview',
+                                    contents,
+                                    config: { temperature: 0.1 }
+                                });
+                            } catch (finalError: any) {
+                                console.error("All models failed:", finalError.message);
+                                throw new Error("Geen enkel AI model beschikbaar.");
+                            }
+                        }
                     }
-                    throw finalError;
+
+                    // @ts-ignore
+                    const streamSource = streamResult.stream || streamResult;
+
+                    for await (const chunk of streamSource) {
+                        let chunkText = '';
+
+                        if (typeof chunk.text === 'function') {
+                            chunkText = chunk.text();
+                        } else if (typeof chunk.text === 'string') {
+                            chunkText = chunk.text;
+                        } else if (chunk.candidates?.[0]?.content?.parts?.[0]?.text) {
+                            chunkText = chunk.candidates[0].content.parts[0].text;
+                        } else if (chunk.candidates?.[0]?.content?.parts) {
+                            chunkText = chunk.candidates[0].content.parts.map((p: any) => p.text).join('');
+                        }
+
+                        if (chunkText) {
+                            controller.enqueue(encoder.encode(chunkText));
+                        }
+
+                        const finishReason = chunk.candidates?.[0]?.finishReason;
+                        if (finishReason && finishReason !== 'STOP') {
+                            if (finishReason === 'MAX_TOKENS') {
+                                controller.enqueue(encoder.encode('\n\n[TRUNCATED_WARNING]'));
+                            }
+                        }
+                    }
+                    controller.close();
+
+                } catch (err: any) {
+                    console.error("Stream processing error:", err);
+                    const errorMsg = `Error: ${err.message}`;
+                    controller.enqueue(encoder.encode(errorMsg));
+                    controller.close();
                 }
             }
-        }
+        });
 
-        // Set headers for streaming
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        // Do not manually set Transfer-Encoding: chunked, let the server handle it
-
-        console.log("Stream started...");
-
-        // DEBUG: Check what we actually got back
-        if (streamResult) {
-            console.log("StreamResult type:", typeof streamResult);
-            console.log("StreamResult keys:", Object.keys(streamResult));
-            // Check if it's iterable directly
-            console.log("Is iterable?", typeof streamResult[Symbol.asyncIterator] === 'function');
-        }
-
-        // @ts-ignore - Handle SDK version differences where stream might be the object itself
-        const streamSource = streamResult.stream || streamResult;
-
-        for await (const chunk of streamSource) {
-            let chunkText = '';
-
-            // Handle different chunk formats for compatibility
-            if (typeof chunk.text === 'function') {
-                chunkText = chunk.text();
-            } else if (typeof chunk.text === 'string') {
-                chunkText = chunk.text;
-            } else if (chunk.candidates?.[0]?.content?.parts?.[0]?.text) {
-                chunkText = chunk.candidates[0].content.parts[0].text;
-            } else if (chunk.candidates?.[0]?.content?.parts) {
-                // Join all parts if multiple
-                chunkText = chunk.candidates[0].content.parts.map((p: any) => p.text).join('');
-            } else {
-                console.log("Received chunk with keys:", Object.keys(chunk));
+        return new Response(stream, {
+            headers: {
+                'Content-Type': 'text/plain; charset=utf-8',
             }
-
-            if (chunkText) {
-                res.write(chunkText);
-            }
-
-            // Check for truncation
-            const finishReason = chunk.candidates?.[0]?.finishReason;
-            if (finishReason && finishReason !== 'STOP') {
-                console.warn(`Stream finished with reason: ${finishReason}`);
-                if (finishReason === 'MAX_TOKENS') {
-                    res.write('\n\n[TRUNCATED_WARNING]');
-                }
-            }
-        }
-
-        res.end();
+        });
 
     } catch (error: any) {
-        console.error('Gemini API Error:', error);
-        // If headers already sent (streaming started), we can't send JSON error.
-        if (!res.headersSent) {
-            const msg = error.message || '';
-            if (msg.includes('429')) return res.status(429).json({ error: 'Gratis AI limiet bereikt.' });
-            return res.status(500).json({ error: 'Error processing document' });
-        } else {
-            res.end(); // Just end stream if error mid-way
-        }
+        console.error('Edge Handler Top-Level Error:', error);
+        return new Response(JSON.stringify({ error: error.message || 'Server Error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }
