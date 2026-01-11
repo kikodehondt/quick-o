@@ -139,8 +139,8 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
           <button
             onClick={() => setActiveTab('latest')}
             className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'latest'
-                ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
-                : 'text-emerald-700/70 hover:text-emerald-800'
+              ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
+              : 'text-emerald-700/70 hover:text-emerald-800'
               }`}
           >
             🆕 Wat is nieuw
@@ -148,8 +148,8 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
           <button
             onClick={() => setActiveTab('all')}
             className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'all'
-                ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
-                : 'text-emerald-700/70 hover:text-emerald-800'
+              ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
+              : 'text-emerald-700/70 hover:text-emerald-800'
               }`}
           >
             📋 Alle versies
@@ -157,8 +157,8 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
           <button
             onClick={() => setActiveTab('roadmap')}
             className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'roadmap'
-                ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
-                : 'text-emerald-700/70 hover:text-emerald-800'
+              ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
+              : 'text-emerald-700/70 hover:text-emerald-800'
               }`}
           >
             🚀 Roadmap
@@ -207,7 +207,7 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                         {typeConfig[latestVersion.type as keyof typeof typeConfig].label}
                       </span>
                     </div>
-                    <h4 className="text-xl font-semibold text-emerald-900 mb-3">{latestVersion.title}</h4>
+
                     <div className="text-emerald-800 mb-4 prose prose-emerald prose-sm max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {latestVersion.description}

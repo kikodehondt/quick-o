@@ -2,10 +2,8 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 try {
-    // Get current version from package.json (without 'v' prefix)
     const version = require('../package.json').version;
 
-    // Find the previous tag to determine commit range
     let prevTag = '';
     try {
         prevTag = execSync('git describe --tags --abbrev=0 HEAD^').toString().trim();
@@ -14,8 +12,6 @@ try {
     }
 
     const range = prevTag ? `${prevTag}..HEAD` : 'HEAD';
-
-    // Get commits with separator that's unlikely to appear in messages
     const separator = '|||COMMIT_SEP|||';
     const logs = execSync(`git log ${range} --pretty=format:"%s${separator}%b${separator}END" --no-merges`).toString().trim();
 
@@ -34,7 +30,6 @@ try {
         if (subject.startsWith('chore(release):')) continue;
         if (subject.includes('[skip ci]')) continue;
 
-        // Clean up the subject (remove conventional commit prefixes for display)
         let cleanSubject = subject
             .replace(/^feat:\s*/i, '')
             .replace(/^fix:\s*/i, '')
@@ -43,7 +38,6 @@ try {
             .replace(/^refactor:\s*/i, '')
             .replace(/^perf:\s*/i, '');
 
-        // Capitalize first letter
         cleanSubject = cleanSubject.charAt(0).toUpperCase() + cleanSubject.slice(1);
 
         const entry = {
@@ -51,7 +45,6 @@ try {
             description: body || null
         };
 
-        // Categorize based on conventional commit prefix
         if (subject.toLowerCase().startsWith('feat:') || subject.toLowerCase().startsWith('feature:')) {
             features.push(entry);
         } else if (subject.toLowerCase().startsWith('fix:')) {
@@ -61,14 +54,13 @@ try {
         }
     }
 
-    // Build the message
-    let message = `# 🎉 Versie ${version}\n\n`;
-    message += `Welkom bij de nieuwste versie van Quick-O! Hieronder vind je een overzicht van de verbeteringen en aanpassingen.\n\n`;
+    // New format: No top header (redundant with UI), H3 for items to make them "Titles"
+    let message = `Welkom bij de nieuwste versie van Quick-O! Hieronder vind je een overzicht van de verbeteringen en aanpassingen.\n\n`;
 
     if (features.length > 0) {
         message += `## ✨ Nieuwe Mogelijkheden\n\n`;
         for (const f of features) {
-            message += `**${f.title}**\n`;
+            message += `### ${f.title}\n`;
             if (f.description) {
                 message += `${f.description}\n`;
             }
@@ -79,7 +71,7 @@ try {
     if (fixes.length > 0) {
         message += `## 🐛 Opgeloste Problemen\n\n`;
         for (const f of fixes) {
-            message += `**${f.title}**\n`;
+            message += `### ${f.title}\n`;
             if (f.description) {
                 message += `${f.description}\n`;
             }
@@ -90,7 +82,7 @@ try {
     if (other.length > 0) {
         message += `## 🛠️ Overige Verbeteringen\n\n`;
         for (const o of other) {
-            message += `**${o.title}**\n`;
+            message += `### ${o.title}\n`;
             if (o.description) {
                 message += `${o.description}\n`;
             }
