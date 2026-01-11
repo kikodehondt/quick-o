@@ -4,6 +4,8 @@ import { supabase, ChangelogEntry, RoadmapTicket } from '../lib/supabase'
 import { fetchGitHubReleases, fetchGitHubIssues } from '../lib/github'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Timeline } from './ui/timeline'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface ChangelogModalProps {
   onClose: () => void
@@ -76,16 +78,16 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
     if (!text) return null
     // Split by the whole img tag, capturing it
     const parts = text.split(/(<img[^>]+src="[^"]+"[^>]*\/>)/g)
-    
+
     return parts.map((part, index) => {
       const imgMatch = part.match(/src="([^"]+)"/)
       if (part.startsWith('<img') && imgMatch) {
         return (
-          <img 
-            key={index} 
-            src={imgMatch[1]} 
-            alt="Feature preview" 
-            className="max-w-full h-auto rounded-lg border border-emerald-100 my-3 shadow-sm" 
+          <img
+            key={index}
+            src={imgMatch[1]}
+            alt="Feature preview"
+            className="max-w-full h-auto rounded-lg border border-emerald-100 my-3 shadow-sm"
             loading="lazy"
           />
         )
@@ -136,31 +138,28 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
         <div className="flex gap-1 px-8 pt-6 border-b border-emerald-100 bg-white/60">
           <button
             onClick={() => setActiveTab('latest')}
-            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${
-              activeTab === 'latest'
+            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'latest'
                 ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
                 : 'text-emerald-700/70 hover:text-emerald-800'
-            }`}
+              }`}
           >
             🆕 Wat is nieuw
           </button>
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${
-              activeTab === 'all'
+            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'all'
                 ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
                 : 'text-emerald-700/70 hover:text-emerald-800'
-            }`}
+              }`}
           >
             📋 Alle versies
           </button>
           <button
             onClick={() => setActiveTab('roadmap')}
-            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${
-              activeTab === 'roadmap'
+            className={`px-4 py-2 rounded-t-lg font-semibold transition-colors ${activeTab === 'roadmap'
                 ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50/60'
                 : 'text-emerald-700/70 hover:text-emerald-800'
-            }`}
+              }`}
           >
             🚀 Roadmap
           </button>
@@ -195,7 +194,7 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                   <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="text-2xl font-bold text-emerald-900">v{latestVersion.version}</h3>
+                        <h3 className="text-2xl font-bold text-emerald-900">{latestVersion.version}</h3>
                         <p className="text-sm text-emerald-700 mt-1">
                           {new Date(latestVersion.release_date).toLocaleDateString('nl-NL', {
                             year: 'numeric',
@@ -209,7 +208,11 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                       </span>
                     </div>
                     <h4 className="text-xl font-semibold text-emerald-900 mb-3">{latestVersion.title}</h4>
-                    <p className="text-emerald-800 mb-4">{latestVersion.description}</p>
+                    <div className="text-emerald-800 mb-4 prose prose-emerald prose-sm max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {latestVersion.description}
+                      </ReactMarkdown>
+                    </div>
                     {latestVersion.highlights && latestVersion.highlights.length > 0 && (
                       <ul className="space-y-2">
                         {latestVersion.highlights.map((highlight, idx) => (
@@ -257,7 +260,7 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                 >
                   <Timeline
                     data={allVersions.map((entry) => ({
-                      title: `v${entry.version}`,
+                      title: entry.version,
                       content: (
                         <motion.div
                           initial={{ opacity: 0, y: 8 }}
@@ -281,7 +284,11 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                             </span>
                           </div>
                           <h5 className="font-semibold text-emerald-900 mb-1">{entry.title}</h5>
-                          <p className="text-sm text-emerald-800 mb-2">{entry.description}</p>
+                          <div className="text-sm text-emerald-800 mb-2 prose prose-emerald prose-sm max-w-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {entry.description}
+                            </ReactMarkdown>
+                          </div>
                           {entry.highlights && entry.highlights.length > 0 && (
                             <ul className="list-disc list-inside text-sm text-emerald-800 space-y-1">
                               {entry.highlights.map((h, i) => (
@@ -351,7 +358,7 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                             <div className="text-emerald-800/80 text-sm leading-relaxed mb-2 block">
                               {parseDescription(ticket.description)}
                             </div>
-                            
+
                             {ticket.tags && ticket.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2 mt-2">
                                 {ticket.tags.map(tag => (
