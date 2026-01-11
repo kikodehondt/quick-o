@@ -1,0 +1,56 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+      - master # In case the main branch is named master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Ignore commits created by the bot to prevent infinite loops
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for git describe and history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version and push
+        id: bump_version
+        run: |
+          # Bump patch version (e.g. 1.0.0 -> 1.0.1)
+          # The message includes [skip ci] so this commit doesn't trigger the workflow again
+          npm version patch -m "chore(release): bump version to %s [skip ci]"
+          
+          # Push the new commit and the tag to the repository
+          git push --follow-tags
+          
+          # Extract the new version to use in the next step
+          echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.bump_version.outputs.NEW_VERSION }}
+          name: v${{ steps.bump_version.outputs.NEW_VERSION }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

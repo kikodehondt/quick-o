@@ -1,0 +1,241 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR STYLING - GLOBAAL
+   ======================================== */
+
+/* Firefox: dunne scrollbar met emerald groene kleur */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.3) transparent;
+}
+
+/* Chrome, Safari, Edge: custom scrollbar styling */
+*::-webkit-scrollbar {
+  width: 8px;  /* Dunne scrollbar (8px i.p.v. standaard 15px) */
+  height: 8px; /* Voor horizontale scrollbars */
+}
+
+/* Scrollbar track (achtergrond waar scrollbar overheen beweegt) */
+*::-webkit-scrollbar-track {
+  background: transparent; /* Onzichtbare achtergrond voor clean look */
+  border-radius: 10px;
+}
+
+/* Hoofdpagina scrollbar track - witte achtergrond */
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Groene gradient zoals de pagina */
+  border-radius: 10px;
+}
+
+/* Hoofdpagina scrollbar thumb - WIT */
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.8); /* Witte scrollbar */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 1); /* Volle witte bij hover */
+}
+
+body::-webkit-scrollbar-thumb:active,
+html::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.9); /* Licht transparanter bij klik */
+}
+
+/* Firefox: witte scrollbar track voor body/html */
+body,
+html {
+  scrollbar-color: rgba(255, 255, 255, 0.8) #10b981; /* Wit op groen */
+}
+
+/* Scrollbar thumb (de draggable scrollbar zelf) */
+*::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2); /* Subtiel emerald groen met 20% opacity */
+  border-radius: 10px; /* Afgeronde hoeken */
+  transition: background 0.2s ease; /* Smooth hover animatie */
+}
+
+/* Scrollbar thumb bij hover - wordt donkerder/zichtbaarder */
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5); /* 50% opacity bij hover */
+}
+
+/* Scrollbar thumb wanneer actief geklikt/gesleept */
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(16, 185, 129, 0.7); /* Nog donkerder bij klikken */
+}
+
+/* ======================================== */
+
+
+@layer utilities {
+  .card-shadow {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-gradient {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  @keyframes fadeInAndSlide {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeInAndSlide 0.3s ease-out forwards;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-slide-in-up {
+    animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-slide-in-down {
+    animation: slideInDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-up {
+    animation: slideInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 1.5s linear infinite;
+  }
+}
