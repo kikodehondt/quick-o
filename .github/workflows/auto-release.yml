@@ -39,7 +39,7 @@ jobs:
           npm version patch -m "chore(release): bump version to %s [skip ci]"
           
           # Push the new commit and the tag to the repository
-          git push --follow-tags
+          git push origin HEAD:main --follow-tags
           
           # Extract the new version to use in the next step
           echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
