@@ -15,6 +15,10 @@
     {
       "source": "/terms",
       "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api/|_next/|static/|.*\\..*).*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -24,7 +24,7 @@ const LoginModal = lazy(() => import('./components/LoginModal'))
 const EditProfileModal = lazy(() => import('./components/EditProfileModal'))
 const ResetPasswordModal = lazy(() => import('./components/ResetPasswordModal'))
 
-// SEO helper to update document title and meta description
+// SEO helper to update document title, meta description, and canonical link
 function updatePageMeta(title: string, description: string) {
   document.title = title
   const metaDesc = document.querySelector('meta[name="description"]')
@@ -39,6 +39,15 @@ function updatePageMeta(title: string, description: string) {
   if (ogDesc) {
     ogDesc.setAttribute('content', description)
   }
+
+  // Update canonical link
+  let canonicalLink = document.querySelector('link[rel="canonical"]')
+  if (!canonicalLink) {
+    canonicalLink = document.createElement('link')
+    canonicalLink.setAttribute('rel', 'canonical')
+    document.head.appendChild(canonicalLink)
+  }
+  canonicalLink.setAttribute('href', window.location.href)
 }
 
 function App() {
