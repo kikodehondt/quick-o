@@ -32,6 +32,8 @@ export interface VocabSet {
   tags?: string[]
   school?: string
   direction?: string
+  course?: string
+  semester?: string
   year?: string
   creator_name?: string | null
   is_anonymous?: boolean

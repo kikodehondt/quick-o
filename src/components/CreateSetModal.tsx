@@ -22,6 +22,8 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
 
   const [school, setSchool] = useState('')
   const [direction, setDirection] = useState('')
+  const [course, setCourse] = useState('') // Vak
+  const [semester, setSemester] = useState('') // Semester
   const [year, setYear] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [isPublic, setIsPublic] = useState(true)
@@ -34,6 +36,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
 
   const [existingSchools, setExistingSchools] = useState<string[]>([])
   const [existingDirections, setExistingDirections] = useState<string[]>([])
+  const [existingCourses, setExistingCourses] = useState<string[]>([]) // New
   const [existingTags, setExistingTags] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([]) // New state array for tags 
   const [isDragOver, setIsDragOver] = useState(false)
@@ -57,6 +60,7 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
       if (!error && data) {
         setExistingSchools((data as any).schools || [])
         setExistingDirections((data as any).directions || [])
+        setExistingCourses((data as any).courses || []) // New
         setExistingTags((data as any).tags || [])
       }
     })
@@ -210,8 +214,8 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
       return
     }
 
-    if (!school.trim() || !direction.trim() || !year) {
-      setError('Vul alle verplichte velden in (School, Richting, Jaar)')
+    if (!school.trim() || !direction.trim() || !year || !course.trim() || !semester) {
+      setError('Vul alle verplichte velden in (School, Richting, Vak, Semester, Jaar)')
       return
     }
 
@@ -270,6 +274,8 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           tags,
           school,
           direction,
+          course,
+          semester,
           year,
           creator_name: isAnonymous ? null : (userFullName || null),
           is_anonymous: isAnonymous,
@@ -513,6 +519,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   onChange={(e) => setYear(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
                 >
+                  <option value="">Kies Jaar...</option>
                   <option value="Eerste Middelbaar">Eerste Middelbaar</option>
                   <option value="Tweede Middelbaar">Tweede Middelbaar</option>
                   <option value="Derde Middelbaar">Derde Middelbaar</option>
@@ -525,6 +532,28 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                   <option value="Master">Master</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Semester *</label>
+                <select
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
+                >
+                  <option value="">Kies Semester...</option>
+                  <option value="Eerste Semester">Eerste Semester</option>
+                  <option value="Tweede Semester">Tweede Semester</option>
+                  <option value="Jaarvak">Jaarvak</option>
+                </select>
+              </div>
+
+              <Combobox
+                label="Vak *"
+                value={course}
+                onChange={setCourse}
+                options={existingCourses}
+                placeholder="Bijv. Wiskunde"
+              />
               <MultiSelect
                 label="Tags"
                 value={tags}
