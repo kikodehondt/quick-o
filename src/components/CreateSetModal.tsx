@@ -5,6 +5,7 @@ import { parseVocabText } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
 import ToggleSwitch from './ToggleSwitch'
 import Combobox from './Combobox'
+import Select from './Select'
 import MultiSelect from './MultiSelect'
 
 interface CreateSetModalProps {
@@ -55,16 +56,23 @@ export default function CreateSetModal({ onClose, onSetCreated }: CreateSetModal
   }, [])
 
   // Fetch metadata on mount
-  useState(() => {
-    supabase.rpc('get_unique_metadata').then(({ data, error }) => {
+  useEffect(() => {
+    supabase.rpc('get_vocab_metadata').then(({ data, error }) => {
       if (!error && data) {
-        setExistingSchools((data as any).schools || [])
-        setExistingDirections((data as any).directions || [])
-        setExistingCourses((data as any).courses || []) // New
-        setExistingTags((data as any).tags || [])
+        // Robustly handle both array (old RPC) and object (new RPC) return types
+        const isArray = Array.isArray(data)
+        const schools = isArray ? (data[0]?.schools || []) : ((data as any).schools || [])
+        const directions = isArray ? (data[0]?.directions || []) : ((data as any).directions || [])
+        const courses = isArray ? (data[0]?.courses || []) : ((data as any).courses || [])
+        const tags = isArray ? (data[0]?.tags || []) : ((data as any).tags || [])
+
+        setExistingSchools(schools)
+        setExistingDirections(directions)
+        setExistingCourses(courses)
+        setExistingTags(tags)
       }
     })
-  })
+  }, [])
 
   const promptText = `Je bent een expert assistent die vocabulaire-lijsten omzet naar het EXACTE formaat van deze flashcard trainer app. Je taak is om woordparen of zinnenparen te identificeren en te formatteren volgens strikte regels.
 
@@ -513,38 +521,27 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
                 placeholder="Bijv. Toegepaste Informatica"
               />
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Jaar *</label>
-                <select
+                <Select
+                  label="Jaar *"
                   value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-                >
-                  <option value="">Kies Jaar...</option>
-                  <option value="Eerste Middelbaar">Eerste Middelbaar</option>
-                  <option value="Tweede Middelbaar">Tweede Middelbaar</option>
-                  <option value="Derde Middelbaar">Derde Middelbaar</option>
-                  <option value="Vierde Middelbaar">Vierde Middelbaar</option>
-                  <option value="Vijfde Middelbaar">Vijfde Middelbaar</option>
-                  <option value="Zesde Middelbaar">Zesde Middelbaar</option>
-                  <option value="Eerste Bachelor">Eerste Bachelor</option>
-                  <option value="Tweede Bachelor">Tweede Bachelor</option>
-                  <option value="Derde Bachelor">Derde Bachelor</option>
-                  <option value="Master">Master</option>
-                </select>
+                  onChange={setYear}
+                  placeholder="Kies Jaar..."
+                  options={[
+                    "Eerste Middelbaar", "Tweede Middelbaar", "Derde Middelbaar",
+                    "Vierde Middelbaar", "Vijfde Middelbaar", "Zesde Middelbaar",
+                    "Eerste Bachelor", "Tweede Bachelor", "Derde Bachelor", "Master"
+                  ]}
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Semester *</label>
-                <select
+                <Select
+                  label="Semester *"
                   value={semester}
-                  onChange={(e) => setSemester(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-                >
-                  <option value="">Kies Semester...</option>
-                  <option value="Eerste Semester">Eerste Semester</option>
-                  <option value="Tweede Semester">Tweede Semester</option>
-                  <option value="Jaarvak">Jaarvak</option>
-                </select>
+                  onChange={setSemester}
+                  placeholder="Kies Semester..."
+                  options={["Eerste Semester", "Tweede Semester", "Jaarvak"]}
+                />
               </div>
 
               <Combobox

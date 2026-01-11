@@ -3,6 +3,7 @@ import { X, Save } from 'lucide-react'
 import { supabase, VocabSet } from '../lib/supabase'
 import ToggleSwitch from './ToggleSwitch'
 import Combobox from './Combobox'
+import Select from './Select'
 import MultiSelect from './MultiSelect'
 
 interface EditSetModalProps {
@@ -18,6 +19,9 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
   const [school, setSchool] = useState(set.school || '')
   const [direction, setDirection] = useState(set.direction || '')
   const [year, setYear] = useState(set.year || '')
+  const [course, setCourse] = useState(set.course || '') // Vak
+  const [semester, setSemester] = useState(set.semester || '') // Semester
+
   const [isAnonymous, setIsAnonymous] = useState(set.is_anonymous || false)
   const [isPublic, setIsPublic] = useState(set.is_public ?? true)
   const [loading, setLoading] = useState(false)
@@ -25,17 +29,26 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
 
   const [existingSchools, setExistingSchools] = useState<string[]>([])
   const [existingDirections, setExistingDirections] = useState<string[]>([])
+  const [existingCourses, setExistingCourses] = useState<string[]>([])
   const [existingTags, setExistingTags] = useState<string[]>([])
   // Use array state for tags instead of string input
   const [tags, setTags] = useState<string[]>([])
 
   // Fetch metadata on mount
   useEffect(() => {
-    supabase.rpc('get_unique_metadata').then(({ data, error }) => {
+    supabase.rpc('get_vocab_metadata').then(({ data, error }) => {
       if (!error && data) {
-        setExistingSchools((data as any).schools || [])
-        setExistingDirections((data as any).directions || [])
-        setExistingTags((data as any).tags || [])
+        // Robustly handle both array (old RPC) and object (new RPC) return types
+        const isArray = Array.isArray(data)
+        const schools = isArray ? (data[0]?.schools || []) : ((data as any).schools || [])
+        const directions = isArray ? (data[0]?.directions || []) : ((data as any).directions || [])
+        const courses = isArray ? (data[0]?.courses || []) : ((data as any).courses || [])
+        const tags = isArray ? (data[0]?.tags || []) : ((data as any).tags || [])
+
+        setExistingSchools(schools)
+        setExistingDirections(directions)
+        setExistingCourses(courses)
+        setExistingTags(tags)
       }
     })
   }, [])
@@ -55,17 +68,14 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
       return
     }
 
-    if (!school.trim() || !direction.trim() || !year) {
-      setError('Vul alle verplichte velden in (School, Richting, Jaar)')
+    if (!school.trim() || !direction.trim() || !year || !course.trim() || !semester) {
+      setError('Vul alle verplichte velden in (School, Richting, Vak, Semester, Jaar)')
       return
     }
 
     try {
       setLoading(true)
       setError('')
-
-      // Prepare metadata
-
 
       // Update the set
       const { error: updateError } = await supabase
@@ -76,6 +86,8 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
           tags,
           school,
           direction,
+          course,
+          semester,
           year,
           is_anonymous: isAnonymous,
           is_public: isPublic,
@@ -153,25 +165,37 @@ export default function EditSetModal({ set, onClose, onSetEdited }: EditSetModal
               placeholder="Bijv. Toegepaste Informatica"
             />
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Jaar *</label>
-              <select
+              <Select
+                label="Jaar *"
                 value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all"
-              >
-                <option value="">Selecteer een jaar</option>
-                <option value="Eerste Middelbaar">Eerste Middelbaar</option>
-                <option value="Tweede Middelbaar">Tweede Middelbaar</option>
-                <option value="Derde Middelbaar">Derde Middelbaar</option>
-                <option value="Vierde Middelbaar">Vierde Middelbaar</option>
-                <option value="Vijfde Middelbaar">Vijfde Middelbaar</option>
-                <option value="Zesde Middelbaar">Zesde Middelbaar</option>
-                <option value="Eerste Bachelor">Eerste Bachelor</option>
-                <option value="Tweede Bachelor">Tweede Bachelor</option>
-                <option value="Derde Bachelor">Derde Bachelor</option>
-                <option value="Master">Master</option>
-              </select>
+                onChange={setYear}
+                placeholder="Kies Jaar..."
+                options={[
+                  "Eerste Middelbaar", "Tweede Middelbaar", "Derde Middelbaar",
+                  "Vierde Middelbaar", "Vijfde Middelbaar", "Zesde Middelbaar",
+                  "Eerste Bachelor", "Tweede Bachelor", "Derde Bachelor", "Master"
+                ]}
+              />
             </div>
+
+            <div>
+              <Select
+                label="Semester *"
+                value={semester}
+                onChange={setSemester}
+                placeholder="Kies Semester..."
+                options={["Eerste Semester", "Tweede Semester", "Jaarvak"]}
+              />
+            </div>
+
+            <Combobox
+              label="Vak *"
+              value={course}
+              onChange={setCourse}
+              options={existingCourses}
+              placeholder="Bijv. Wiskunde"
+            />
+
             <MultiSelect
               label="Tags"
               value={tags}

@@ -25,13 +25,17 @@ export default function Combobox({
 
     useEffect(() => {
         // Filter options based on query
-        // Show top 10 matches
+        if (!query) {
+            setFilteredOptions(options.slice(0, 50)) // Show more initial options
+            return
+        }
+
         const q = query.toLowerCase()
         const filtered = options
             .filter(opt => opt.toLowerCase().includes(q))
-            .slice(0, 10)
+            .slice(0, 20) // Limit to keep UI snappy
         setFilteredOptions(filtered)
-    }, [query, options])
+    }, [query, options, isOpen])
 
     // Initial query matches value if present and we are not typing
     useEffect(() => {
@@ -87,13 +91,13 @@ export default function Combobox({
                 </button>
             </div>
 
-            {isOpen && (filteredOptions.length > 0 || query) && (
+            {isOpen && (
                 <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-auto">
                     {filteredOptions.length > 0 ? (
                         <ul className="py-1">
-                            {filteredOptions.map((option) => (
+                            {filteredOptions.map((option, index) => (
                                 <li
-                                    key={option}
+                                    key={`${option}-${index}`}
                                     onClick={() => handleSelect(option)}
                                     className={`px-4 py-2 hover:bg-emerald-50 cursor-pointer flex items-center justify-between group ${option === value ? 'bg-emerald-50 font-medium text-emerald-700' : 'text-gray-700'}`}
                                 >
@@ -113,13 +117,19 @@ export default function Combobox({
                             )}
                         </ul>
                     ) : (
-                        <div
-                            className="px-4 py-3 text-sm text-gray-500 cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2"
-                            onClick={() => handleSelect(query)}
-                        >
-                            <Plus className="w-4 h-4" />
-                            Nieuw: "{query}"
-                        </div>
+                        query ? (
+                            <div
+                                className="px-4 py-3 text-sm text-gray-500 cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2"
+                                onClick={() => handleSelect(query)}
+                            >
+                                <Plus className="w-4 h-4" />
+                                Nieuw: "{query}"
+                            </div>
+                        ) : (
+                            <div className="px-4 py-3 text-sm text-gray-400 italic">
+                                Geen opties gevonden
+                            </div>
+                        )
                     )}
                 </div>
             )}
