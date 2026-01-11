@@ -48,7 +48,7 @@ jobs:
 
 
       - name: Generate Release Notes
-        run: node scripts/create-release-notes.js
+        run: node scripts/create-release-notes.cjs
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
