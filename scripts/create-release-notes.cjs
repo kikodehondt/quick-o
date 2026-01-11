@@ -2,72 +2,112 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 try {
-    // Get the latest tag (excluding the one we just made if running in workflow, but let's assume we sort by time)
-    // Actually, in the workflow, we just bumped the version.
-    // We want commits between the PREVIOUS tag and the CURRENT HEAD (minus the bump commit).
-
-    // 1. Get current version from package.json
+    // Get current version from package.json (without 'v' prefix)
     const version = require('../package.json').version;
 
-    // 2. Get the list of commits.
-    // We try to find the *previous* tag.
+    // Find the previous tag to determine commit range
     let prevTag = '';
     try {
-        // List tags, sort by version or date, take the 2nd most recent? 
-        // Easier: git describe --tags --abbrev=0 HEAD^ (the tag before the current one)
         prevTag = execSync('git describe --tags --abbrev=0 HEAD^').toString().trim();
     } catch (e) {
-        // If no previous tag, just log everything
         prevTag = '';
     }
 
     const range = prevTag ? `${prevTag}..HEAD` : 'HEAD';
 
-    // Format: Hash|Subject|Body
-    // %h = short hash, %s = subject, %b = body
-    const logs = execSync(`git log ${range} --pretty=format:"%h|%s|%b" --no-merges`).toString().trim();
+    // Get commits with separator that's unlikely to appear in messages
+    const separator = '|||COMMIT_SEP|||';
+    const logs = execSync(`git log ${range} --pretty=format:"%s${separator}%b${separator}END" --no-merges`).toString().trim();
 
-    const lines = logs.split('\n');
+    const commits = logs.split('END').filter(c => c.trim());
 
-    let formattedChanges = [];
+    let features = [];
+    let fixes = [];
+    let other = [];
 
-    for (const line of lines) {
-        if (!line) continue;
-        const parts = line.split('|');
-        const hash = parts[0];
-        const subject = parts[1];
-        const body = parts.slice(2).join('|').trim(); // handle delimiter in body if any
+    for (const commit of commits) {
+        const parts = commit.split(separator);
+        const subject = (parts[0] || '').trim();
+        const body = (parts[1] || '').trim();
 
-        // Ignore the release commit itself
+        if (!subject) continue;
         if (subject.startsWith('chore(release):')) continue;
         if (subject.includes('[skip ci]')) continue;
 
-        let item = `### ${subject}\n`;
-        if (body) {
-            item += `\n${body}\n`;
+        // Clean up the subject (remove conventional commit prefixes for display)
+        let cleanSubject = subject
+            .replace(/^feat:\s*/i, '')
+            .replace(/^fix:\s*/i, '')
+            .replace(/^chore:\s*/i, '')
+            .replace(/^docs:\s*/i, '')
+            .replace(/^refactor:\s*/i, '')
+            .replace(/^perf:\s*/i, '');
+
+        // Capitalize first letter
+        cleanSubject = cleanSubject.charAt(0).toUpperCase() + cleanSubject.slice(1);
+
+        const entry = {
+            title: cleanSubject,
+            description: body || null
+        };
+
+        // Categorize based on conventional commit prefix
+        if (subject.toLowerCase().startsWith('feat:') || subject.toLowerCase().startsWith('feature:')) {
+            features.push(entry);
+        } else if (subject.toLowerCase().startsWith('fix:')) {
+            fixes.push(entry);
+        } else {
+            other.push(entry);
         }
-        formattedChanges.push(item);
     }
 
-    // Construct the message
-    let message = `# 🚀 Nieuwe Update: v${version}\n\n`;
-    message += `Er staan weer verbeteringen voor je klaar in Quick-O!\n\n`;
+    // Build the message
+    let message = `# 🎉 Versie ${version}\n\n`;
+    message += `Welkom bij de nieuwste versie van Quick-O! Hieronder vind je een overzicht van de verbeteringen en aanpassingen.\n\n`;
 
-    if (formattedChanges.length > 0) {
-        message += `## ✨ Wat is er veranderd?\n\n`;
-        message += formattedChanges.join('\n');
-    } else {
-        message += `_Kleine optimalisaties en verbeteringen._\n`;
+    if (features.length > 0) {
+        message += `## ✨ Nieuwe Mogelijkheden\n\n`;
+        for (const f of features) {
+            message += `**${f.title}**\n`;
+            if (f.description) {
+                message += `${f.description}\n`;
+            }
+            message += '\n';
+        }
     }
 
-    message += `\n---\n*Automatisch gegenereerd door Quick-O Release Bot*`;
+    if (fixes.length > 0) {
+        message += `## 🐛 Opgeloste Problemen\n\n`;
+        for (const f of fixes) {
+            message += `**${f.title}**\n`;
+            if (f.description) {
+                message += `${f.description}\n`;
+            }
+            message += '\n';
+        }
+    }
+
+    if (other.length > 0) {
+        message += `## 🛠️ Overige Verbeteringen\n\n`;
+        for (const o of other) {
+            message += `**${o.title}**\n`;
+            if (o.description) {
+                message += `${o.description}\n`;
+            }
+            message += '\n';
+        }
+    }
+
+    if (features.length === 0 && fixes.length === 0 && other.length === 0) {
+        message += `_Kleine optimalisaties en technische verbeteringen._\n`;
+    }
+
+    message += `\n---\n_Deze release notes zijn automatisch gegenereerd._`;
 
     console.log(message);
-
-    // Write to file for the action to use
     fs.writeFileSync('RELEASE_NOTES.md', message);
 
 } catch (error) {
-    console.error('Error generating notes:', error);
+    console.error('Fout bij genereren release notes:', error);
     process.exit(1);
 }
