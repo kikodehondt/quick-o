@@ -363,7 +363,7 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
               mimeType: file.type,
               prompt: dynamicPrompt,
               language1,
-              language1,
+
               language2
             }),
             signal: controller.signal
