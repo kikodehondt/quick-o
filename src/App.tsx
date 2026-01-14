@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { BookOpen, Plus, Trophy, Users, History } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
 import { Analytics } from '@vercel/analytics/react'
@@ -9,6 +10,7 @@ import CookieConsent from './components/CookieConsent'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import ChangelogModal from './components/ChangelogModal'
+const SetPage = lazy(() => import('./pages/SetPage'))
 
 // Lazy load modes en modals
 const StudyMode = lazy(() => import('./components/StudyMode'))
@@ -24,31 +26,6 @@ const LoginModal = lazy(() => import('./components/LoginModal'))
 const EditProfileModal = lazy(() => import('./components/EditProfileModal'))
 const ResetPasswordModal = lazy(() => import('./components/ResetPasswordModal'))
 
-// SEO helper to update document title, meta description, and canonical link
-function updatePageMeta(title: string, description: string) {
-  document.title = title
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) {
-    metaDesc.setAttribute('content', description)
-  }
-  const ogTitle = document.querySelector('meta[property="og:title"]')
-  if (ogTitle) {
-    ogTitle.setAttribute('content', title)
-  }
-  const ogDesc = document.querySelector('meta[property="og:description"]')
-  if (ogDesc) {
-    ogDesc.setAttribute('content', description)
-  }
-
-  // Update canonical link
-  let canonicalLink = document.querySelector('link[rel="canonical"]')
-  if (!canonicalLink) {
-    canonicalLink = document.createElement('link')
-    canonicalLink.setAttribute('rel', 'canonical')
-    document.head.appendChild(canonicalLink)
-  }
-  canonicalLink.setAttribute('href', window.location.href)
-}
 
 function App() {
   const { user, userFullName, signOut, isPasswordRecovery } = useAuth()
@@ -74,32 +51,23 @@ function App() {
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms'>('home')
+  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'set'>('home')
+  const [viewSetCode, setViewSetCode] = useState<string | null>(null)
 
   const displayName = (userFullName && userFullName.trim()) || user?.email || ''
   const avatarInitial = displayName ? displayName[0].toUpperCase() : 'U'
 
-  useEffect(() => {
-    if (isStudying && selectedSet) {
-      // Update title when studying a set
-      updatePageMeta(
-        `${selectedSet.name} - Oefenen met Quick-O`,
-        `Oefen met de woordenlijst "${selectedSet.name}" op Quick-O. Verbeter je woordenschat snel en effectief.`
-      )
-    } else if (selectedSet) {
-      // Update title when set is selected but not studying
-      updatePageMeta(
-        `${selectedSet.name} - Quick-O Woordenlijsten`,
-        `Bekijk en oefen met "${selectedSet.name}" op Quick-O, de gratis woordenlijsten trainer.`
-      )
-    } else {
-      // Reset to homepage title
-      updatePageMeta(
-        'Quick-O - Gratis Woordenlijsten Trainer | Snel Leren',
-        'Quick-O is een gratis, gebruiksvriendelijke woordenlijsten trainer. Maak je eigen sets, deel ze, en oefen efficiënt.'
-      )
-    }
-  }, [isStudying, selectedSet])
+  // SEO Logic
+  let seoTitle = 'Quick-O - Gratis Woordenlijsten Trainer | Snel Leren'
+  let seoDesc = 'Quick-O is een gratis, gebruiksvriendelijke woordenlijsten trainer. Maak je eigen sets, deel ze, en oefen efficiënt.'
+
+  if (isStudying && selectedSet) {
+    seoTitle = `${selectedSet.name} - Oefenen met Quick-O`
+    seoDesc = `Oefen met de woordenlijst "${selectedSet.name}" op Quick-O. Verbeter je woordenschat snel en effectief.`
+  } else if (selectedSet) {
+    seoTitle = `${selectedSet.name} - Quick-O Woordenlijsten`
+    seoDesc = `Bekijk en oefen met "${selectedSet.name}" op Quick-O, de gratis woordenlijsten trainer.`
+  }
 
   useEffect(() => {
     loadSets()
@@ -121,6 +89,13 @@ function App() {
       setCurrentPage('privacy')
     } else if (path === '/terms' || path.includes('terms')) {
       setCurrentPage('terms')
+    }
+
+    // Handle /set/:code/:slug routing
+    const setMatch = path.match(/^\/set\/([a-zA-Z0-9]+)/)
+    if (setMatch) {
+      setViewSetCode(setMatch[1])
+      setCurrentPage('set')
     }
   }, [])
 
@@ -372,24 +347,54 @@ function App() {
     )
   }
 
-  if (isStudying && selectedSet && studySettings) {
+  // Show Set Landing Page
+  if (currentPage === 'set' && viewSetCode) {
     return (
       <Suspense fallback={<div className="flex h-screen items-center justify-center text-white"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div></div>}>
-        {studySettings.mode === 'learn' ? (
-          <LearnMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
-        ) : studySettings.mode === 'typing' ? (
-          <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
-        ) : studySettings.mode === 'multiple-choice' ? (
-          <MultipleChoiceMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} onExit={() => { setIsStudying(false); setSelectedSet(null) }} />
-        ) : (
-          <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
-        )}
+        <SetPage
+          setCode={viewSetCode}
+          onStartStudy={handleStartStudy}
+          onBack={handleNavigateHome}
+        />
+        <Analytics />
       </Suspense>
+    )
+  }
+
+  if (isStudying && selectedSet && studySettings) {
+    return (
+      <>
+        <Helmet>
+          <title>{seoTitle}</title>
+          <meta name="description" content={seoDesc} />
+          <meta property="og:title" content={seoTitle} />
+          <meta property="og:description" content={seoDesc} />
+          <link rel="canonical" href="https://www.quick-o.be/" />
+        </Helmet>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center text-white"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div></div>}>
+          {studySettings.mode === 'learn' ? (
+            <LearnMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+          ) : studySettings.mode === 'typing' ? (
+            <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+          ) : studySettings.mode === 'multiple-choice' ? (
+            <MultipleChoiceMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} onExit={() => { setIsStudying(false); setSelectedSet(null) }} />
+          ) : (
+            <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
+          )}
+        </Suspense>
+      </>
     )
   }
 
   return (
     <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{ background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite' }}>
+      <Helmet>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDesc} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDesc} />
+        <link rel="canonical" href="https://www.quick-o.be/" />
+      </Helmet>
       <div className="max-w-6xl mx-auto">
         {/* Updates button - desktop only (left side) */}
         <div className="hidden md:flex md:absolute md:top-4 md:left-4 md:z-20 gap-2 transition-all duration-300">

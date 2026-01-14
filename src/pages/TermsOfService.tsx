@@ -1,4 +1,5 @@
 import { FileText, AlertTriangle, Scale, Shield, Ban, Home } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 
 interface TermsOfServiceProps {
   onBack: () => void
@@ -6,7 +7,13 @@ interface TermsOfServiceProps {
 
 export default function TermsOfService({ onBack }: TermsOfServiceProps) {
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+    <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{ background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite' }}>
+      <Helmet>
+        <title>Algemene Voorwaarden - Quick-O</title>
+        <meta name="description" content="De algemene voorwaarden van Quick-O. Lees hier onze regels en afspraken." />
+        <link rel="canonical" href="https://www.quick-o.be/terms" />
+      </Helmet>
+
       <style>{`
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }

@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/set/:code/:slug*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/s/:code",
       "destination": "/index.html"
     },

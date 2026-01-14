@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './lib/authContext.tsx'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { HelmetProvider } from 'react-helmet-async'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <App />
-      <SpeedInsights />
+      <HelmetProvider>
+        <App />
+        <SpeedInsights />
+      </HelmetProvider>
     </AuthProvider>
   </StrictMode>,
 )

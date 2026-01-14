@@ -1,4 +1,5 @@
 import { Shield, Database, Cookie, Mail, FileText, Users, Lock, Home } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 
 interface PrivacyPolicyProps {
   onBack: () => void
@@ -6,7 +7,12 @@ interface PrivacyPolicyProps {
 
 export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite'}}>
+    <div className="min-h-screen p-4 md:p-8 text-white relative overflow-hidden" style={{ background: 'linear-gradient(-45deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #10b981 100%)', backgroundSize: '400% 400%', animation: 'gradientShift 20s ease infinite' }}>
+      <Helmet>
+        <title>Privacybeleid - Quick-O</title>
+        <meta name="description" content="Het privacybeleid van Quick-O. Wij hechten groot belang aan je privacy en leggen uit welke gegevens we verzamelen en waarom." />
+        <link rel="canonical" href="https://www.quick-o.be/privacy" />
+      </Helmet>
       <style>{`
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }

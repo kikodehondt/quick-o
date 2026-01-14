@@ -24,8 +24,9 @@ export default memo(function SetsList({ sets, onStartStudy, onDeleteSet, onEditS
   }
 
   function copyLink(set: VocabSet) {
-    if (set.link_code) {
-      const url = `${window.location.origin}/s/${set.link_code}`
+    if (set.link_code && set.name) {
+      const slug = set.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      const url = `${window.location.origin}/set/${set.link_code}/${slug}`
       navigator.clipboard.writeText(url)
       setCopiedId(set.id || null)
       setTimeout(() => setCopiedId(null), 2000)
