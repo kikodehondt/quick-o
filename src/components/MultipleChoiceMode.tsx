@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Check, X, ChevronRight, Award, Layers } from 'lucide-react'
 import { VocabSet, VocabPair, StudySettings } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
+import { logSession, updateWordProgress } from '../lib/stats'
 
 interface MultipleChoiceModeProps {
   set: VocabSet
@@ -29,6 +30,11 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
   const [layoutMode, setLayoutMode] = useState<'vertical' | 'grid'>('vertical')
   const [showingFeedback, setShowingFeedback] = useState(false)
   const [optionPool, setOptionPool] = useState<string[]>([])
+  const startTimeRef = useRef<number>(Date.now())
+
+  // Track specific word IDs for analytics
+  const correctWordsRef = useRef<number[]>([])
+  const incorrectWordsRef = useRef<number[]>([])
 
   // Fetch words and prepare questions
   useEffect(() => {
@@ -209,8 +215,10 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
 
     if (correct) {
       setCorrectCount(prev => prev + 1)
+      if (question.word.id) correctWordsRef.current.push(question.word.id)
     } else {
       setIncorrectCount(prev => prev + 1)
+      if (question.word.id) incorrectWordsRef.current.push(question.word.id)
       setMistakes(prev => [...prev, question.word])
         // Record the mistake for future learning
         ; (async () => {
@@ -233,11 +241,32 @@ export default function MultipleChoiceMode({ set, settings, onEnd, onExit }: Mul
   function handleContinue() {
     if (currentIndex + 1 >= words.length) {
       setShowResult(true)
+      logSessionData()
     } else {
       setCurrentIndex(prev => prev + 1)
       setSelectedAnswer(null)
       setIsCorrect(null)
       setShowingFeedback(false)
+    }
+  }
+
+  async function logSessionData() {
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+    const total = words.length
+    const scorePercentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
+
+    await logSession({
+      set_id: set.id ?? null,
+      mode: 'multiple-choice',
+      duration_seconds: durationSeconds,
+      score: scorePercentage,
+      total_items: total,
+      mistakes_count: incorrectCount
+    })
+
+    // Update granular word progress
+    if (set.id && words.length > 0) {
+      await updateWordProgress(set.id, correctWordsRef.current, incorrectWordsRef.current)
     }
   }
 

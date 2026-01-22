@@ -16,3 +16,4 @@ docs/archive/
 supabase/migrations_archive/
 supabase/
 /*.txt
+.env*.local

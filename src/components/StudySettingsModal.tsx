@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw, ListChecks, Plus, Trash2 } from 'lucide-react'
+import { X, Keyboard, CreditCard, ArrowRight, ArrowLeftRight, Settings, GraduationCap, Shuffle, CheckSquare, RotateCcw, ListChecks, Plus, Trash2, FileCode, Clock } from 'lucide-react'
 import { VocabSet, StudyMode, StudyDirection, StudySettings, VocabPair, supabase } from '../lib/supabase'
+import ToggleSwitch from './ToggleSwitch'
 
 interface StudySettingsModalProps {
   set: VocabSet
@@ -28,6 +29,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
   const [accentSensitive, setAccentSensitive] = useState(false)
   const [shuffle, setShuffle] = useState(true)
   const [retryMistakes, setRetryMistakes] = useState(true)
+  const [questionCount, setQuestionCount] = useState(10)
+  const [timeLimit, setTimeLimit] = useState<number | undefined>(undefined)
 
   // Woord-selectie state
   const [words, setWords] = useState<VocabPair[]>([])
@@ -90,6 +93,7 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
         setWords(allWords)
         if (allWords.length > 0) {
           setRanges([{ id: '0', start: 1, end: allWords.length }])
+          setQuestionCount(Math.min(10, allWords.length))
         }
       } catch (err) {
         console.error('Error fetching words for selection', err)
@@ -157,6 +161,8 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
       selectionMode,
       rangeStart: undefined,
       rangeEnd: undefined,
+      questionCount: mode === 'test' ? questionCount : undefined,
+      timeLimit: mode === 'test' ? timeLimit : undefined
     })
   }
 
@@ -241,6 +247,18 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                 <Keyboard className={`w-8 h-8 mx-auto mb-2 ${mode === 'typing' ? 'text-emerald-600' : 'text-gray-400'}`} />
                 <div className="font-semibold text-gray-800">Typen</div>
                 <div className="text-xs text-gray-500 mt-1">Type antwoord</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('test')}
+                className={`p-4 rounded-xl border-2 transition-all col-span-2 ${mode === 'test'
+                  ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                  : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow'
+                  }`}
+              >
+                <FileCode className={`w-8 h-8 mx-auto mb-2 ${mode === 'test' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                <div className="font-semibold text-gray-800">Start Examen</div>
+                <div className="text-xs text-gray-500 mt-1">AI Context & Punten</div>
               </button>
             </div>
           </div>
@@ -515,6 +533,94 @@ export default function StudySettingsModal({ set, onClose, onStart }: StudySetti
                   </div>
                 </label>
               )}
+            </div>
+          )}
+
+          {/* Test Mode Options */}
+          {mode === 'test' && (
+            <div className="bg-emerald-50 rounded-xl p-4 space-y-3">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Aantal Vragen
+              </label>
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 20, 30].map(count => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setQuestionCount(count)}
+                      className={`py-2 rounded-lg text-sm font-medium transition-colors ${questionCount === count
+                        ? 'bg-emerald-600 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-emerald-50'
+                        }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setQuestionCount(words.length || set.word_count || 0)}
+                    className={`py-2 rounded-lg text-sm font-medium transition-colors ${questionCount === (words.length || set.word_count || 0)
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'bg-white text-gray-700 border border-gray-200 hover:bg-emerald-50'
+                      }`}
+                  >
+                    Alles ({words.length || set.word_count || 0})
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 flex-1 flex items-center justify-between">
+                    <span className="text-sm text-gray-600 font-medium">Of kies aantal:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={words.length || set.word_count || 100}
+                      value={questionCount}
+                      onChange={(e) => setQuestionCount(Math.max(1, Math.min(words.length || set.word_count || 100, parseInt(e.target.value) || 0)))}
+                      className="w-16 text-right font-bold text-gray-900 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-emerald-100 animate-fade-in">
+                <ToggleSwitch
+                  checked={!!timeLimit}
+                  onChange={(c) => setTimeLimit(c ? 600 : undefined)}
+                  label={
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-emerald-600" />
+                      <div className="font-medium text-gray-800">Timer instellen</div>
+                    </div>
+                  }
+                  description="Oefenen met tijdsdruk"
+                />
+
+                {timeLimit !== undefined && (
+                  <div className="mt-3 pl-0 animate-fade-in">
+                    <div className="bg-white border border-gray-200 rounded-xl p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-gray-700">Tijdsduur</span>
+                        <span className="font-bold text-emerald-600">{Math.floor(timeLimit / 60)} min</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="60"
+                        value={Math.floor(timeLimit / 60)}
+                        onChange={(e) => setTimeLimit(parseInt(e.target.value) * 60)}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>1 min</span>
+                        <span>30 min</span>
+                        <span>60 min</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

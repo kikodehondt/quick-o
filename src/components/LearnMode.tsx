@@ -4,6 +4,7 @@ import { VocabSet, VocabPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 import SessionSettings from './SessionSettings'
 import { useAuth } from '../lib/authContext'
+import { logSession, updateWordProgress } from '../lib/stats'
 
 interface LearnModeProps {
   set: VocabSet
@@ -43,6 +44,11 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   const [initialized, setInitialized] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const prevSettingsRef = useRef<StudySettings>(initialSettings)
+  const startTimeRef = useRef<number>(Date.now())
+
+  // Track specific word IDs for analytics
+  const correctWordsRef = useRef<number[]>([])
+  const incorrectWordsRef = useRef<number[]>([])
 
   useEffect(() => { initSession() }, [])
 
@@ -319,9 +325,11 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
     setIsCorrect(correct)
     if (correct) {
       setCorrectCount(prev => prev + 1)
+      if (currentWord.id) correctWordsRef.current.push(currentWord.id)
       nextWord(true)
     } else {
       setIncorrectCount(prev => prev + 1)
+      if (currentWord.id) incorrectWordsRef.current.push(currentWord.id)
       setShowFeedback(true)
     }
   }
@@ -337,6 +345,7 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
       if (newActive.length === 0) {
         setFinished(true)
         clearProgress()
+        logSessionData()
         return
       }
       if (currentIndex >= newActive.length) setCurrentIndex(0)
@@ -350,6 +359,26 @@ export default function LearnMode({ set, settings: initialSettings, onEnd }: Lea
   function clearProgress() {
     localStorage.removeItem(LOCAL_KEY_PREFIX + set.id)
     clearCloudProgress()
+  }
+
+  async function logSessionData() {
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+    const total = correctCount + incorrectCount
+    const scorePercentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
+
+    await logSession({
+      set_id: set.id ?? null,
+      mode: 'learn',
+      duration_seconds: durationSeconds,
+      score: scorePercentage,
+      total_items: total,
+      mistakes_count: incorrectCount
+    })
+
+    // Update granular word progress
+    if (set.id) {
+      await updateWordProgress(set.id, correctWordsRef.current, incorrectWordsRef.current)
+    }
   }
 
   function restart() {

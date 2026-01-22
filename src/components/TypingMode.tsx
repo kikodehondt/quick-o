@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, AlertCirc
 import { VocabSet, VocabPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray, checkAnswer, calculateSimilarity } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
+import { logSession, updateWordProgress } from '../lib/stats'
 
 interface TypingModeProps {
   set: VocabSet
@@ -23,9 +24,15 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
   const [finished, setFinished] = useState(false)
   const [showHint, setShowHint] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const startTimeRef = useRef<number>(Date.now())
+
+  // Track specific word IDs for analytics
+  const correctWordsRef = useRef<number[]>([])
+  const incorrectWordsRef = useRef<number[]>([])
 
   useEffect(() => {
     loadWords()
+    startTimeRef.current = Date.now()
   }, [])
 
   useEffect(() => {
@@ -147,10 +154,12 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
 
     if (correct) {
       setCorrectCount(prev => prev + 1)
+      if (currentWord.id) correctWordsRef.current.push(currentWord.id)
       // Snel verder gaan: bij correct antwoord meteen door zonder extra Enter
       nextWord(true)
     } else {
       setIncorrectCount(prev => prev + 1)
+      if (currentWord.id) incorrectWordsRef.current.push(currentWord.id)
       // Toon feedback en wacht op Enter/klik om opnieuw te proberen
       setShowFeedback(true)
     }
@@ -174,7 +183,7 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
     }
   }
 
-  function saveProgress() {
+  async function saveProgress() {
     try {
       const payload = {
         mode: 'typing',
@@ -198,6 +207,25 @@ export default function TypingMode({ set, settings, onEnd }: TypingModeProps) {
             onConflict: 'set_id,user_id'
           })
           .then(() => { })
+      }
+
+      // Log to study_sessions for analytics
+      const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+      const total = correctCount + incorrectCount
+      const scorePercentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
+
+      await logSession({
+        set_id: set.id ?? null,
+        mode: 'typing',
+        duration_seconds: durationSeconds,
+        score: scorePercentage,
+        total_items: total,
+        mistakes_count: incorrectCount
+      })
+
+      // Update granular word progress
+      if (set.id) {
+        await updateWordProgress(set.id, correctWordsRef.current, incorrectWordsRef.current)
       }
     } catch (err) {
       console.error('Error saving progress:', err)

@@ -20,8 +20,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [captchaToken, setCaptchaToken] = useState('')
   const captchaRef = useRef<HCaptcha | null>(null)
   const hcaptchaSiteKey = (import.meta as any).env?.VITE_HCAPTCHA_SITEKEY as string | undefined
-  const isLocal = Boolean((import.meta as any).env?.DEV) || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
-  const captchaRequired = Boolean(hcaptchaSiteKey) && !isLocal
+  const captchaRequired = Boolean(hcaptchaSiteKey)
 
   function resetCaptchaState() {
     setCaptchaToken('')
@@ -239,7 +238,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               </button>
             </div>
           )}
-          {hcaptchaSiteKey && !isLocal && (
+          {hcaptchaSiteKey && (
             <div className="mt-4 flex justify-center">
               <HCaptcha
                 ref={captchaRef as any}
@@ -249,7 +248,7 @@ export default function LoginModal({ onClose }: LoginModalProps) {
               />
             </div>
           )}
-          {!hcaptchaSiteKey && !isLocal && (
+          {!hcaptchaSiteKey && (
             <p className="mt-2 text-xs text-gray-500 text-center">Captcha staat aan in Supabase. Zet <strong>VITE_HCAPTCHA_SITEKEY</strong> in je env om de captcha zichtbaar te maken.</p>
           )}
           {captchaRequired && !captchaToken && (

@@ -3,27 +3,27 @@ import { ReactNode } from 'react'
 interface ToggleSwitchProps {
   checked: boolean
   onChange: (checked: boolean) => void
-  label: string
+  label: string | ReactNode
   description?: string | ReactNode
   id?: string
   disabled?: boolean
 }
 
-export default function ToggleSwitch({ 
-  checked, 
-  onChange, 
-  label, 
-  description, 
+export default function ToggleSwitch({
+  checked,
+  onChange,
+  label,
+  description,
   id,
-  disabled = false 
+  disabled = false
 }: ToggleSwitchProps) {
   const generatedId = id || `toggle-${Math.random().toString(36).substr(2, 9)}`
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1">
-        <label 
-          htmlFor={generatedId} 
+        <label
+          htmlFor={generatedId}
           className={`text-sm font-semibold ${disabled ? 'text-gray-400' : 'text-gray-700'} cursor-pointer`}
         >
           {label}
@@ -34,7 +34,7 @@ export default function ToggleSwitch({
           </div>
         )}
       </div>
-      
+
       <button
         type="button"
         role="switch"
@@ -47,8 +47,8 @@ export default function ToggleSwitch({
           transition-colors duration-200 ease-in-out
           focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
           ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-          ${checked 
-            ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' 
+          ${checked
+            ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
             : 'bg-gray-300'
           }
         `}

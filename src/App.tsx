@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
-import { BookOpen, Plus, Trophy, Users, History } from 'lucide-react'
+import { BookOpen, Plus, Trophy, Users, History, BarChart2 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { supabase, VocabSet, StudySettings } from './lib/supabase'
 import { useAuth } from './lib/authContext'
@@ -9,14 +9,16 @@ import AboutPage from './components/AboutPage'
 import CookieConsent from './components/CookieConsent'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
-import ChangelogModal from './components/ChangelogModal'
+
 const SetPage = lazy(() => import('./pages/SetPage'))
+const StatsPage = lazy(() => import('./pages/StatsPage'))
 
 // Lazy load modes en modals
 const StudyMode = lazy(() => import('./components/StudyMode'))
 const TypingMode = lazy(() => import('./components/TypingMode'))
 const LearnMode = lazy(() => import('./components/LearnMode'))
 const MultipleChoiceMode = lazy(() => import('./components/MultipleChoiceMode'))
+const TestMode = lazy(() => import('./components/TestMode'))
 const StudySettingsModal = lazy(() => import('./components/StudySettingsModal'))
 
 // Lazy load modals voor minder initial load
@@ -25,6 +27,9 @@ const EditSetModal = lazy(() => import('./components/EditSetModal'))
 const LoginModal = lazy(() => import('./components/LoginModal'))
 const EditProfileModal = lazy(() => import('./components/EditProfileModal'))
 const ResetPasswordModal = lazy(() => import('./components/ResetPasswordModal'))
+const ChangelogModal = lazy(() => import('./components/ChangelogModal'))
+
+
 
 
 function App() {
@@ -51,7 +56,7 @@ function App() {
   const [filterYear, setFilterYear] = useState('')
   const [filterTags, setFilterTags] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'set'>('home')
+  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'set' | 'stats'>('home')
   const [viewSetCode, setViewSetCode] = useState<string | null>(null)
 
   const displayName = (userFullName && userFullName.trim()) || user?.email || ''
@@ -176,7 +181,6 @@ function App() {
       setLoading(true)
 
       // Load public sets OR sets created by the current user (including private ones)
-      // We also verify word count in the same query to avoid N+1 problem
       let query = supabase
         .from('vocab_sets')
         .select(`
@@ -190,11 +194,13 @@ function App() {
           tags,
           school,
           direction,
+          course,
+          semester,
           year,
           creator_name,
           is_anonymous,
           is_public,
-          set_pairs(count)
+          word_count
         `)
         .order('created_at', { ascending: false })
 
@@ -209,14 +215,7 @@ function App() {
 
       if (error) throw error
 
-      // Transform result to match VocabSet interface (map nested count object to number)
-      const setsWithCount = (data || []).map((set: any) => ({
-        ...set,
-        // supabase returns set_pairs: [{ count: 123 }] or similar for count aggregate
-        word_count: set.set_pairs?.[0]?.count || 0
-      }))
-
-      setSets(setsWithCount)
+      setSets(data || [])
     } catch (error) {
       console.error('Error loading sets:', error)
     } finally {
@@ -327,6 +326,31 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
+  const handleNavigateToStats = useCallback(() => {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
+    setCurrentPage('stats')
+    window.history.pushState({}, '', '/stats')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [user])
+
+  // Show Stats Page
+  if (currentPage === 'stats') {
+    return (
+      <Suspense fallback={<div className="flex h-screen items-center justify-center text-white"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div></div>}>
+        <StatsPage onLoginRequest={() => setShowLogin(true)} />
+        <div className="fixed bottom-4 right-4 z-50">
+          <button onClick={handleNavigateHome} className="bg-white text-gray-800 px-4 py-2 rounded-xl shadow-lg font-bold hover:bg-gray-100 transition-colors">
+            Terug naar Home
+          </button>
+        </div>
+        <Analytics />
+      </Suspense>
+    )
+  }
+
   // Show Privacy Policy page
   if (currentPage === 'privacy') {
     return (
@@ -378,6 +402,8 @@ function App() {
             <TypingMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
           ) : studySettings.mode === 'multiple-choice' ? (
             <MultipleChoiceMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} onExit={() => { setIsStudying(false); setSelectedSet(null) }} />
+          ) : studySettings.mode === 'test' ? (
+            <TestMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
           ) : (
             <StudyMode set={selectedSet} settings={studySettings} onEnd={handleEndStudy} />
           )}
@@ -531,6 +557,14 @@ function App() {
               <div className="flex items-center gap-1 sm:gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center" style={{ animation: 'slideInLeft 0.6s ease-out', animationDelay: '0.3s' }}>
                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base"><span className="sm:hidden">Dagelijks</span><span className="hidden sm:inline">Leer dagelijks!</span></span>
+              </div>
+              <div
+                onClick={handleNavigateToStats}
+                className="flex items-center gap-1 sm:gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 border border-white/20 hover:from-purple-400 hover:to-indigo-500 transition-all duration-300 transform hover:scale-110 flex-1 sm:flex-none justify-center cursor-pointer shadow-lg hover:shadow-purple-500/30 font-semibold"
+                style={{ animation: 'slideInLeft 0.6s ease-out, pulse-glow 2s ease-in-out infinite', animationDelay: '0.4s' }}
+              >
+                <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base"><span className="sm:hidden">Stats</span><span className="hidden sm:inline">📊 Statistieken</span></span>
               </div>
             </div>
             {/* Subtiele zoekbalk */}
@@ -732,7 +766,9 @@ function App() {
 
       {/* Changelog Modal */}
       {showChangelog && (
-        <ChangelogModal onClose={() => setShowChangelog(false)} />
+        <Suspense fallback={null}>
+          <ChangelogModal onClose={() => setShowChangelog(false)} />
+        </Suspense>
       )}
 
       {/* Cookie Consent Banner */}

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Star, TrendingUp, Maximize2, X } from 'lucide-react'
 import { VocabSet, VocabPair, supabase, StudySettings } from '../lib/supabase'
 import { shuffleArray } from '../lib/utils'
 import { useAuth } from '../lib/authContext'
+import { logSession, updateWordProgress } from '../lib/stats'
 
 interface StudyModeProps {
   set: VocabSet
@@ -26,6 +27,13 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
   // History for Undo
   const [history, setHistory] = useState<{ word: VocabPair, result: 'correct' | 'incorrect' }[]>([])
 
+  // Timer for session logging
+  const startTimeRef = useRef<number>(Date.now())
+
+  // Track specific word IDs for analytics
+  const correctWordsRef = useRef<number[]>([])
+  const incorrectWordsRef = useRef<number[]>([])
+
   // Modal for long text
   const [showFullText, setShowFullText] = useState<{ text: string, title?: string } | null>(null)
 
@@ -36,6 +44,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   useEffect(() => {
     loadWords()
+    startTimeRef.current = Date.now()
   }, [])
 
   // Keyboard event handler
@@ -238,6 +247,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }])
 
     setCorrectCount(prev => prev + 1)
+    if (current.id) correctWordsRef.current.push(current.id)
     setCompletedCount(prev => prev + 1)
     setShowAnswer(false)
     setHasFlipped(false)
@@ -286,6 +296,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
     }])
 
     setIncorrectCount(prev => prev + 1)
+    if (current.id) incorrectWordsRef.current.push(current.id)
     setShowAnswer(false)
     setHasFlipped(false)
     // Reinsert current card 5-10 positions later (or later, not within first 2 remaining)
@@ -372,7 +383,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
 
   // nextWord no longer needed; advancing handled in handlers
 
-  function saveProgress() {
+  async function saveProgress() {
     try {
       const payload = {
         mode: 'study',
@@ -382,7 +393,7 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
       }
       localStorage.setItem('progress_study_' + set.id, JSON.stringify(payload))
 
-      // Device-specific cloud sync
+      // Device-specific cloud sync (legacy study_progress table)
       if (user?.id) {
         supabase
           .from('study_progress')
@@ -397,8 +408,27 @@ export default function StudyMode({ set, settings, onEnd }: StudyModeProps) {
           })
           .then(() => { })
       }
+
+      // Log to study_sessions for analytics
+      const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+      const total = correctCount + incorrectCount
+      const scorePercentage = total > 0 ? Math.round((correctCount / total) * 100) : 0
+
+      await logSession({
+        set_id: set.id ?? null,
+        mode: 'flashcard',
+        duration_seconds: durationSeconds,
+        score: scorePercentage,
+        total_items: total,
+        mistakes_count: incorrectCount
+      })
+
+      // Update granular word progress
+      if (set.id) {
+        await updateWordProgress(set.id, correctWordsRef.current, incorrectWordsRef.current)
+      }
     } catch (err) {
-      console.error('Error saving local progress:', err)
+      console.error('Error saving progress:', err)
     }
   }
 

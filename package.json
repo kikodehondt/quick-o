@@ -1,7 +1,7 @@
 {
   "name": "quick-o",
   "private": false,
-  "version": "1.6.1",
+  "version": "1.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,17 +15,23 @@
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.0.0",
+    "date-fns": "^4.1.0",
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.294.0",
     "react": "^18.3.1",
+    "react-calendar-heatmap": "^1.10.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.5",
     "react-markdown": "^10.1.0",
+    "react-tooltip": "^5.30.0",
+    "recharts": "^3.7.0",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
+    "@types/react-calendar-heatmap": "^1.9.0",
     "@types/react-dom": "^18.2.17",
+    "@vercel/node": "^5.5.19",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "png-to-ico": "^3.0.1",

@@ -62,7 +62,7 @@ export interface StudyProgress {
   progress_state?: any
 }
 
-export type StudyMode = 'flashcard' | 'typing' | 'learn' | 'multiple-choice'
+export type StudyMode = 'flashcard' | 'typing' | 'learn' | 'multiple-choice' | 'test'
 export type StudyDirection = 'forward' | 'reverse' | 'both'
 
 export interface StudySettings {
@@ -82,6 +82,8 @@ export interface StudySettings {
   /** Originele range (1-based) zodat we later dezelfde selectie opnieuw kunnen toepassen. */
   rangeStart?: number
   rangeEnd?: number
+  questionCount?: number
+  timeLimit?: number
 }
 
 export interface ChangelogEntry {
@@ -104,4 +106,16 @@ export interface RoadmapTicket {
   status: 'idea' | 'planned' | 'in-progress' | 'completed'
   priority: number
   tags: string[]
+}
+
+export interface StudySession {
+  id: string
+  user_id: string
+  set_id?: number | null
+  mode: StudyMode
+  duration_seconds: number
+  score: number // 0-100 percentage or raw count
+  total_items: number
+  mistakes_count: number
+  created_at: string
 }

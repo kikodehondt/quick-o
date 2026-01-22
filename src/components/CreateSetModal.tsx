@@ -287,7 +287,8 @@ BEGIN DIRECT MET DE OUTPUT (GEEN EXTRA TEKST):`
           year,
           creator_name: isAnonymous ? null : (userFullName || null),
           is_anonymous: isAnonymous,
-          is_public: isPublic
+          is_public: isPublic,
+          word_count: wordPairs.length
         }])
         .select()
         .single()
